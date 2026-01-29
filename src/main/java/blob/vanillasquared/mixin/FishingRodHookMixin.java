@@ -36,9 +36,11 @@ public abstract class FishingRodHookMixin extends Projectile {
 
     public FishingRodHookMixin(EntityType<? extends Projectile> entityType, Level level) {
         super(entityType, level);
-    }
-    @Unique
+    } // needed for extends
+    @Unique // Damage type
     private static final ResourceKey<DamageType> FISHED = ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath("vanillasquared", "fished"));
+
+    // iInject starts
 
     @Inject(at = @At("TAIL"), method = "onHitEntity")
     private void init(EntityHitResult hit, CallbackInfo ci) {
