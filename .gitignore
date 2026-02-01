@@ -28,9 +28,6 @@ bin/
 
 *.DS_Store
 
-# fabric
-
-
 # java
 
 hs_err_*.log
@@ -38,7 +35,17 @@ replay_*.log
 *.hprof
 *.jfr
 
-# blob
+# instance
+
+run/logs/
+run/.fabric/
+run/saves/
+run/usercache.json
+run/debug-profile.json
+run/startlog.txt
+run/command_history.txt
+
+# bytecode
 
 /viewBytecode.txt
 .viewBytecode.txt

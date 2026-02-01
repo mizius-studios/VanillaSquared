@@ -2,15 +2,12 @@ package blob.vanillasquared.mixin;
 
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -29,7 +26,6 @@ import net.minecraft.world.level.SimpleExplosionDamageCalculator;
 import net.minecraft.world.phys.EntityHitResult;
 import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import net.minecraft.world.entity.player.Player;
@@ -41,31 +37,32 @@ import java.util.Optional;
 @Mixin(FishingHook.class)
 public abstract class FishingRodHookMixin extends Projectile {
 
-    public FishingRodHookMixin(EntityType<? extends Projectile> entityType, Level level) {
-        super(entityType, level);
-    } // needed for extends
-    @Unique // Damage type
-    private static final ResourceKey<DamageType> FISHED = ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath("vanillasquared", "fished"));
+    public FishingRodHookMixin(EntityType<? extends Projectile> entityType, Level level) {super(entityType, level);} // needed for extends
 
     // @Inject starts
 
     @Inject(at = @At("TAIL"), method = "onHitEntity")
     private void init(EntityHitResult hit, CallbackInfo ci) {
-        if (!(this.level() instanceof ServerLevel serverLevel)) return;
-        if (!(this.getOwner() instanceof Player player)) return;
 
-        ItemStack main = player.getMainHandItem();
+
+        // <-- Get Values & Check Values
+        if (!(this.level() instanceof ServerLevel serverLevel)) return; // check for serverLevel
+        if (!(this.getOwner() instanceof Player player)) return; // check if the owner is a player
+
+        ItemStack main = player.getMainHandItem(); // get offhand and mainhand item
         ItemStack off  = player.getOffhandItem();
         ItemStack weapon = main.getItem() instanceof FishingRodItem ? off : main;
 
-        Entity target = hit.getEntity();
-        if (!(target instanceof LivingEntity living)) return;
+        Entity target = hit.getEntity(); // get the entity hit by the fishing rod
+        if (!(target instanceof LivingEntity living)) return; // check if its a LivingEntity
 
-        DamageSource source = serverLevel.damageSources().playerAttack(player);
+
+        // <-- Generate dmg -->
+        DamageSource source = serverLevel.damageSources().playerAttack(player); // dmg source
 
         float damage = 0.5F;
 
-        var enchants = serverLevel.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        var enchants = serverLevel.registryAccess().lookupOrThrow(Registries.ENCHANTMENT); // accessing enchants registry
 
         int fire  = EnchantmentHelper.getItemEnchantmentLevel(enchants.getOrThrow(Enchantments.FIRE_ASPECT), weapon);
         int smite = EnchantmentHelper.getItemEnchantmentLevel(enchants.getOrThrow(Enchantments.SMITE), weapon);
@@ -89,54 +86,33 @@ public abstract class FishingRodHookMixin extends Projectile {
             living.igniteForSeconds(4 * fire);
 
             serverLevel.playSound(
-                    null,
-                    living.getX(),
-                    living.getY(),
-                    living.getZ(),
+                    null, living.getX(), living.getY(), living.getZ(),
                     SoundEvents.FIRECHARGE_USE,
                     SoundSource.PLAYERS,
-                    0.7F,
-                    1.0F + serverLevel.random.nextFloat() * 0.4F
+                    0.7F, 1.0F + serverLevel.random.nextFloat() * 0.4F
             );
         }
 
-        // <-- Damage Player -->
+        // <- Damage Player ->
         living.hurtServer(serverLevel, source, damage);
 
         // <- Knockback ->
         float kb = EnchantmentHelper.modifyKnockback(serverLevel, weapon, living, source, 0.4F);
-
         if (kb > 0) {
             double yaw = Math.toRadians(player.getYRot());
 
-            living.push(
-                    -Math.sin(yaw) * kb,
-                    0.1,
-                    Math.cos(yaw) * kb
-            );
+            living.push(-Math.sin(yaw) * kb, 0.1, Math.cos(yaw) * kb);
 
             living.hurtMarked = true;
         }
 
         // <- Wind Burst ->
-        int wind = EnchantmentHelper.getItemEnchantmentLevel(
-                enchants.getOrThrow(Enchantments.WIND_BURST), weapon);
-
+        int wind = EnchantmentHelper.getItemEnchantmentLevel(enchants.getOrThrow(Enchantments.WIND_BURST), weapon);
         if (wind > 0) {
-            serverLevel.explode(
-                    null,                  // attribute to player
-                    null,                    // no damage source
-                    new SimpleExplosionDamageCalculator(
-                            false,           // no block damage
-                            false,           // no entity damage
-                            Optional.of(1.0F * wind), // knockback multiplier
-                            Optional.empty()
-                    ),
-                    player.getX(),
-                    player.getY(),
-                    player.getZ(),
-                    1.2F + 0.35F * wind,     // radius scaling (copied from enchant)
-                    false,
+            serverLevel.explode(null, null,
+                    new SimpleExplosionDamageCalculator(false, false, Optional.of(1.0F * wind), Optional.empty()),
+                    player.getX(), player.getY(), player.getZ(),
+                    1.2F + 0.35F * wind, false,
                     Level.ExplosionInteraction.TRIGGER,
                     ParticleTypes.GUST_EMITTER_SMALL,
                     ParticleTypes.GUST_EMITTER_LARGE,
@@ -154,20 +130,17 @@ public abstract class FishingRodHookMixin extends Projectile {
 
                 EquipmentSlot slot = playerTarget.getUsedItemHand().asEquipmentSlot();
 
-                // damage shield exactly like vanilla
-                using.hurtAndBreak(5, playerTarget, slot);
-                playerTarget.getCooldowns().addCooldown(using, 100);
-                playerTarget.stopUsingItem();
+                // <- break shield ->
+                using.hurtAndBreak(5, playerTarget, slot); // dmg shield
+                playerTarget.getCooldowns().addCooldown(using, 100); // add shield cooldown
+                playerTarget.stopUsingItem(); // cancel shield holding
 
                 serverLevel.playSound(
                         null,
-                        playerTarget.getX(),
-                        playerTarget.getY(),
-                        playerTarget.getZ(),
+                        playerTarget.getX(), playerTarget.getY(), playerTarget.getZ(),
                         SoundEvents.SHIELD_BREAK,
                         SoundSource.PLAYERS,
-                        1.0F,
-                        1.0F
+                        1.0F, 1.0F
                 );
             }
         }
