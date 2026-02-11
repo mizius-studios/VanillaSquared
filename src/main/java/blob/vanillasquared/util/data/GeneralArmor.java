@@ -1,7 +1,7 @@
 package blob.vanillasquared.util.data;
 
 public record GeneralArmor(
-        int armor,
+        double armor,
         int durability
 ) {
 }

@@ -40,7 +40,7 @@ replay_*.log
 run/logs/
 run/.fabric/
 run/options.txt
-run/
+run
 run/saves/
 run/usercache.json
 run/debug-profile.json
