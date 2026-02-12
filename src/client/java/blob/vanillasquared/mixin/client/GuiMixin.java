@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.Shadow;
 @Environment(EnvType.CLIENT)
 @Mixin(Gui.class)
 public abstract class GuiMixin {
+
     @Shadow
     @Final
     private static Identifier ARMOR_EMPTY_SPRITE;
@@ -32,7 +33,14 @@ public abstract class GuiMixin {
      * @reason Render armor values above 20 in additional HUD rows.
      */
     @Overwrite
-    private static void renderArmor(GuiGraphics guiGraphics, Player player, int top, int lines, int lineHeight, int left) {
+    private static void renderArmor(
+        GuiGraphics guiGraphics,
+        Player player,
+        int top,
+        int lines,
+        int lineHeight,
+        int left
+    ) {
         int armorValue = player.getArmorValue();
         if (armorValue <= 0) {
             return;
@@ -40,12 +48,12 @@ public abstract class GuiMixin {
 
         int rows = (armorValue + 19) / 20;
         int firstRowY = top - (lines - 1) * lineHeight - 10;
-        int slots = rows * 10;
 
         // Start compressing armor rows only after the 4th row.
         int compactAfterRows = 4;
         // Vanilla-like dynamic stacking: spacing shrinks as row count grows, clamped to a readable minimum.
-        int rowSpacing = rows > compactAfterRows
+        int rowSpacing =
+            rows > compactAfterRows
                 ? Math.max(3, 10 - (rows - compactAfterRows))
                 : 10;
 
@@ -59,17 +67,34 @@ public abstract class GuiMixin {
                 int armorPoint = slot * 2 + 1;
 
                 if (armorPoint < armorValue) {
-                    guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, ARMOR_FULL_SPRITE, x, y, 9, 9);
+                    guiGraphics.blitSprite(
+                        RenderPipelines.GUI_TEXTURED,
+                        ARMOR_FULL_SPRITE,
+                        x,
+                        y,
+                        9,
+                        9
+                    );
                 } else if (armorPoint == armorValue) {
-                    guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, ARMOR_HALF_SPRITE, x, y, 9, 9);
+                    guiGraphics.blitSprite(
+                        RenderPipelines.GUI_TEXTURED,
+                        ARMOR_HALF_SPRITE,
+                        x,
+                        y,
+                        9,
+                        9
+                    );
                 } else {
-                    guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, ARMOR_EMPTY_SPRITE, x, y, 9, 9);
+                    guiGraphics.blitSprite(
+                        RenderPipelines.GUI_TEXTURED,
+                        ARMOR_EMPTY_SPRITE,
+                        x,
+                        y,
+                        9,
+                        9
+                    );
                 }
             }
         }
     }
 }
-
-
-
-
