@@ -2,12 +2,15 @@ package blob.vanillasquared.mixin;
 
 import blob.vanillasquared.VanillaSquared;
 import blob.vanillasquared.util.modules.attributes.RegisterAttributes;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -19,46 +22,52 @@ public abstract class LivingEntityMixin {
     private float vsq$applyAttributeProtections(float amount, ServerLevel level, DamageSource source) {
         LivingEntity entity = (LivingEntity)(Object)this;
 
-        VanillaSquared.LOGGER.info("=== actuallyHurt called for entity: {} ===", entity.getName().getString());
-        VanillaSquared.LOGGER.info("Original damage: {}", amount);
-
         float damage = amount;
 
         // Mace Protection
         Entity attacker = source.getDirectEntity();
-        VanillaSquared.LOGGER.info("Attacker: {}", attacker != null ? attacker.getName().getString() : "null");
         
         if (attacker instanceof LivingEntity livingAttacker) {
-            VanillaSquared.LOGGER.info("Attacker is LivingEntity");
             ItemStack weapon = livingAttacker.getMainHandItem();
-            VanillaSquared.LOGGER.info("Weapon in hand: {}", weapon.getItem());
             
             if (weapon.is(Items.MACE)) {
-                VanillaSquared.LOGGER.info("Weapon is MACE!");
+                VanillaSquared.LOGGER.info("=== Mace attack on {} ===", entity.getName().getString());
+                VanillaSquared.LOGGER.info("Original damage: {}", amount);
                 
-                // Check if entity has the attribute
-                if (entity.getAttributes().hasAttribute(RegisterAttributes.maceProtection)) {
-                    VanillaSquared.LOGGER.info("Entity HAS maceProtection attribute");
-                } else {
-                    VanillaSquared.LOGGER.info("Entity DOES NOT HAVE maceProtection attribute!");
+                // Manually calculate protection from equipment
+                double totalProtection = 0.0;
+                
+                // Check all equipment slots
+                for (EquipmentSlot slot : EquipmentSlot.values()) {
+                    ItemStack equipment = entity.getItemBySlot(slot);
+                    if (!equipment.isEmpty()) {
+                        ItemAttributeModifiers modifiers = equipment.get(DataComponents.ATTRIBUTE_MODIFIERS);
+                        if (modifiers != null) {
+                            for (ItemAttributeModifiers.Entry entry : modifiers.modifiers()) {
+                                if (entry.attribute().equals(RegisterAttributes.maceProtection)) {
+                                    double modifierAmount = entry.modifier().amount();
+                                    totalProtection += modifierAmount;
+                                    VanillaSquared.LOGGER.info("Found mace protection on {}: {} = {}", 
+                                        slot, equipment.getItem(), modifierAmount);
+                                }
+                            }
+                        }
+                    }
                 }
                 
-                double protection = entity.getAttributeValue(RegisterAttributes.maceProtection);
-                VanillaSquared.LOGGER.info("Mace Protection value: {}", protection);
+                // Clamp protection to 0.0 - 1.0 range
+                totalProtection = Math.max(0.0, Math.min(1.0, totalProtection));
                 
-                // Log equipment
-                VanillaSquared.LOGGER.info("Chest armor: {}", entity.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST));
+                VanillaSquared.LOGGER.info("Total mace protection: {}", totalProtection);
                 
-                damage *= (1.0F - (float) protection);
-                VanillaSquared.LOGGER.info("Damage after protection ({}): {}", protection, damage);
-            } else {
-                VanillaSquared.LOGGER.info("Weapon is NOT a mace");
+                // Apply protection
+                damage *= (1.0F - (float) totalProtection);
+                
+                VanillaSquared.LOGGER.info("Damage after protection: {}", damage);
+                VanillaSquared.LOGGER.info("=== End mace attack ===");
             }
-        } else {
-            VanillaSquared.LOGGER.info("Attacker is NOT a LivingEntity");
         }
 
-        VanillaSquared.LOGGER.info("=== Final damage: {} ===", Math.max(damage, 0));
         return Math.max(damage, 0);
     }
 }
