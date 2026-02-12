@@ -1,6 +1,5 @@
 package blob.vanillasquared.mixin;
 
-import blob.vanillasquared.VanillaSquared;
 import blob.vanillasquared.util.modules.attributes.RegisterAttributes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -14,8 +13,6 @@ public abstract class LivingEntityAttributesMixin {
 
     @Inject(method = "createLivingAttributes", at = @At("RETURN"))
     private static void vsq$addCustomAttributes(CallbackInfoReturnable<AttributeSupplier.Builder> cir) {
-        VanillaSquared.LOGGER.info("Adding maceProtection attribute to LivingEntity");
         cir.getReturnValue().add(RegisterAttributes.maceProtection);
-        VanillaSquared.LOGGER.info("Successfully added maceProtection attribute");
     }
 }
