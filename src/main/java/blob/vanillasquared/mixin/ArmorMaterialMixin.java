@@ -57,7 +57,7 @@ public class ArmorMaterialMixin {
             Armor.NETHERITE_LEGGINGS, new GeneralArmor(vsqIdentifiers.vsqArmorLeggingsOverride.identifier(), -3.2d, 3.0d,3.0d,3.0d),
             Armor.NETHERITE_BOOTS, new GeneralArmor(vsqIdentifiers.vsqArmorBootsOverride.identifier(), -3.2d, 3.0d,3.0d,3.0d),
 
-            Armor.TURTLE_HELMET, new GeneralArmor(vsqIdentifiers.vsqArmorHelmetOverride.identifier(), -3.2d, 3.0d,3.0d,3.0d),
+            Armor.TURTLE_HELMET, new GeneralArmor(vsqIdentifiers.vsqArmorHelmetOverride.identifier(), -3.2d, 3.0d,3.0d,3.0d)
     );
 
     @Unique

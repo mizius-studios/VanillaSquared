@@ -1,7 +1,5 @@
 package blob.vanillasquared.util.api.references;
 
-import java.util.Optional;
-
 public enum ArmorKeys {
     LEATHER_ARMOR("leather_helmet", "leather_chestplate", "leather_leggings", "leather_boots"),
     COPPER_ARMOR("copper_helmet", "copper_chestplate", "copper_leggings", "copper_boots"),
@@ -10,8 +8,7 @@ public enum ArmorKeys {
     GOLDEN_ARMOR("golden_helmet", "golden_chestplate", "golden_leggings", "golden_boots"),
     DIAMOND_ARMOR("diamond_helmet", "diamond_chestplate", "diamond_leggings", "diamond_boots"),
     NETHERITE_ARMOR("netherite_helmet", "netherite_chestplate", "netherite_leggings", "netherite_boots"),
-
-    TURTLE_ARMOR("turtle_shell", null, null, null);
+    TURTLE_ARMOR("turtle_helmet", null, null, null);
 
     private final String helmet;
     private final String chestplate;
@@ -24,15 +21,19 @@ public enum ArmorKeys {
         this.leggings = leggings;
         this.boots = boots;
     }
+
     public String helmet() {
         return helmet;
     }
+
     public String chestplate() {
         return chestplate;
     }
+
     public String leggings() {
         return leggings;
     }
+
     public String boots() {
         return boots;
     }
