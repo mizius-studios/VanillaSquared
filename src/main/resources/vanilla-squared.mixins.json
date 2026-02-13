@@ -11,7 +11,8 @@
 		"LivingEntityAttributesMixin",
 		"LivingEntityMixin",
 		"PlayerMixin",
-		"RangedAttributeMixin"
+		"RangedAttributeMixin",
+		"ToolMaterialMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

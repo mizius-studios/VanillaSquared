@@ -142,7 +142,7 @@ public class ArmorMaterialMixin {
                 case CHESTPLATE -> {
                     ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
                     vsq$armorModifier(builder, vsqArmorChestplateOverride, 5.0d, EquipmentSlotGroup.CHEST);
-                    vsq$maceProtectionModifier(builder, vsqArmorLeggingsOverride, 0.2d, EquipmentSlotGroup.CHEST);
+                    vsq$maceProtectionModifier(builder, vsqArmorChestplateOverride, 0.2d, EquipmentSlotGroup.CHEST);
                     cir.setReturnValue(builder.build());
                 }
                 case LEGGINGS -> {

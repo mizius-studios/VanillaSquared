@@ -39,13 +39,13 @@ public abstract class AxeMixin {
 
     @Unique
     private static final Map<ToolMaterial, GeneralWeapon> AXE_WEAPON = Map.of(
-            ToolMaterial.WOOD, new GeneralWeapon(5.0d, -3.2d, -0.5d, 75),
-            ToolMaterial.STONE, new GeneralWeapon(6.0d, -3.3d, -0.5d, 150),
-            ToolMaterial.COPPER, new GeneralWeapon(6.0d, -3.0d, -0.5d, 200),
-            ToolMaterial.IRON, new GeneralWeapon(7.0d, -3.0d, -0.5d, 250),
-            ToolMaterial.GOLD, new GeneralWeapon(6.0d, -2.9d, 0.0d, 100),
-            ToolMaterial.DIAMOND, new GeneralWeapon(8.0d, -3.0d, -0.5d, 1550),
-            ToolMaterial.NETHERITE, new GeneralWeapon(9.0d, -3.0d, -0.5d, 2069)
+            ToolMaterial.WOOD, new GeneralWeapon(6.0d, -3.2d, -0.5d, 75),
+            ToolMaterial.STONE, new GeneralWeapon(7.0d, -3.3d, -0.5d, 150),
+            ToolMaterial.COPPER, new GeneralWeapon(7.0d, -3.0d, -0.5d, 200),
+            ToolMaterial.IRON, new GeneralWeapon(9.0d, -3.0d, -0.5d, 250),
+            ToolMaterial.GOLD, new GeneralWeapon(7.0d, -2.9d, 0.0d, 100),
+            ToolMaterial.DIAMOND, new GeneralWeapon(10.0d, -3.0d, -0.5d, 1550),
+            ToolMaterial.NETHERITE, new GeneralWeapon(11.0d, -3.0d, -0.5d, 2069)
     );
 
     @Unique
