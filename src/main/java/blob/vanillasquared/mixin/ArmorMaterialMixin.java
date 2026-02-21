@@ -42,7 +42,7 @@ public class ArmorMaterialMixin {
 
         Map.entry(Armor.GOLD_HELMET, new GeneralArmor(vsqIdentifiers.vsqArmorHelmetOverride.identifier(), EquipmentSlotGroup.HEAD, 2.0d, 0.0d,0.0d,0.0d)),
         Map.entry(Armor.GOLD_CHESTPLATE, new GeneralArmor(vsqIdentifiers.vsqArmorChestplateOverride.identifier(), EquipmentSlotGroup.CHEST, 6.0d, 0.0d,0.0d,0.0d)),
-        Map.entry(Armor.GOLD_LEGGINGS, new GeneralArmor(vsqIdentifiers.vsqArmorLeggingsOverride.identifier(), EquipmentSlotGroup.LEGS, 6.0d, 0.0d,0.0d,0.0d)),
+        Map.entry(Armor.GOLD_LEGGINGS, new GeneralArmor(vsqIdentifiers.vsqArmorLeggingsOverride.identifier(), EquipmentSlotGroup.LEGS, 5.0d, 0.0d,0.0d,0.0d)),
         Map.entry(Armor.GOLD_BOOTS, new GeneralArmor(vsqIdentifiers.vsqArmorBootsOverride.identifier(), EquipmentSlotGroup.FEET, 1.0d, 0.0d,0.0d,0.0d)),
 
         Map.entry(Armor.DIAMOND_HELMET, new GeneralArmor(vsqIdentifiers.vsqArmorHelmetOverride.identifier(), EquipmentSlotGroup.HEAD, 4.0d, 2.0d,0.0d,0.0d)),
