@@ -3,6 +3,7 @@ package blob.vanillasquared.mixin;
 import blob.vanillasquared.util.data.BlockComponent;
 import blob.vanillasquared.util.data.GeneralWeapon;
 import blob.vanillasquared.util.data.Dura;
+import blob.vanillasquared.util.api.other.vsqIdentifiers;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -71,9 +72,6 @@ public abstract class AxeMixin {
             ToolMaterial.NETHERITE, new Dura(2069)
     );
 
-    @Unique
-    private static final Identifier ATTRIBUTE_IDENTIFIER_REACH = Identifier.fromNamespaceAndPath("vanillasquared", "axe_reach");
-
     @Inject(at = @At("HEAD"), method = "axe", cancellable = true)
     public void init(ToolMaterial toolMaterial, float f, float g, CallbackInfoReturnable<Item.Properties> cir) {
         BlockComponent s = AXE.getOrDefault(toolMaterial, BlockComponent.DEFAULT);
@@ -97,7 +95,7 @@ public abstract class AxeMixin {
                 .add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, attackSpeed, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND);
 
         if (attackReach != 0.0d) {
-            builder.add(Attributes.ENTITY_INTERACTION_RANGE, new AttributeModifier(ATTRIBUTE_IDENTIFIER_REACH, attackReach, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND);
+            builder.add(Attributes.ENTITY_INTERACTION_RANGE, new AttributeModifier(vsqIdentifiers.vsqAxeReachOverride.identifier(), attackReach, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND);
         }
 
         BlocksAttacks axeBlock = new BlocksAttacks(

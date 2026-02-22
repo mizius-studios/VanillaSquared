@@ -44,3 +44,7 @@ run/
 /viewBytecode.txt
 .viewBytecode.txt
 viewBytecode.txt
+
+# zed
+
+.zed/
