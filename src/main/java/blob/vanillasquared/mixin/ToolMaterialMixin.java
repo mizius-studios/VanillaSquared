@@ -2,7 +2,7 @@ package blob.vanillasquared.mixin;
 
 import blob.vanillasquared.util.data.GeneralWeapon;
 import blob.vanillasquared.util.data.Dura;
-import net.minecraft.resources.Identifier;
+import blob.vanillasquared.util.api.other.vsqIdentifiers;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -44,28 +44,29 @@ public class ToolMaterialMixin {
             ToolMaterial.NETHERITE, new Dura(2069)
     );
 
-    @Unique
-    private static final Identifier ATTRIBUTE_IDENTIFIER_REACH = Identifier.fromNamespaceAndPath("vanillasquared", "sword_reach");
-
     @Inject(method = "createSwordAttributes", at = @At("HEAD"), cancellable = true)
     private void createSwordAttributes(float f, float g, CallbackInfoReturnable<ItemAttributeModifiers> cir) {
         ToolMaterial material = (ToolMaterial) (Object) this;
         GeneralWeapon weapon = SWORD.getOrDefault(material, GeneralWeapon.DEFAULT);
-        Dura durability = DURABILITY.getOrDefault(material, Dura.DEFAULT);
 
         double attackDamage = weapon.attackDamage();
         double attackSpeed = weapon.attackSpeed();
         double attackReach = weapon.entityReach();
-        int dura = durability.dura();
 
         ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder()
                 .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, attackDamage, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
                 .add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, attackSpeed, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND);
 
         if (attackReach != 0.0d) {
-            builder.add(Attributes.ENTITY_INTERACTION_RANGE, new AttributeModifier(ATTRIBUTE_IDENTIFIER_REACH, attackReach, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND);
+            builder.add(Attributes.ENTITY_INTERACTION_RANGE, new AttributeModifier(vsqIdentifiers.vsqSwordReachOverride.identifier(), attackReach, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND);
         }
 
         cir.setReturnValue(builder.build());
+    }
+    @Inject(method = "applySwordProperties", at = @At("HEAD"))
+    private void applySwordProperties(Item.Properties properties, float f, float g, CallbackInfoReturnable<Item.Properties> cir) {
+        ToolMaterial material = (ToolMaterial) (Object) this;
+        Dura durability = DURABILITY.getOrDefault(material, Dura.DEFAULT);
+        properties.durability(durability.dura());
     }
 }
