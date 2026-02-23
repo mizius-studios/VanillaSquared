@@ -24,20 +24,6 @@ public final class ArmorDurability {
     private ArmorDurability() {
     }
 
-    public static Optional<Dura> findByItemKey(String itemKey) {
-        for (Map.Entry<ArmorKeys, Dura> entry : DURABILITY.entrySet()) {
-            ArmorKeys armorKeys = entry.getKey();
-            if (itemKey.equals(armorKeys.helmet())
-                    || itemKey.equals(armorKeys.chestplate())
-                    || itemKey.equals(armorKeys.leggings())
-                    || itemKey.equals(armorKeys.boots())) {
-                return Optional.of(entry.getValue());
-            }
-        }
-
-        return Optional.empty();
-    }
-
     public static Optional<Dura> findByMaterial(ArmorMaterial material) {
         return Armor.find(material, ArmorType.HELMET)
                 .map(ArmorDurability::toArmorKey)
