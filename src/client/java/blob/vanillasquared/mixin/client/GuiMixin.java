@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Environment(EnvType.CLIENT)
-@Mixin(Gui.class)
+@Mixin(value = Gui.class, priority = 500)
 public abstract class GuiMixin {
 
     @Shadow
