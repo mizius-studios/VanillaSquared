@@ -3,15 +3,18 @@ package blob.vanillasquared.util.combat.components.dualwield;
 import blob.vanillasquared.util.modules.components.DataComponents;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.util.Mth;
 
@@ -49,16 +52,15 @@ public final class DualWieldUtil {
         ItemEnchantments offEnchantments = offHand.getEnchantments();
 
         ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(mainEnchantments);
-        Set<Identifier> nonAdditiveIds = blockedIds(activeDualWield.mainHand().blockedEnchantments(), activeDualWield.offHand().blockedEnchantments());
 
-        for (Holder<net.minecraft.world.item.enchantment.Enchantment> enchantment : offEnchantments.keySet()) {
+        for (Holder<Enchantment> enchantment : offEnchantments.keySet()) {
             int offLevel = offEnchantments.getLevel(enchantment);
             if (offLevel <= 0) {
                 continue;
             }
 
             int mainLevel = mainEnchantments.getLevel(enchantment);
-            int mergedLevel = isBlocked(enchantment, nonAdditiveIds)
+            int mergedLevel = isBlocked(enchantment, activeDualWield.mainHand().blockedEnchantmentsTag(), activeDualWield.offHand().blockedEnchantmentsTag())
                     ? Math.max(mainLevel, offLevel)
                     : mainLevel + offLevel;
             mutable.set(enchantment, mergedLevel);
@@ -133,45 +135,14 @@ public final class DualWieldUtil {
         return false;
     }
 
-    private static Set<Identifier> blockedIds(List<String> mainBlocked, List<String> offBlocked) {
-        Set<Identifier> blockedIds = new HashSet<>();
-        addAllParsed(blockedIds, mainBlocked);
-        addAllParsed(blockedIds, offBlocked);
-        return blockedIds;
-    }
-
-    private static void addAllParsed(Set<Identifier> out, List<String> ids) {
-        for (String rawId : ids) {
-            Identifier parsed = parseIdentifier(rawId);
-            if (parsed != null) {
-                out.add(parsed);
-            }
-        }
-    }
-
-    private static Identifier parseIdentifier(String rawId) {
-        if (rawId == null || rawId.isBlank()) {
-            return null;
-        }
-
-        Identifier parsed = Identifier.tryParse(rawId);
-        if (parsed != null) {
-            return parsed;
-        }
-
-        if (!rawId.contains(":")) {
-            return Identifier.tryParse("minecraft:" + rawId);
-        }
-        return null;
-    }
-
-    private static boolean isBlocked(Holder<net.minecraft.world.item.enchantment.Enchantment> enchantment, Set<Identifier> blockedIds) {
-        for (Identifier id : blockedIds) {
-            if (enchantment.is(id)) {
-                return true;
-            }
-        }
-        return false;
+    private static boolean isBlocked(
+            Holder<Enchantment> enchantment,
+            Identifier mainBlockedTagId,
+            Identifier offBlockedTagId
+    ) {
+        TagKey<Enchantment> mainBlockedTag = TagKey.create(Registries.ENCHANTMENT, mainBlockedTagId);
+        TagKey<Enchantment> offBlockedTag = TagKey.create(Registries.ENCHANTMENT, offBlockedTagId);
+        return enchantment.is(mainBlockedTag) || enchantment.is(offBlockedTag);
     }
 
     public record ActiveDualWield(DualWieldComponent mainHand, DualWieldComponent offHand) {

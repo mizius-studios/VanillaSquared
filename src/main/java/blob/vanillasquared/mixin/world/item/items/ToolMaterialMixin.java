@@ -17,7 +17,6 @@ import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.item.component.Weapon;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import org.spongepowered.asm.mixin.Mixin;
@@ -75,13 +74,13 @@ public abstract class ToolMaterialMixin {
 
     @Unique
     private static final Map<ToolMaterial, DualWieldBuilder> DUAL_WIELD = Map.of(
-            ToolMaterial.WOOD, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, Enchantments.SHARPNESS),
-            ToolMaterial.STONE, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, Enchantments.SHARPNESS),
-            ToolMaterial.COPPER, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, Enchantments.SHARPNESS),
-            ToolMaterial.IRON, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, Enchantments.SHARPNESS),
-            ToolMaterial.GOLD, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, Enchantments.SHARPNESS),
-            ToolMaterial.DIAMOND, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, Enchantments.SHARPNESS),
-            ToolMaterial.NETHERITE, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, Enchantments.SHARPNESS)
+            ToolMaterial.WOOD, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, "vsq", "dual_wield_blocked"),
+            ToolMaterial.STONE, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, "vsq", "dual_wield_blocked"),
+            ToolMaterial.COPPER, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, "vsq", "dual_wield_blocked"),
+            ToolMaterial.IRON, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, "vsq", "dual_wield_blocked"),
+            ToolMaterial.GOLD, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, "vsq", "dual_wield_blocked"),
+            ToolMaterial.DIAMOND, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, "vsq", "dual_wield_blocked"),
+            ToolMaterial.NETHERITE, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, "vsq", "dual_wield_blocked")
     );
 
     @Unique

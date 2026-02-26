@@ -1,10 +1,8 @@
 package blob.vanillasquared.util.builder.components;
 
 import blob.vanillasquared.util.combat.components.dualwield.DualWieldComponent;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.resources.Identifier;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class DualWieldBuilder {
@@ -14,7 +12,7 @@ public class DualWieldBuilder {
             List<String> identifiers,
             int cooldown,
             int criticalHits,
-            List<String> blockedEnchantments,
+            Identifier blockedEnchantmentsTag,
             int sweepingDamage,
             int criticalDamage
     ) {
@@ -22,26 +20,26 @@ public class DualWieldBuilder {
                 identifiers,
                 cooldown,
                 criticalHits,
-                blockedEnchantments,
+                blockedEnchantmentsTag,
                 sweepingDamage,
                 criticalDamage
         );
     }
 
-    @SafeVarargs
     public DualWieldBuilder(
             List<String> identifiers,
             int cooldown,
             int criticalHits,
             int sweepingDamage,
             int criticalDamage,
-            ResourceKey<Enchantment>... blockedEnchantments
+            String blockedEnchantmentsTagNamespace,
+            String blockedEnchantmentsTagPath
     ) {
         this(
                 identifiers,
                 cooldown,
                 criticalHits,
-                Arrays.stream(blockedEnchantments).map(key -> key.identifier().toString()).toList(),
+                Identifier.fromNamespaceAndPath(blockedEnchantmentsTagNamespace, blockedEnchantmentsTagPath),
                 sweepingDamage,
                 criticalDamage
         );

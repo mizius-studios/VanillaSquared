@@ -5,14 +5,16 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
+import java.util.Objects;
 
 public record DualWieldComponent(
         List<String> identifiers,
         int cooldown,
         int criticalHits,
-        List<String> blockedEnchantments,
+        Identifier blockedEnchantmentsTag,
         int sweepingDamage,
         int criticalDamage
 ) {
@@ -21,7 +23,7 @@ public record DualWieldComponent(
                     Codec.STRING.listOf().fieldOf("identifiers").forGetter(DualWieldComponent::identifiers),
                     Codec.INT.fieldOf("cooldown").forGetter(DualWieldComponent::cooldown),
                     Codec.INT.fieldOf("critical_hits").forGetter(DualWieldComponent::criticalHits),
-                    Codec.STRING.listOf().fieldOf("blocked_enchantments").forGetter(DualWieldComponent::blockedEnchantments),
+                    Identifier.CODEC.fieldOf("blocked_enchantments_tag").forGetter(DualWieldComponent::blockedEnchantmentsTag),
                     Codec.INT.fieldOf("sweeping_dmg").forGetter(DualWieldComponent::sweepingDamage),
                     Codec.INT.fieldOf("critical_dmg").forGetter(DualWieldComponent::criticalDamage)
             ).apply(instance, DualWieldComponent::new)
@@ -31,7 +33,7 @@ public record DualWieldComponent(
             ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()), DualWieldComponent::identifiers,
             ByteBufCodecs.VAR_INT, DualWieldComponent::cooldown,
             ByteBufCodecs.VAR_INT, DualWieldComponent::criticalHits,
-            ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()), DualWieldComponent::blockedEnchantments,
+            Identifier.STREAM_CODEC, DualWieldComponent::blockedEnchantmentsTag,
             ByteBufCodecs.VAR_INT, DualWieldComponent::sweepingDamage,
             ByteBufCodecs.VAR_INT, DualWieldComponent::criticalDamage,
             DualWieldComponent::new
@@ -39,7 +41,7 @@ public record DualWieldComponent(
 
     public DualWieldComponent {
         identifiers = List.copyOf(identifiers);
-        blockedEnchantments = List.copyOf(blockedEnchantments);
+        blockedEnchantmentsTag = Objects.requireNonNull(blockedEnchantmentsTag, "blockedEnchantmentsTag");
         cooldown = Math.max(0, cooldown);
         criticalHits = Math.max(0, criticalHits);
         sweepingDamage = Math.max(0, sweepingDamage);
