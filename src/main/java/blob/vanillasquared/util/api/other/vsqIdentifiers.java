@@ -2,7 +2,7 @@ package blob.vanillasquared.util.api.other;
 
 import net.minecraft.resources.Identifier;
 
-public enum VsqIdentifiers {
+public enum vsqIdentifiers {
     armorChestplateOverride(Identifier.fromNamespaceAndPath("vanilla-squared", "armor_chestplate_override")),
     armorLeggingsOverride(Identifier.fromNamespaceAndPath("vanilla-squared", "armor_leggings_override")),
     armorBootsOverride(Identifier.fromNamespaceAndPath("vanilla-squared", "armor_boots_override")),
@@ -13,7 +13,7 @@ public enum VsqIdentifiers {
 
     private final Identifier identifier;
 
-    VsqIdentifiers(Identifier identifier) {
+    vsqIdentifiers(Identifier identifier) {
         this.identifier = identifier;
     }
 

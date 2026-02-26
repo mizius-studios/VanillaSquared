@@ -4,7 +4,7 @@ import blob.vanillasquared.util.builder.components.DualWieldBuilder;
 import blob.vanillasquared.util.builder.components.HitThroughBuilder;
 import blob.vanillasquared.util.builder.general.GeneralWeapon;
 import blob.vanillasquared.util.builder.durability.Durability;
-import blob.vanillasquared.util.api.other.VsqIdentifiers;
+import blob.vanillasquared.util.api.other.vsqIdentifiers;
 import blob.vanillasquared.util.modules.components.DataComponents;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
@@ -53,13 +53,13 @@ public abstract class ToolMaterialMixin {
 
     @Unique
     private static final Map<ToolMaterial, GeneralWeapon> SWORD = Map.of(
-            ToolMaterial.WOOD, new GeneralWeapon(VsqIdentifiers.swordOverride.identifier(), EquipmentSlotGroup.MAINHAND, 3.0D, -2.4D, 0.0D),
-            ToolMaterial.STONE, new GeneralWeapon(VsqIdentifiers.swordOverride.identifier(), EquipmentSlotGroup.MAINHAND, 4.0D, -2.4D, 0.0D),
-            ToolMaterial.COPPER, new GeneralWeapon(VsqIdentifiers.swordOverride.identifier(), EquipmentSlotGroup.MAINHAND, 4.0D, -2.4D, 0.0D),
-            ToolMaterial.IRON, new GeneralWeapon(VsqIdentifiers.swordOverride.identifier(), EquipmentSlotGroup.MAINHAND, 5.0D, -2.4D, 0.0D),
-            ToolMaterial.GOLD, new GeneralWeapon(VsqIdentifiers.swordOverride.identifier(), EquipmentSlotGroup.MAINHAND, 5.0D, -2.4D, 0.0D),
-            ToolMaterial.DIAMOND, new GeneralWeapon(VsqIdentifiers.swordOverride.identifier(), EquipmentSlotGroup.MAINHAND, 6.0D, -2.4D, 0.0D),
-            ToolMaterial.NETHERITE, new GeneralWeapon(VsqIdentifiers.swordOverride.identifier(), EquipmentSlotGroup.MAINHAND, 9.0D, -2.4D, 0.0D)
+            ToolMaterial.WOOD, new GeneralWeapon(vsqIdentifiers.swordOverride.identifier(), EquipmentSlotGroup.MAINHAND, 3.0D, -2.4D, 0.0D),
+            ToolMaterial.STONE, new GeneralWeapon(vsqIdentifiers.swordOverride.identifier(), EquipmentSlotGroup.MAINHAND, 4.0D, -2.4D, 0.0D),
+            ToolMaterial.COPPER, new GeneralWeapon(vsqIdentifiers.swordOverride.identifier(), EquipmentSlotGroup.MAINHAND, 4.0D, -2.4D, 0.0D),
+            ToolMaterial.IRON, new GeneralWeapon(vsqIdentifiers.swordOverride.identifier(), EquipmentSlotGroup.MAINHAND, 5.0D, -2.4D, 0.0D),
+            ToolMaterial.GOLD, new GeneralWeapon(vsqIdentifiers.swordOverride.identifier(), EquipmentSlotGroup.MAINHAND, 5.0D, -2.4D, 0.0D),
+            ToolMaterial.DIAMOND, new GeneralWeapon(vsqIdentifiers.swordOverride.identifier(), EquipmentSlotGroup.MAINHAND, 6.0D, -2.4D, 0.0D),
+            ToolMaterial.NETHERITE, new GeneralWeapon(vsqIdentifiers.swordOverride.identifier(), EquipmentSlotGroup.MAINHAND, 9.0D, -2.4D, 0.0D)
     );
 
     @Unique
