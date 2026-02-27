@@ -1,5 +1,6 @@
 package blob.vanillasquared.mixin.world.item.items;
 
+import blob.vanillasquared.VanillaSquared;
 import blob.vanillasquared.util.builder.components.DualWieldBuilder;
 import blob.vanillasquared.util.builder.components.HitThroughBuilder;
 import blob.vanillasquared.util.builder.general.GeneralWeapon;
@@ -74,17 +75,17 @@ public abstract class ToolMaterialMixin {
 
     @Unique
     private static final Map<ToolMaterial, DualWieldBuilder> DUAL_WIELD = Map.of(
-            ToolMaterial.WOOD, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, "vsq", "dual_wield_blocked"),
-            ToolMaterial.STONE, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, "vsq", "dual_wield_blocked"),
-            ToolMaterial.COPPER, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, "vsq", "dual_wield_blocked"),
-            ToolMaterial.IRON, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, "vsq", "dual_wield_blocked"),
-            ToolMaterial.GOLD, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, "vsq", "dual_wield_blocked"),
-            ToolMaterial.DIAMOND, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, "vsq", "dual_wield_blocked"),
-            ToolMaterial.NETHERITE, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, "vsq", "dual_wield_blocked")
+            ToolMaterial.WOOD, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, VanillaSquared.MOD_ID, "dual_wield_blocked"),
+            ToolMaterial.STONE, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, VanillaSquared.MOD_ID, "dual_wield_blocked"),
+            ToolMaterial.COPPER, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, VanillaSquared.MOD_ID, "dual_wield_blocked"),
+            ToolMaterial.IRON, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, VanillaSquared.MOD_ID, "dual_wield_blocked"),
+            ToolMaterial.GOLD, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, VanillaSquared.MOD_ID, "dual_wield_blocked"),
+            ToolMaterial.DIAMOND, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, VanillaSquared.MOD_ID, "dual_wield_blocked"),
+            ToolMaterial.NETHERITE, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, VanillaSquared.MOD_ID, "dual_wield_blocked")
     );
 
     @Unique
-    private static final HitThroughBuilder HIT_THROUGH_PLANTS = new HitThroughBuilder("vsq", "hit_through");
+    private static final HitThroughBuilder HIT_THROUGH_PLANTS = new HitThroughBuilder(VanillaSquared.MOD_ID, "hit_through");
 
     @Inject(method = "applySwordProperties", at = @At("HEAD"), cancellable = true)
     private void applySwordProperties(Item.Properties properties, float attackDamage, float attackSpeed, CallbackInfoReturnable<Item.Properties> cir) {
