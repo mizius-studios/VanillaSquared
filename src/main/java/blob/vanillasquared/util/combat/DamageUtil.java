@@ -38,9 +38,7 @@ public final class DamageUtil {
     }
 
     public static float applyDripstoneProtection(LivingEntity entity, DamageSource source, float amount) {
-        if (!source.is(DamageTypes.STALAGMITE)) {
-            return Math.max(amount, 0.0F);
-        } else if (!source.is(DamageTypes.FALLING_STALACTITE)) {
+        if (!source.is(DamageTypes.STALAGMITE) && !source.is(DamageTypes.FALLING_STALACTITE)) {
             return Math.max(amount, 0.0F);
         }
 
