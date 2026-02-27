@@ -19,6 +19,20 @@ public class GeneralArmor {
             double knockbackResistance,
             double maceProtection
     ) {
+        this(identifier, slotGroup, armor, armorToughness, knockbackResistance, maceProtection, 0.0D, 0.0D, 0.0D);
+    }
+
+    public GeneralArmor(
+            Identifier identifier,
+            EquipmentSlotGroup slotGroup,
+            double armor,
+            double armorToughness,
+            double knockbackResistance,
+            double maceProtection,
+            double magicProtection,
+            double dripstoneProtection,
+            double spearProtection
+    ) {
         ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
         if (armor != 0) {
             builder.add(Attributes.ARMOR, new AttributeModifier(identifier, armor, AttributeModifier.Operation.ADD_VALUE), slotGroup);
@@ -31,6 +45,15 @@ public class GeneralArmor {
         }
         if (maceProtection != 0) {
             builder.add(RegisterAttributes.maceProtectionAttribute, new AttributeModifier(identifier, maceProtection, AttributeModifier.Operation.ADD_VALUE), slotGroup);
+        }
+        if (magicProtection != 0) {
+            builder.add(RegisterAttributes.magicProtectionAttribute, new AttributeModifier(identifier, magicProtection, AttributeModifier.Operation.ADD_VALUE), slotGroup);
+        }
+        if (dripstoneProtection != 0) {
+            builder.add(RegisterAttributes.dripstoneProtectionAttribute, new AttributeModifier(identifier, dripstoneProtection, AttributeModifier.Operation.ADD_VALUE), slotGroup);
+        }
+        if (spearProtection != 0) {
+            builder.add(RegisterAttributes.spearProtectionAttribute, new AttributeModifier(identifier, spearProtection, AttributeModifier.Operation.ADD_VALUE), slotGroup);
         }
 
         this.modifiers = builder.build();

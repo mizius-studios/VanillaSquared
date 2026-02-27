@@ -13,6 +13,6 @@ public abstract class LivingEntityMixin {
 
     @ModifyVariable(method = "actuallyHurt", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private float vsq$applyAttributeProtections(float amount, ServerLevel level, DamageSource source) {
-        return DamageUtil.applyMaceProtection((LivingEntity) (Object) this, source, amount);
+        return DamageUtil.applyCustomProtections((LivingEntity) (Object) this, source, amount);
     }
 }

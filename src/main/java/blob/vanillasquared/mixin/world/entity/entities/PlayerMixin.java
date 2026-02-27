@@ -40,7 +40,7 @@ public abstract class PlayerMixin implements DualWieldPlayerData {
 
     @ModifyVariable(method = "actuallyHurt", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private float vsq$applyMaceProtection(float amount, ServerLevel level, DamageSource source) {
-        return DamageUtil.applyMaceProtection((Player) (Object) this, source, amount);
+        return DamageUtil.applyCustomProtections((Player) (Object) this, source, amount);
     }
 
     @Inject(method = "attack", at = @At("HEAD"))

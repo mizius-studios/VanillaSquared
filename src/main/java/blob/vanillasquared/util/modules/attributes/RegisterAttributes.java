@@ -17,6 +17,27 @@ public class RegisterAttributes {
                     0.0, 0.0, 1.0
             ).setSyncable(true)
     );
+    public static final Holder<Attribute> magicProtectionAttribute = register(
+            "magic_protection",
+            new RangedAttribute(
+                    "Magic Protection",
+                    0.0, 0.0, 1.0
+            ).setSyncable(true)
+    );
+    public static final Holder<Attribute> dripstoneProtectionAttribute = register(
+            "dripstone_protection",
+            new RangedAttribute(
+                    "Dripstone Protection",
+                    0.0, 0.0, 1.0
+            ).setSyncable(true)
+    );
+    public static final Holder<Attribute> spearProtectionAttribute = register(
+            "spear_protection",
+            new RangedAttribute(
+                    "Spear Protection",
+                    0.0, 0.0, 1.0
+            ).setSyncable(true)
+    );
 
     private static Holder<Attribute> register(String name, Attribute attribute) {
         Registry.register(
