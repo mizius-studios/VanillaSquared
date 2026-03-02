@@ -75,13 +75,13 @@ public abstract class ToolMaterialMixin {
 
     @Unique
     private static final Map<ToolMaterial, DualWieldBuilder> DUAL_WIELD = Map.of(
-            ToolMaterial.WOOD, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, VanillaSquared.MOD_ID, "dual_wield_blocked"),
-            ToolMaterial.STONE, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, VanillaSquared.MOD_ID, "dual_wield_blocked"),
-            ToolMaterial.COPPER, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, VanillaSquared.MOD_ID, "dual_wield_blocked"),
-            ToolMaterial.IRON, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, VanillaSquared.MOD_ID, "dual_wield_blocked"),
-            ToolMaterial.GOLD, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, VanillaSquared.MOD_ID, "dual_wield_blocked"),
-            ToolMaterial.DIAMOND, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, VanillaSquared.MOD_ID, "dual_wield_blocked"),
-            ToolMaterial.NETHERITE, new DualWieldBuilder(List.of("vsq$sword"), 1000, 1, 50, 200, VanillaSquared.MOD_ID, "dual_wield_blocked")
+            ToolMaterial.WOOD, new DualWieldBuilder(List.of("vsq$swordWooden"), 700, 1, 20, 30, VanillaSquared.MOD_ID, "dual_wield_blocked"),
+            ToolMaterial.STONE, new DualWieldBuilder(List.of("vsq$swordStone"), 750, 1, 25, 40, VanillaSquared.MOD_ID, "dual_wield_blocked"),
+            ToolMaterial.COPPER, new DualWieldBuilder(List.of("vsq$swordCopper"), 775, 1, 35, 50, VanillaSquared.MOD_ID, "dual_wield_blocked"),
+            ToolMaterial.IRON, new DualWieldBuilder(List.of("vsq$swordIron"), 800, 1, 50, 75, VanillaSquared.MOD_ID, "dual_wield_blocked"),
+            ToolMaterial.GOLD, new DualWieldBuilder(List.of("vsq$swordGold"), 750, 3, 50, 55, VanillaSquared.MOD_ID, "dual_wield_blocked"),
+            ToolMaterial.DIAMOND, new DualWieldBuilder(List.of("vsq$swordDiamond"), 900, 1, 50, 100, VanillaSquared.MOD_ID, "dual_wield_blocked"),
+            ToolMaterial.NETHERITE, new DualWieldBuilder(List.of("vsq$swordNetherite"), 1000, 1, 50, 150, VanillaSquared.MOD_ID, "dual_wield_blocked")
     );
 
     @Unique

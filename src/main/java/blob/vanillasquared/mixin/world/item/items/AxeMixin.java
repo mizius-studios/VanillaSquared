@@ -28,10 +28,10 @@ public abstract class AxeMixin {
 
     @Unique
     private static final Map<ToolMaterial, GeneralWeapon> AXE_WEAPON = Map.of(
-            ToolMaterial.WOOD, new GeneralWeapon(vsqIdentifiers.axeOverride.identifier(), EquipmentSlotGroup.MAINHAND, 7.0D, -3.2D, -0.5D),
-            ToolMaterial.STONE, new GeneralWeapon(vsqIdentifiers.axeOverride.identifier(), EquipmentSlotGroup.MAINHAND, 8.0D, -3.3D, -0.5D),
-            ToolMaterial.COPPER, new GeneralWeapon(vsqIdentifiers.axeOverride.identifier(), EquipmentSlotGroup.MAINHAND, 8.0D, -3.0D, -0.5D),
-            ToolMaterial.IRON, new GeneralWeapon(vsqIdentifiers.axeOverride.identifier(), EquipmentSlotGroup.MAINHAND, 9.0D, -3.0D, -0.5D),
+            ToolMaterial.WOOD, new GeneralWeapon(vsqIdentifiers.axeOverride.identifier(), EquipmentSlotGroup.MAINHAND, 6.0D, -3.2D, -0.5D),
+            ToolMaterial.STONE, new GeneralWeapon(vsqIdentifiers.axeOverride.identifier(), EquipmentSlotGroup.MAINHAND, 7.0D, -3.3D, -0.5D),
+            ToolMaterial.COPPER, new GeneralWeapon(vsqIdentifiers.axeOverride.identifier(), EquipmentSlotGroup.MAINHAND, 7.0D, -3.0D, -0.5D),
+            ToolMaterial.IRON, new GeneralWeapon(vsqIdentifiers.axeOverride.identifier(), EquipmentSlotGroup.MAINHAND, 8.0D, -3.0D, -0.5D),
             ToolMaterial.GOLD, new GeneralWeapon(vsqIdentifiers.axeOverride.identifier(), EquipmentSlotGroup.MAINHAND, 7.0D, -2.9D, 0.0D),
             ToolMaterial.DIAMOND, new GeneralWeapon(vsqIdentifiers.axeOverride.identifier(), EquipmentSlotGroup.MAINHAND, 11.0D, -3.0D, -0.5D),
             ToolMaterial.NETHERITE, new GeneralWeapon(vsqIdentifiers.axeOverride.identifier(), EquipmentSlotGroup.MAINHAND, 12.0D, -3.0D, -0.5D)

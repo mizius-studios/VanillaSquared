@@ -1,18 +1,19 @@
 {
 	"schemaVersion": 1,
 	"id": "vanilla-squared",
-	"version": "1.0.0",
+	"version": "-2.7.0-STABLE",
 	"name": "Vanilla²",
 	"description": "This Mod overhauls outdated systems!",
 	"authors": [
-		"@PainterFlow11"
+		"@PainterFlow11",
+		"@the_jan_craft"
 	],
 	"contact": {
-		"sources": "https://github.com/PainterFlow/combatupdate",
-		"issues": "https://discord.gg/m9s5xrb4WN"
+		"sources": "https://github.com/mizius-studios/vanilla-squared",
+		"issues": "https://discord.gg/pppHybq9xT"
 	},
 	"license": "CC0-1.0",
-	"icon": "assets/combat-update/icon.png",
+	"icon": "assets/vsq/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
@@ -37,5 +38,28 @@
 		"minecraft": "~1.21.11",
 		"java": ">=21",
 		"fabric-api": "*"
+	},
+	"breaks": {
+		"clientspoofer": "*",
+		"viafabricplus": "*"
+	},
+	"suggests": {
+		"modmenu": "*"
+	},
+	"custom": {
+		"modmenu": {
+			"links": {
+				"modmenu.discord": "https://discord.gg/pppHybq9xT"
+			},
+			"badges": [ ],
+			"parent": {
+				"id": "vanilla-squared",
+				"name": "Vanilla²",
+				"description": "This Mod overhauls outdated systems!",
+				"icon": "assets/vsq/icon.png",
+				"badges": [  ]
+			},
+			"update_checker": false
+		}
 	}
 }
