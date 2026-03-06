@@ -1,5 +1,6 @@
 package blob.vanillasquared.main;
 
+import blob.vanillasquared.main.network.VSQNetworking;
 import blob.vanillasquared.main.world.item.Items.TestItem;
 import net.fabricmc.api.ModInitializer;
 import blob.vanillasquared.main.world.item.components.dualwield.DualWieldEvents;
@@ -21,6 +22,7 @@ public class VanillaSquared implements ModInitializer {
         RegisterComponents.initialize();
         DualWieldEvents.initialize();
         SpecialEffectEvents.initialize();
+        VSQNetworking.initialize();
 
         LOGGER.info("Blob");
 
