@@ -1,11 +1,11 @@
 package blob.vanillasquared.mixin.world.item;
 
 import blob.vanillasquared.util.api.combat.cooldown.CooldownGroupUtil;
-import blob.vanillasquared.util.combat.components.dualwield.DualWieldCooldownKeyUtil;
-import blob.vanillasquared.util.combat.components.dualwield.DualWieldComponent;
-import blob.vanillasquared.util.combat.components.specialeffect.SpecialEffectComponent;
-import blob.vanillasquared.util.combat.components.specialeffect.SpecialEffectCooldownKeyUtil;
-import blob.vanillasquared.util.modules.components.DataComponents;
+import blob.vanillasquared.main.world.item.components.dualwield.DualWieldCooldownKeyUtil;
+import blob.vanillasquared.main.world.item.components.dualwield.DualWieldComponent;
+import blob.vanillasquared.main.world.item.components.specialeffect.SpecialEffectComponent;
+import blob.vanillasquared.main.world.item.components.specialeffect.SpecialEffectCooldownKeyUtil;
+import blob.vanillasquared.util.api.modules.components.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;

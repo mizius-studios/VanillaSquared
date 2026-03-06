@@ -3,9 +3,9 @@
 	"package": "blob.vanillasquared.mixin.client",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		"GuiMixin",
-		"LocalPlayerMixin",
-		"PlayerMixin"
+		"gui.GuiMixin",
+      "world.entities.LocalPlayerMixin",
+		"world.entities.PlayerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

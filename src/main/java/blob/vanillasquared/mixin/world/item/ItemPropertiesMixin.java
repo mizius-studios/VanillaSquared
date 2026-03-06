@@ -1,6 +1,6 @@
 package blob.vanillasquared.mixin.world.item;
 
-import blob.vanillasquared.util.builder.durability.ArmorDurability;
+import blob.vanillasquared.util.api.builder.durability.ArmorDurability;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;

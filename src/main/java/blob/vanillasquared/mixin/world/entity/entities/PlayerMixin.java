@@ -1,9 +1,9 @@
 package blob.vanillasquared.mixin.world.entity.entities;
 
-import blob.vanillasquared.util.combat.DamageUtil;
-import blob.vanillasquared.util.combat.components.dualwield.DualWieldPlayerData;
-import blob.vanillasquared.util.combat.components.dualwield.DualWieldUtil;
-import blob.vanillasquared.util.combat.components.dualwield.DualWieldComponent;
+import blob.vanillasquared.main.world.util.DamageUtil;
+import blob.vanillasquared.main.world.item.components.dualwield.DualWieldPlayerData;
+import blob.vanillasquared.main.world.item.components.dualwield.DualWieldUtil;
+import blob.vanillasquared.main.world.item.components.dualwield.DualWieldComponent;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;

@@ -1,6 +1,6 @@
 package blob.vanillasquared.mixin.world.entity;
 
-import blob.vanillasquared.util.combat.DamageUtil;
+import blob.vanillasquared.main.world.util.DamageUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;

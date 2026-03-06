@@ -1,6 +1,6 @@
 package blob.vanillasquared.util.api.combat.cooldown;
 
-import blob.vanillasquared.VanillaSquared;
+import blob.vanillasquared.main.VanillaSquared;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;

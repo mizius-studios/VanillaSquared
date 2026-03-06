@@ -1,6 +1,6 @@
 package blob.vanillasquared.mixin.world.item.items;
 
-import blob.vanillasquared.util.builder.general.GeneralWeapon;
+import blob.vanillasquared.util.api.builder.general.GeneralWeapon;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.item.TridentItem;
 import net.minecraft.world.item.component.ItemAttributeModifiers;

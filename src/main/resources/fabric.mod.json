@@ -17,13 +17,13 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"blob.vanillasquared.VanillaSquared"
+          "blob.vanillasquared.main.VanillaSquared"
 		],
 		"client": [
-			"blob.vanillasquared.VanillaSquaredClient"
+			"blob.vanillasquared.main.VanillaSquaredClient"
 		],
 		"fabric-datagen": [
-			"blob.vanillasquared.VanillaSquaredDataGenerator"
+			"blob.vanillasquared.main.VanillaSquaredDataGenerator"
 		]
 	},
 	"mixins": [

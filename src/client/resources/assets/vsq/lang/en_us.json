@@ -1,6 +1,6 @@
 {
-  "vsq.ui.controls.vsq": "Vanilla²",
-  "vsq.ui.controls.vsq.keybinds.special_effect": "Enchantment Effect",
+  "vsq.gui.controls.vsq": "Vanilla²",
+  "vsq.gui.controls.vsq.keybinds.special_effect": "Special Effect",
   "vsq.attributes.mace_protection": "Mace Protection",
   "vsq.attributes.magic_protection": "Magic Protection",
   "vsq.attributes.dripstone_protection": "Dripstone Protection",

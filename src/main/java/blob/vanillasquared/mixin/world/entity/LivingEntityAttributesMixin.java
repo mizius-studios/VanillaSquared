@@ -1,6 +1,6 @@
 package blob.vanillasquared.mixin.world.entity;
 
-import blob.vanillasquared.util.modules.attributes.RegisterAttributes;
+import blob.vanillasquared.util.api.modules.attributes.RegisterAttributes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import org.spongepowered.asm.mixin.Mixin;

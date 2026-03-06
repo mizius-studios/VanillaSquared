@@ -1,7 +1,7 @@
 package blob.vanillasquared.mixin.world.item.components;
 
-import blob.vanillasquared.util.modules.attributes.RegisterAttributes;
-import blob.vanillasquared.util.builder.general.GeneralWeapon.UtilIdentifiers;
+import blob.vanillasquared.util.api.modules.attributes.RegisterAttributes;
+import blob.vanillasquared.util.api.builder.general.GeneralWeapon.UtilIdentifiers;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.ai.attributes.Attribute;

@@ -1,11 +1,11 @@
 package blob.vanillasquared.mixin.world.item.items;
 
-import blob.vanillasquared.VanillaSquared;
-import blob.vanillasquared.util.builder.components.DualWieldBuilder;
-import blob.vanillasquared.util.builder.components.HitThroughBuilder;
-import blob.vanillasquared.util.builder.general.GeneralWeapon;
-import blob.vanillasquared.util.builder.durability.Durability;
-import blob.vanillasquared.util.modules.components.DataComponents;
+import blob.vanillasquared.main.VanillaSquared;
+import blob.vanillasquared.util.api.builder.components.DualWieldBuilder;
+import blob.vanillasquared.util.api.builder.components.HitThroughBuilder;
+import blob.vanillasquared.util.api.builder.general.GeneralWeapon;
+import blob.vanillasquared.util.api.builder.durability.Durability;
+import blob.vanillasquared.util.api.modules.components.DataComponents;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
