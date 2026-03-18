@@ -1,10 +1,8 @@
 package blob.vanillasquared.main.gui.enchantment;
 
 import blob.vanillasquared.main.world.inventory.VSQEnchantmentMenuProperties;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -16,25 +14,18 @@ public class VSQEnchantmentScreen extends AbstractContainerScreen<EnchantmentMen
     private static final Identifier GUI_TEXTURE = Identifier.fromNamespaceAndPath("vsq", "textures/gui/containers/enchantment_table.png");
     private static final Identifier XP_ENABLED_SPRITE = Identifier.fromNamespaceAndPath("vsq", "containers/enchantment_table/xp_requirement_enabled");
     private static final Identifier XP_DISABLED_SPRITE = Identifier.fromNamespaceAndPath("vsq", "containers/enchantment_table/xp_requirement_disabled");
+    private static final Identifier XP_HOVER_SPRITE = Identifier.fromNamespaceAndPath("vsq", "containers/enchantment_table/xp_requirement_hover");
     private static final Identifier BLOCKS_ENABLED_SPRITE = Identifier.fromNamespaceAndPath("vsq", "containers/enchantment_table/block_requirement_enabled");
     private static final Identifier BLOCKS_DISABLED_SPRITE = Identifier.fromNamespaceAndPath("vsq", "containers/enchantment_table/block_requirement_disabled");
+    private static final Identifier BLOCKS_HOVER_SPRITE = Identifier.fromNamespaceAndPath("vsq", "containers/enchantment_table/block_requirement_hover");
     private static final int TEX_W = 256;
     private static final int TEX_H = 256;
-    private static int BUTTONID = -1;
 
     public VSQEnchantmentScreen(EnchantmentMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.imageWidth = 176;
         this.imageHeight = 166;
         this.inventoryLabelY = 72;
-    }
-
-    public static int getBUTTONID() {
-        return BUTTONID;
-    }
-
-    public static void setBUTTONID(int BUTTONID) {
-        VSQEnchantmentScreen.BUTTONID = BUTTONID;
     }
 
     @Override
@@ -48,8 +39,6 @@ public class VSQEnchantmentScreen extends AbstractContainerScreen<EnchantmentMen
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        // int x0 = this.leftPos;
-        // int y0 = this.topPos;
         int x = this.leftPos;
         int y = this.topPos;
 
@@ -69,24 +58,17 @@ public class VSQEnchantmentScreen extends AbstractContainerScreen<EnchantmentMen
         guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, XP_ENABLED_SPRITE, x + 119, y + 35, 51, 18);
         guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, BLOCKS_ENABLED_SPRITE, x + 119, y + 53, 51, 18);
     }
-    public boolean isMouseOver(double mouseX, double mouseY) {
+    public int MouseOver(double mouseX, double mouseY) {
         int x = (this.width - this.imageWidth) / 2;
         int y = (this.height - this.imageHeight) / 2;
         double mouseXOffset = mouseX - x;
         double mouseYOffset = mouseY - y;
         if (mouseXOffset >= 119 && mouseXOffset <= 170 && mouseYOffset >= 35 && mouseYOffset <= 53) {
-            BUTTONID = 0;
-            return true;
+            return 0;
         } else if (mouseXOffset >= 119 && mouseXOffset <= 170 && mouseYOffset >= 53 && mouseYOffset <= 71) {
-            BUTTONID = 1;
-            return true;
+            return 1;
         }
-        BUTTONID = -1;
-        return false;
-    }
-    @Override
-    public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
-        return this.isMouseOver(mouseButtonEvent.x(), mouseButtonEvent.y());
+        return -1;
     }
 
     @Override
@@ -106,19 +88,35 @@ public class VSQEnchantmentScreen extends AbstractContainerScreen<EnchantmentMen
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
-        if (playerLevel >= levelRequirement) {
-            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, XP_ENABLED_SPRITE, Button0x, Button0y, 51, 18);
-            guiGraphics.drawString(this.font, Component.translatable("vsq.gui.container.enchantment_table.xp", levelRequirement), Button0x + 15, Button0y + 5, ARGB.opaque(0x70644F));
+        if (playerLevel >= levelRequirement && playerLevel != -1) {
+            if (this.MouseOver(mouseX, mouseY) == 0) {
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, XP_HOVER_SPRITE, Button0x, Button0y, 51, 18);
+                guiGraphics.drawString(this.font, Component.translatable("vsq.gui.container.enchantment_table.xp", levelRequirement), Button0x + 15, Button0y + 5, ARGB.opaque(0xEAAFE0), false);
+            } else {
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, XP_ENABLED_SPRITE, Button0x, Button0y, 51, 18);
+                guiGraphics.drawString(this.font, Component.translatable("vsq.gui.container.enchantment_table.xp", levelRequirement), Button0x + 15, Button0y + 5, ARGB.opaque(0x70644F), false);
+            }
+        } else if (playerLevel != -1) {
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, XP_DISABLED_SPRITE, Button0x, Button0y, 51, 18);
+            guiGraphics.drawString(this.font, Component.translatable("vsq.gui.container.enchantment_table.xp.none", levelRequirement), Button0x + 15, Button0y + 5, ARGB.opaque(0x332E24), false);
         } else {
             guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, XP_DISABLED_SPRITE, Button0x, Button0y, 51, 18);
-            guiGraphics.drawString(this.font, Component.translatable("vsq.gui.container.enchantment_table.xp", levelRequirement), Button0x + 15, Button0y + 5, ARGB.opaque(0x332E24));
+            guiGraphics.drawString(this.font, Component.translatable("vsq.gui.container.enchantment_table.xp", levelRequirement), Button0x + 15, Button0y + 5, ARGB.opaque(0x332E24), false);
         }
-        if (blockAmount >= blockRequirement) {
-            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, BLOCKS_ENABLED_SPRITE, Button1x, Button1y, 51, 18);
-            guiGraphics.drawString(this.font, Component.translatable("vsq.gui.container.enchantment_table.blocks", blockAmount), Button1x + 15, Button1y + 5, ARGB.opaque(0x70644F));
+        if (blockAmount >= blockRequirement && blockAmount != -1) {
+            if (this.MouseOver(mouseX, mouseY) == 1) {
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, BLOCKS_HOVER_SPRITE, Button1x, Button1y, 51, 18);
+                guiGraphics.drawString(this.font, Component.translatable("vsq.gui.container.enchantment_table.blocks", blockAmount), Button1x + 15, Button1y + 5, ARGB.opaque(0xEAAFE0), false);
+            } else {
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, BLOCKS_ENABLED_SPRITE, Button1x, Button1y, 51, 18);
+                guiGraphics.drawString(this.font, Component.translatable("vsq.gui.container.enchantment_table.blocks", blockAmount), Button1x + 15, Button1y + 5, ARGB.opaque(0x70644F), false);
+            }
+        } else if (blockAmount != -1) {
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, BLOCKS_DISABLED_SPRITE, Button1x, Button1y, 51, 18);
+            guiGraphics.drawString(this.font, Component.translatable("vsq.gui.container.enchantment_table.blocks.none", blockAmount), Button1x + 15, Button1y + 5, ARGB.opaque(0x332E24), false);
         } else {
             guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, BLOCKS_DISABLED_SPRITE, Button1x, Button1y, 51, 18);
-            guiGraphics.drawString(this.font, Component.translatable("vsq.gui.container.enchantment_table.blocks", blockAmount), Button1x + 15, Button1y + 5, ARGB.opaque(0x332E24));
+            guiGraphics.drawString(this.font, Component.translatable("vsq.gui.container.enchantment_table.blocks", blockAmount), Button1x + 15, Button1y + 5, ARGB.opaque(0x332E24), false);
         }
     }
 }
