@@ -31,6 +31,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static blob.vanillasquared.mixin.world.inventory.EnchantMenuMixinUtil.VSQ$DUMMYBLOCKREQUIREMENT;
+import static blob.vanillasquared.mixin.world.inventory.EnchantMenuMixinUtil.VSQ$DUMMYLEVELREQUIREMENT;
+
 @Mixin(EnchantmentMenu.class)
 public abstract class EnchantmentMenuMixin extends AbstractContainerMenu {
     @Shadow
@@ -40,10 +43,6 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu {
 
     @Unique
     private ContainerLevelAccess vsq$access = ContainerLevelAccess.NULL;
-    @Unique
-    private final int VSQ$DUMMYLEVELREQUIREMENT = 69;
-    @Unique
-    private final int VSQ$DUMMYBLOCKREQUIREMENT = 4;
 
     @Unique
     private ServerPlayer vsq$serverPlayer;
@@ -115,6 +114,7 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu {
                 }
             }
         }
+        EnchantMenuMixinUtil.setBlockAmount(total);
         return total;
     }
 
@@ -204,13 +204,7 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu {
         this.addDataSlot(new DataSlot() {
             @Override
             public int get() {
-                return EnchantmentMenuMixin.this.VSQ$DUMMYLEVELREQUIREMENT;
-            }
-            public int getXP() {
-                return vsq$player.experienceLevel;
-            }
-            public boolean validate() {
-                return getXP() >= get();
+                return VSQ$DUMMYLEVELREQUIREMENT;
             }
 
             @Override
@@ -221,13 +215,18 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu {
         this.addDataSlot(new DataSlot() {
             @Override
             public int get() {
-                return EnchantmentMenuMixin.this.VSQ$DUMMYBLOCKREQUIREMENT;
+                return VSQ$DUMMYBLOCKREQUIREMENT;
             }
-            public int getBlocks() {
-                return EnchantmentMenuMixin.this.vsq$nearbyBlockCount;
+
+            @Override
+            public void set(int value) {
+                // Do nothing
             }
-            public boolean validate() {
-                return getBlocks() >= get();
+        });
+        this.addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                return VSQ$DUMMYBLOCKREQUIREMENT;
             }
 
             @Override
