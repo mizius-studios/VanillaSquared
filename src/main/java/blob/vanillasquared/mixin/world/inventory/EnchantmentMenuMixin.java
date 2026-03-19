@@ -51,15 +51,13 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
     @Unique
     private static final int VSQ$PROPERTY_BLOCK_REQUIREMENT = 3;
     @Unique
-    private static final int VSQ$DUMMYLEVELREQUIREMENT = 69;
+    private static final int VSQ$DUMMY_LEVEL_REQUIREMENT = 69;
     @Unique
-    private static final int VSQ$DUMMYBLOCKREQUIREMENT = 4;
-    @Unique
-    private static final Block[] VSQ$DUMMY_DEBUG_BLOCKS = new Block[] {
-            Blocks.BOOKSHELF,
-            Blocks.CHISELED_BOOKSHELF,
-            Blocks.LECTERN
-    };
+    private static final Map<Identifier, Integer> VSQ$DUMMY_DEBUG_BLOCKS = Map.of(
+            BuiltInRegistries.BLOCK.getKey(Blocks.BOOKSHELF), 5,
+            BuiltInRegistries.BLOCK.getKey(Blocks.CHISELED_BOOKSHELF), 2,
+            BuiltInRegistries.BLOCK.getKey(Blocks.LECTERN), 3
+    );
 
     @Shadow
     @Final
@@ -76,6 +74,14 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
     private int vsq$playerLevel;
     @Unique
     private int vsq$nearbyBlockCount;
+    @Unique
+    private int vsq$levelRequirement = -1;
+    @Unique
+    private int vsq$blockRequirement = -1;
+    @Unique
+    private boolean vsq$hasRequiredXp;
+    @Unique
+    private boolean vsq$hasRequiredBlocks;
     @Unique
     private List<Component> vsq$detectedBlockTooltipLines = List.of();
 
@@ -94,8 +100,8 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
                     yield EnchantmentMenuMixin.this.vsq$playerLevel;
                 }
                 case VSQ$PROPERTY_BLOCK_COUNT -> EnchantmentMenuMixin.this.vsq$nearbyBlockCount;
-                case VSQ$PROPERTY_LEVEL_REQUIREMENT -> VSQ$DUMMYLEVELREQUIREMENT;
-                case VSQ$PROPERTY_BLOCK_REQUIREMENT -> VSQ$DUMMYBLOCKREQUIREMENT;
+                case VSQ$PROPERTY_LEVEL_REQUIREMENT -> EnchantmentMenuMixin.this.vsq$levelRequirement;
+                case VSQ$PROPERTY_BLOCK_REQUIREMENT -> EnchantmentMenuMixin.this.vsq$blockRequirement;
                 default -> 0;
             };
         }
@@ -105,6 +111,8 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
             switch (index) {
                 case VSQ$PROPERTY_PLAYER_LEVEL -> EnchantmentMenuMixin.this.vsq$playerLevel = value;
                 case VSQ$PROPERTY_BLOCK_COUNT -> EnchantmentMenuMixin.this.vsq$nearbyBlockCount = value;
+                case VSQ$PROPERTY_LEVEL_REQUIREMENT -> EnchantmentMenuMixin.this.vsq$levelRequirement = value;
+                case VSQ$PROPERTY_BLOCK_REQUIREMENT -> EnchantmentMenuMixin.this.vsq$blockRequirement = value;
                 default -> {
                 }
             }
@@ -134,16 +142,16 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
         if (playerInventory.player instanceof ServerPlayer serverPlayer) {
             this.vsq$serverPlayer = serverPlayer;
         }
-        this.vsq$updateNearbyBlockCount();
+        this.vsq$refresh();
     }
 
     @Inject(method = "slotsChanged(Lnet/minecraft/world/Container;)V", at = @At("TAIL"))
     private void vsq$refreshNearbyBlockCount(Container container, CallbackInfo ci) {
-        this.vsq$updateNearbyBlockCount();
+        this.vsq$refresh();
     }
 
     @Unique
-    private void vsq$updateNearbyBlockCount() {
+    private void vsq$refresh() {
         if (this.vsq$serverPlayer == null) {
             return;
         }
@@ -154,15 +162,18 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
             }
 
             Map<Identifier, Integer> detectedBlocks = this.vsq$collectDetectedBlocks(level, tablePos);
+            Map<Identifier, Integer> requiredBlocks = VSQ$DUMMY_DEBUG_BLOCKS;
             this.vsq$nearbyBlockCount = detectedBlocks.values().stream().mapToInt(Integer::intValue).sum();
-            this.vsq$sendDetectedBlockCounts(detectedBlocks);
+            this.vsq$blockRequirement = requiredBlocks.values().stream().mapToInt(Integer::intValue).sum();
+            this.vsq$levelRequirement = VSQ$DUMMY_LEVEL_REQUIREMENT;
+            this.vsq$sendDetectedBlockCounts(detectedBlocks, requiredBlocks, this.vsq$levelRequirement, this.vsq$player.experienceLevel);
         });
     }
 
 
     @Unique
     private Map<Identifier, Integer> vsq$collectDetectedBlocks(Level level, BlockPos tablePos) {
-        Map<Identifier, Integer> counts = new TreeMap<>(Identifier::compareTo);
+        Map<Identifier, Integer> blockCounts = new TreeMap<>(Identifier::compareTo);
 
         for (int dx = -2; dx <= 2; dx++) {
             for (int dz = -2; dz <= 2; dz++) {
@@ -178,42 +189,46 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
                     }
 
                     Block block = state.getBlock();
-                    if (!this.vsq$matchesDummyDebugBlock(block)) {
+                    Identifier key = BuiltInRegistries.BLOCK.getKey(block);
+                    if (!this.vsq$matchesDummyDebugBlock(key)) {
                         continue;
                     }
-
-                    Identifier key = BuiltInRegistries.BLOCK.getKey(block);
                     if (key == null) {
                         continue;
                     }
 
-                    counts.merge(key, 1, Integer::sum);
+                    blockCounts.merge(key, 1, Integer::sum);
                 }
             }
         }
-
-        return counts;
+        return blockCounts;
     }
 
     @Unique
-    private void vsq$sendDetectedBlockCounts(Map<Identifier, Integer> detectedBlocks) {
+    private void vsq$sendDetectedBlockCounts(Map<Identifier, Integer> detectedBlocks, Map<Identifier, Integer> requiredBlocks, int levelRequirement, int playerLevel) {
         if (this.vsq$serverPlayer == null) {
             return;
         }
 
         List<Identifier> blockIds = new ArrayList<>(detectedBlocks.size());
-        List<Integer> counts = new ArrayList<>(detectedBlocks.size());
+        List<Integer> blockCounts = new ArrayList<>(detectedBlocks.size());
+        List<Identifier> requiredBlockIds = new ArrayList<>(requiredBlocks.size());
+        List<Integer> requiredBlockCounts = new ArrayList<>(requiredBlocks.size());
         for (Map.Entry<Identifier, Integer> entry : detectedBlocks.entrySet()) {
             blockIds.add(entry.getKey());
-            counts.add(entry.getValue());
+            blockCounts.add(entry.getValue());
+        }
+        for (Map.Entry<Identifier, Integer> entry : requiredBlocks.entrySet()) {
+            requiredBlockIds.add(entry.getKey());
+            requiredBlockCounts.add(entry.getValue());
         }
 
-        ServerPlayNetworking.send(this.vsq$serverPlayer, new EnchantmentBlockCountsPayload(this.containerId, blockIds, counts));
+        ServerPlayNetworking.send(this.vsq$serverPlayer, new EnchantmentBlockCountsPayload(this.containerId, blockIds, blockCounts, requiredBlockIds, requiredBlockCounts, playerLevel, levelRequirement));
     }
 
     @Unique
-    private boolean vsq$matchesDummyDebugBlock(Block block) {
-        for (Block candidate : VSQ$DUMMY_DEBUG_BLOCKS) {
+    private boolean vsq$matchesDummyDebugBlock(Identifier block) {
+        for (Identifier candidate : VSQ$DUMMY_DEBUG_BLOCKS.keySet()) {
             if (candidate == block) {
                 return true;
             }
@@ -295,37 +310,79 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
     }
 
     @Override
+    public boolean vsq$hasRequiredXp() {
+        return this.vsq$hasRequiredXp;
+    }
+
+    @Override
+    public boolean vsq$hasRequiredBlocks() {
+        return this.vsq$hasRequiredBlocks;
+    }
+
+    @Override
     public List<Component> vsq$getDetectedBlockTooltipLines() {
         return this.vsq$detectedBlockTooltipLines;
     }
 
     @Override
-    public void vsq$setDetectedBlockCounts(int containerId, List<Identifier> blockIds, List<Integer> counts) {
+    public void vsq$setDetectedBlockCounts(int containerId, List<Identifier> blockIds, List<Integer> blockCounts, List<Identifier> requiredBlockIds, List<Integer> requiredBlockCounts, int levelRequirement, int playerLevel) {
         if (this.containerId != containerId) {
             return;
         }
 
-        if (blockIds.size() != counts.size()) {
+        if (blockIds.size() != blockCounts.size()) {
             this.vsq$detectedBlockTooltipLines = List.of();
             return;
         }
 
-        List<Component> tooltipLines = new ArrayList<>(blockIds.size());
-        for (int i = 0; i < blockIds.size(); i++) {
-            Identifier blockId = blockIds.get(i);
-            int count = counts.get(i);
-            Block block = BuiltInRegistries.BLOCK.getValue(blockId);
-            if (block == null) {
-                block = Blocks.AIR;
+        if (requiredBlockIds.size() != requiredBlockCounts.size()) {
+            this.vsq$detectedBlockTooltipLines = List.of();
+            return;
+        }
+
+        this.vsq$playerLevel = playerLevel;
+        this.vsq$levelRequirement = levelRequirement;
+        this.vsq$nearbyBlockCount = blockCounts.stream().mapToInt(Integer::intValue).sum();
+        this.vsq$blockRequirement = requiredBlockCounts.stream().mapToInt(Integer::intValue).sum();
+        this.vsq$hasRequiredXp = this.vsq$levelRequirement != -1 && this.vsq$playerLevel >= this.vsq$levelRequirement;
+        this.vsq$hasRequiredBlocks = true;
+
+        List<Component> tooltipLines = new ArrayList<>(requiredBlockIds.size());
+        for (int j = 0; j < requiredBlockIds.size() && !requiredBlockIds.isEmpty(); j++) {
+            int countRequired = requiredBlockCounts.get(j);
+            Identifier requiredBlockId = requiredBlockIds.get(j);
+            Block block = BuiltInRegistries.BLOCK.getValue(requiredBlockId);
+
+            int detectedCount = 0;
+            boolean foundRequiredBlock = false;
+            for (int i = 0; i < blockIds.size() && !blockIds.isEmpty(); i++) {
+                Identifier blockId = blockIds.get(i);
+                if (blockId.equals(requiredBlockId)) {
+                    detectedCount = blockCounts.get(i);
+                    foundRequiredBlock = true;
+                    break;
+                }
             }
+
+            if (!foundRequiredBlock) {
+                detectedCount = 0;
+            }
+            if (detectedCount < countRequired) {
+                this.vsq$hasRequiredBlocks = false;
+            }
+
             MutableComponent line = Component.translatable(
                     "vsq.gui.container.enchantment_table.blocks.tooltip.entry",
-                    count,
+                    detectedCount,
+                    countRequired,
                     block.getName()
             );
             tooltipLines.add(line);
+            this.vsq$detectedBlockTooltipLines = Collections.unmodifiableList(tooltipLines);
         }
-
-        this.vsq$detectedBlockTooltipLines = Collections.unmodifiableList(tooltipLines);
+        if (requiredBlockIds.isEmpty()) {
+            this.vsq$hasRequiredBlocks = false;
+            this.vsq$detectedBlockTooltipLines = List.of(Component.translatable("vsq.gui.container.enchantment_table.blocks.tooltip.none"));
+        }
     }
 }

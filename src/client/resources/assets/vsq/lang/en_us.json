@@ -4,7 +4,7 @@
   "vsq.gui.container.enchantment_table.xp": "%s",
   "vsq.gui.container.enchantment_table.blocks": "%s",
   "vsq.gui.container.enchantment_table.xp.tooltip": "%s/%s Levels",
-  "vsq.gui.container.enchantment_table.blocks.tooltip.entry": "%sx %s",
+  "vsq.gui.container.enchantment_table.blocks.tooltip.entry": "%s/%s %s",
   "vsq.gui.container.enchantment_table.blocks.tooltip.none": "No matching blocks detected",
   "vsq.gui.container.enchantment_table.xp.none": "???",
   "vsq.gui.container.enchantment_table.blocks.none": "???",

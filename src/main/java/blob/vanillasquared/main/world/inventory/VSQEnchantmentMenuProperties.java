@@ -10,6 +10,8 @@ public interface VSQEnchantmentMenuProperties {
     int vsq$getBlockAmount();
     int vsq$getLevelRequirement();
     int vsq$getBlockRequirement();
+    boolean vsq$hasRequiredXp();
+    boolean vsq$hasRequiredBlocks();
     List<Component> vsq$getDetectedBlockTooltipLines();
-    void vsq$setDetectedBlockCounts(int containerId, List<Identifier> blockIds, List<Integer> counts);
+    void vsq$setDetectedBlockCounts(int containerId, List<Identifier> blockIds, List<Integer> counts, List<Identifier> requiredBlockIds, List<Integer> requiredBlockCounts, int levelRequirement, int playerLevel);
 }
