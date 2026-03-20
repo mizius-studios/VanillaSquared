@@ -1,6 +1,9 @@
 package blob.vanillasquared.main.gui.enchantment;
 
 import blob.vanillasquared.main.world.inventory.VSQEnchantmentMenuProperties;
+import com.mojang.blaze3d.platform.cursor.CursorType;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
+import com.sun.jna.PointerType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -131,6 +134,7 @@ public class VSQEnchantmentScreen extends AbstractContainerScreen<EnchantmentMen
         if (this.vsq$levelRequirement == -1 || this.vsq$playerLevel == -1 || !this.vsq$hasRequiredXp) {
             xpSprite = XP_DISABLED_SPRITE;
         } else if (this.vsq$xpHovered) {
+            guiGraphics.requestCursor(CursorTypes.POINTING_HAND);
             xpSprite = XP_HOVER_SPRITE;
         } else {
             xpSprite = XP_ENABLED_SPRITE;
@@ -141,6 +145,7 @@ public class VSQEnchantmentScreen extends AbstractContainerScreen<EnchantmentMen
             blocksSprite = BLOCKS_DISABLED_SPRITE;
         } else if (this.vsq$blocksHovered) {
             blocksSprite = BLOCKS_HOVER_SPRITE;
+            guiGraphics.requestCursor(CursorTypes.POINTING_HAND);
         } else {
             blocksSprite = BLOCKS_ENABLED_SPRITE;
         }
@@ -236,6 +241,7 @@ public class VSQEnchantmentScreen extends AbstractContainerScreen<EnchantmentMen
         if (this.vsq$xpHovered && this.vsq$levelRequirement != -1) {
             Component xpTooltip = Component.translatable("vsq.gui.container.enchantment_table.xp.tooltip", this.vsq$playerLevel, this.vsq$levelRequirement).withStyle(ChatFormatting.GRAY);
             if (!this.vsq$hasRequiredXp) {
+                guiGraphics.requestCursor(CursorTypes.NOT_ALLOWED);
                 xpTooltip = xpTooltip.copy().withStyle(ChatFormatting.RED);
             }
             buttonTooltip = List.of(xpTooltip);
@@ -245,6 +251,7 @@ public class VSQEnchantmentScreen extends AbstractContainerScreen<EnchantmentMen
                 blocksTooltip = List.of(Component.translatable("vsq.gui.container.enchantment_table.blocks.tooltip.none"));
             }
             if (!this.vsq$hasRequiredBlocks) {
+                guiGraphics.requestCursor(CursorTypes.NOT_ALLOWED);
                 blocksTooltip = blocksTooltip.stream()
                     .map(line -> (Component) line.copy().withStyle(ChatFormatting.RED))
                     .toList();
