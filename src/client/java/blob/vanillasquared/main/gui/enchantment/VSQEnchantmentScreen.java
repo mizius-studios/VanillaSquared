@@ -4,6 +4,7 @@ import blob.vanillasquared.main.world.inventory.VSQEnchantmentMenuProperties;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -23,6 +24,28 @@ public class VSQEnchantmentScreen extends AbstractContainerScreen<EnchantmentMen
     private static final Identifier BLOCKS_ENABLED_SPRITE = Identifier.fromNamespaceAndPath("vsq", "containers/enchantment_table/block_requirement_enabled");
     private static final Identifier BLOCKS_DISABLED_SPRITE = Identifier.fromNamespaceAndPath("vsq", "containers/enchantment_table/block_requirement_disabled");
     private static final Identifier BLOCKS_HOVER_SPRITE = Identifier.fromNamespaceAndPath("vsq", "containers/enchantment_table/block_requirement_hover");
+    private static final Identifier LAPIS_LAZULI_SLOT_EMPTY_SPRITE = Identifier.withDefaultNamespace("container/slot/lapis_lazuli");
+    private static final Identifier SWORD_SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot/sword");
+    private static final Identifier AXE_SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot/axe");
+    private static final Identifier PICKAXE_SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot/pickaxe");
+    private static final Identifier SHOVEL_SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot/shovel");
+    private static final Identifier HOE_SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot/hoe");
+    private static final Identifier SPEAR_SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot/spear");
+    private static final Identifier SHIELD_SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot/shield");
+    private static final Identifier HELMET_SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot/helmet");
+    private static final Identifier CHESTPLATE_SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot/chestplate");
+    private static final Identifier LEGGINGS_SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot/leggings");
+    private static final Identifier BOOTS_SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot/boots");
+    private static final Identifier FLINT_AND_STEEL_SLOT_SPRITE = Identifier.fromNamespaceAndPath("vsq", "containers/slots/flint_and_steel");
+    private static final Identifier SHEARS_SLOT_SPRITE = Identifier.fromNamespaceAndPath("vsq", "containers/slots/shears");
+    private static final Identifier BOW_SLOT_SPRITE = Identifier.fromNamespaceAndPath("vsq", "containers/slots/bow");
+    private static final Identifier CROSSBOW_SLOT_SPRITE = Identifier.fromNamespaceAndPath("vsq", "containers/slots/crossbow");
+    private static final Identifier TRIDENT_SLOT_SPRITE = Identifier.fromNamespaceAndPath("vsq", "containers/slots/trident");
+    private static final Identifier ELYTRA_SLOT_SPRITE = Identifier.fromNamespaceAndPath("vsq", "containers/slots/elytra");
+    private static final Identifier FISHING_ROD_SLOT_SPRITE = Identifier.fromNamespaceAndPath("vsq", "containers/slots/fishing_rod");
+    private static final Identifier MACE_SLOT_SPRITE = Identifier.fromNamespaceAndPath("vsq", "containers/slots/mace");
+    private static final List<Identifier> LAPIS_LAZULI_SLOT_EMPTY_SPRITES = List.of(LAPIS_LAZULI_SLOT_EMPTY_SPRITE);
+    private static final List<Identifier> INPUT_SLOT_EMPTY_SPRITES = List.of(SWORD_SLOT_SPRITE, AXE_SLOT_SPRITE, PICKAXE_SLOT_SPRITE, SHOVEL_SLOT_SPRITE, HOE_SLOT_SPRITE, SPEAR_SLOT_SPRITE, SHIELD_SLOT_SPRITE, HELMET_SLOT_SPRITE, CHESTPLATE_SLOT_SPRITE, LEGGINGS_SLOT_SPRITE, BOOTS_SLOT_SPRITE, FLINT_AND_STEEL_SLOT_SPRITE, SHEARS_SLOT_SPRITE, BOW_SLOT_SPRITE, CROSSBOW_SLOT_SPRITE, TRIDENT_SLOT_SPRITE, ELYTRA_SLOT_SPRITE, FISHING_ROD_SLOT_SPRITE, MACE_SLOT_SPRITE);
     private static final int TEX_W = 256;
     private static final int TEX_H = 256;
     private static final int TEXT_ENABLED = ARGB.opaque(0xEFE2C6);
@@ -36,6 +59,8 @@ public class VSQEnchantmentScreen extends AbstractContainerScreen<EnchantmentMen
     private boolean vsq$hasRequiredBlocks;
     private boolean vsq$xpHovered;
     private boolean vsq$blocksHovered;
+    private final CyclingSlotBackground vsq$inputSlot = new CyclingSlotBackground(0);
+    private final CyclingSlotBackground vsq$lapislazuli = new CyclingSlotBackground(1);
 
     public VSQEnchantmentScreen(EnchantmentMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -117,6 +142,12 @@ public class VSQEnchantmentScreen extends AbstractContainerScreen<EnchantmentMen
 
     private boolean vsq$isBlocksHovered(int mouseX, int mouseY) {
         return this.isHovering(120, 54, 51, 18, mouseX, mouseY);
+    }
+    protected void containerTick() {
+        super.containerTick();
+        this.vsq$syncFromMenu();
+        this.vsq$inputSlot.tick(INPUT_SLOT_EMPTY_SPRITES);
+        this.vsq$lapislazuli.tick(LAPIS_LAZULI_SLOT_EMPTY_SPRITES);
     }
 
     private void vsq$syncFromMenu() {
