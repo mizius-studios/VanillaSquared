@@ -12,6 +12,7 @@
     "world.entity.entities.PlayerMixin",
     "world.inventory.AbstractContainerMenuAccessor",
     "world.inventory.EnchantmentMenuMixin",
+    "world.inventory.RecipeManagerAccessor",
     "world.item.ItemCooldownsMixin",
     "world.item.ItemPropertiesMixin",
     "world.item.ItemsMixin",

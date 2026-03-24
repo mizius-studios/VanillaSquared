@@ -1,10 +1,13 @@
 package blob.vanillasquared.main.gui.enchantment;
 
+import blob.vanillasquared.main.network.payload.EnchantingBookClickPayload;
 import blob.vanillasquared.main.world.inventory.VSQEnchantmentMenuProperties;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.model.object.book.BookModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -100,6 +103,10 @@ public class VSQEnchantmentScreen extends AbstractContainerScreen<EnchantmentMen
         int bookWidth = bookX + 33;
         int bookHeight = bookY + 28;
         guiGraphics.book(this.bookModel, ENCHANTING_BOOK_LOCATION, 38.0F, g, h, bookX, bookY, bookWidth, bookHeight);
+    }
+
+    private boolean vsq$isBookHovered(double mouseX, double mouseY) {
+        return this.isHovering(127, 4, 33, 28, mouseX, mouseY);
     }
 
     @Override
@@ -264,5 +271,15 @@ public class VSQEnchantmentScreen extends AbstractContainerScreen<EnchantmentMen
             guiGraphics.setComponentTooltipForNextFrame(this.font, buttonTooltip, mouseX, mouseY);
         }
 
+    }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() == 0 && this.vsq$isBookHovered(event.x(), event.y())) {
+            ClientPlayNetworking.send(new EnchantingBookClickPayload(this.menu.containerId));
+            return true;
+        }
+
+        return super.mouseClicked(event, doubleClick);
     }
 }

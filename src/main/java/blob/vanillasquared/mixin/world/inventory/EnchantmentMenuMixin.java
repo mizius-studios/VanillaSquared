@@ -1,7 +1,12 @@
 package blob.vanillasquared.mixin.world.inventory;
 
 import blob.vanillasquared.main.network.payload.EnchantmentBlockCountsPayload;
+import blob.vanillasquared.main.VanillaSquared;
 import blob.vanillasquared.main.world.inventory.VSQEnchantmentMenuProperties;
+import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipe;
+import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipeInput;
+import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipeRegistry;
+import blob.vanillasquared.main.world.recipe.enchanting.VSQRecipeTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -24,6 +29,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -38,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 @Mixin(EnchantmentMenu.class)
@@ -384,5 +391,61 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
             this.vsq$hasRequiredBlocks = false;
             this.vsq$detectedBlockTooltipLines = List.of(Component.translatable("vsq.gui.container.enchantment_table.blocks.tooltip.none"));
         }
+    }
+
+    @Override
+    public boolean vsq$tryCraftEnchantingRecipe(ServerPlayer player) {
+        if (player.containerMenu != this) {
+            return false;
+        }
+
+        EnchantingRecipeInput recipeInput = this.vsq$createRecipeInput();
+        List<RecipeHolder<EnchantingRecipe>> enchantingRecipes = List.copyOf(EnchantingRecipeRegistry.recipes());
+        Optional<RecipeHolder<EnchantingRecipe>> recipeHolder = EnchantingRecipeRegistry.findFirstMatch(recipeInput, player.level());
+        if (recipeHolder.isEmpty()) {
+            VanillaSquared.LOGGER.info(
+                    "No Enchanting recipe matched. loadedEnchantingRecipes={}, input={}, material={}, cross=[{},{},{},{}]",
+                    enchantingRecipes.size(),
+                    this.getSlot(0).getItem(),
+                    this.getSlot(1).getItem(),
+                    this.getSlot(2).getItem(),
+                    this.getSlot(3).getItem(),
+                    this.getSlot(4).getItem(),
+                    this.getSlot(5).getItem()
+            );
+            return false;
+        }
+
+        RecipeHolder<EnchantingRecipe> holder = recipeHolder.get();
+        EnchantingRecipe recipe = holder.value();
+        ItemStack result = recipe.assemble(recipeInput);
+        if (result.isEmpty()) {
+            VanillaSquared.LOGGER.warn("Enchanting recipe {} assembled to an empty stack", holder.id());
+            return false;
+        }
+
+        this.getSlot(1).remove(1);
+        for (int slotIndex = 2; slotIndex <= 5; slotIndex++) {
+            this.getSlot(slotIndex).remove(1);
+        }
+        this.getSlot(0).set(result.copyWithCount(1));
+        this.slotsChanged(this.enchantSlots);
+        this.broadcastChanges();
+        VanillaSquared.LOGGER.info("Applied Enchanting recipe {} -> {}", holder.id(), result);
+        return true;
+    }
+
+    @Unique
+    private EnchantingRecipeInput vsq$createRecipeInput() {
+        return new EnchantingRecipeInput(
+                this.getSlot(0).getItem().copy(),
+                this.getSlot(1).getItem().copy(),
+                List.of(
+                        this.getSlot(2).getItem().copy(),
+                        this.getSlot(3).getItem().copy(),
+                        this.getSlot(4).getItem().copy(),
+                        this.getSlot(5).getItem().copy()
+                )
+        );
     }
 }

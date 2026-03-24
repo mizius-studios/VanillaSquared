@@ -2,6 +2,7 @@ package blob.vanillasquared.main.world.inventory;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.List;
 
@@ -14,4 +15,5 @@ public interface VSQEnchantmentMenuProperties {
     boolean vsq$hasRequiredBlocks();
     List<Component> vsq$getDetectedBlockTooltipLines();
     void vsq$setDetectedBlockCounts(int containerId, List<Identifier> blockIds, List<Integer> counts, List<Identifier> requiredBlockIds, List<Integer> requiredBlockCounts, int levelRequirement, int playerLevel);
+    boolean vsq$tryCraftEnchantingRecipe(ServerPlayer player);
 }
