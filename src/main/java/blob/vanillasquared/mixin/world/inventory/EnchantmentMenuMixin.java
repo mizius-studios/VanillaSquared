@@ -3,6 +3,7 @@ package blob.vanillasquared.mixin.world.inventory;
 import blob.vanillasquared.main.network.payload.EnchantmentBlockCountsPayload;
 import blob.vanillasquared.main.VanillaSquared;
 import blob.vanillasquared.main.world.inventory.VSQEnchantmentMenuProperties;
+import blob.vanillasquared.main.world.recipe.enchanting.EnchantingBlockRequirement;
 import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipe;
 import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipeInput;
 import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipeRegistry;
@@ -23,11 +24,9 @@ import net.minecraft.world.inventory.EnchantmentMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.spongepowered.asm.mixin.Final;
@@ -56,12 +55,6 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
     private static final int VSQ$PROPERTY_LEVEL_REQUIREMENT = 2;
     @Unique
     private static final int VSQ$PROPERTY_BLOCK_REQUIREMENT = 3;
-    @Unique
-    private static final Map<Identifier, Integer> VSQ$DUMMY_DEBUG_BLOCKS = Map.of(
-            BuiltInRegistries.BLOCK.getKey(Blocks.BOOKSHELF), 5,
-            BuiltInRegistries.BLOCK.getKey(Blocks.CHISELED_BOOKSHELF), 2,
-            BuiltInRegistries.BLOCK.getKey(Blocks.LECTERN), 3
-    );
 
     @Shadow
     @Final
@@ -166,14 +159,15 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
             }
 
             Map<Identifier, Integer> detectedBlocks = this.vsq$collectDetectedBlocks(level, tablePos);
-            Map<Identifier, Integer> requiredBlocks = VSQ$DUMMY_DEBUG_BLOCKS;
             EnchantingRecipeInput recipeInput = this.vsq$createRecipeInput();
             Optional<RecipeHolder<EnchantingRecipe>> structuralMatch = EnchantingRecipeRegistry.findFirstStructuralMatch(recipeInput);
-            int levelRequirement = structuralMatch.map(holder -> holder.value().level()).orElse(-1);
-            this.vsq$nearbyBlockCount = detectedBlocks.values().stream().mapToInt(Integer::intValue).sum();
-            this.vsq$blockRequirement = requiredBlocks.values().stream().mapToInt(Integer::intValue).sum();
-            this.vsq$levelRequirement = levelRequirement;
-            this.vsq$sendDetectedBlockCounts(detectedBlocks, requiredBlocks, this.vsq$levelRequirement, this.vsq$player.experienceLevel);
+            List<EnchantingRecipe.BlockRequirementDisplay> blockDisplay = structuralMatch
+                    .map(holder -> holder.value().blockRequirementDisplay(detectedBlocks))
+                    .orElse(List.of());
+            this.vsq$levelRequirement = structuralMatch.map(holder -> holder.value().level()).orElse(-1);
+            this.vsq$blockRequirement = structuralMatch.map(holder -> holder.value().blocks().stream().mapToInt(EnchantingBlockRequirement::count).sum()).orElse(-1);
+            this.vsq$nearbyBlockCount = this.vsq$blockRequirement == -1 ? -1 : blockDisplay.stream().mapToInt(EnchantingRecipe.BlockRequirementDisplay::placedCount).sum();
+            this.vsq$sendDetectedBlockCounts(blockDisplay, this.vsq$levelRequirement, this.vsq$blockRequirement, this.vsq$player.experienceLevel);
         });
     }
 
@@ -197,9 +191,6 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
 
                     Block block = state.getBlock();
                     Identifier key = BuiltInRegistries.BLOCK.getKey(block);
-                    if (!this.vsq$matchesDummyDebugBlock(key)) {
-                        continue;
-                    }
                     if (key == null) {
                         continue;
                     }
@@ -212,35 +203,21 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
     }
 
     @Unique
-    private void vsq$sendDetectedBlockCounts(Map<Identifier, Integer> detectedBlocks, Map<Identifier, Integer> requiredBlocks, int levelRequirement, int playerLevel) {
+    private void vsq$sendDetectedBlockCounts(List<EnchantingRecipe.BlockRequirementDisplay> blockDisplay, int levelRequirement, int blockRequirement, int playerLevel) {
         if (this.vsq$serverPlayer == null) {
             return;
         }
 
-        List<Identifier> blockIds = new ArrayList<>(detectedBlocks.size());
-        List<Integer> blockCounts = new ArrayList<>(detectedBlocks.size());
-        List<Identifier> requiredBlockIds = new ArrayList<>(requiredBlocks.size());
-        List<Integer> requiredBlockCounts = new ArrayList<>(requiredBlocks.size());
-        for (Map.Entry<Identifier, Integer> entry : detectedBlocks.entrySet()) {
-            blockIds.add(entry.getKey());
-            blockCounts.add(entry.getValue());
-        }
-        for (Map.Entry<Identifier, Integer> entry : requiredBlocks.entrySet()) {
-            requiredBlockIds.add(entry.getKey());
-            requiredBlockCounts.add(entry.getValue());
+        List<Identifier> blockIds = new ArrayList<>(blockDisplay.size());
+        List<Integer> blockCounts = new ArrayList<>(blockDisplay.size());
+        List<Integer> requiredBlockCounts = new ArrayList<>(blockDisplay.size());
+        for (EnchantingRecipe.BlockRequirementDisplay entry : blockDisplay) {
+            blockIds.add(entry.blockId());
+            blockCounts.add(entry.placedCount());
+            requiredBlockCounts.add(entry.requiredCount());
         }
 
-        ServerPlayNetworking.send(this.vsq$serverPlayer, new EnchantmentBlockCountsPayload(this.containerId, blockIds, blockCounts, requiredBlockIds, requiredBlockCounts, playerLevel, levelRequirement));
-    }
-
-    @Unique
-    private boolean vsq$matchesDummyDebugBlock(Identifier block) {
-        for (Identifier candidate : VSQ$DUMMY_DEBUG_BLOCKS.keySet()) {
-            if (candidate == block) {
-                return true;
-            }
-        }
-        return false;
+        ServerPlayNetworking.send(this.vsq$serverPlayer, new EnchantmentBlockCountsPayload(this.containerId, blockIds, blockCounts, requiredBlockCounts, playerLevel, levelRequirement, blockRequirement));
     }
 
     @Unique
@@ -322,7 +299,7 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
     }
 
     @Override
-    public void vsq$setDetectedBlockCounts(int containerId, List<Identifier> blockIds, List<Integer> blockCounts, List<Identifier> requiredBlockIds, List<Integer> requiredBlockCounts, int levelRequirement, int playerLevel) {
+    public void vsq$setDetectedBlockCounts(int containerId, List<Identifier> blockIds, List<Integer> blockCounts, List<Integer> requiredBlockCounts, int levelRequirement, int blockRequirement, int playerLevel) {
         if (this.containerId != containerId) {
             return;
         }
@@ -332,38 +309,24 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
             return;
         }
 
-        if (requiredBlockIds.size() != requiredBlockCounts.size()) {
+        if (blockIds.size() != requiredBlockCounts.size()) {
             this.vsq$detectedBlockTooltipLines = List.of();
             return;
         }
 
         this.vsq$playerLevel = playerLevel;
         this.vsq$levelRequirement = levelRequirement;
-        this.vsq$nearbyBlockCount = blockCounts.stream().mapToInt(Integer::intValue).sum();
-        this.vsq$blockRequirement = requiredBlockCounts.stream().mapToInt(Integer::intValue).sum();
+        this.vsq$nearbyBlockCount = blockRequirement == -1 ? -1 : blockCounts.stream().mapToInt(Integer::intValue).sum();
+        this.vsq$blockRequirement = blockRequirement;
         this.vsq$hasRequiredXp = this.vsq$levelRequirement != -1 && this.vsq$playerLevel >= this.vsq$levelRequirement;
-        this.vsq$hasRequiredBlocks = true;
+        this.vsq$hasRequiredBlocks = this.vsq$blockRequirement != -1;
 
-        List<Component> tooltipLines = new ArrayList<>(requiredBlockIds.size());
-        for (int j = 0; j < requiredBlockIds.size() && !requiredBlockIds.isEmpty(); j++) {
+        List<Component> tooltipLines = new ArrayList<>(blockIds.size());
+        for (int j = 0; j < blockIds.size() && !blockIds.isEmpty(); j++) {
             int countRequired = requiredBlockCounts.get(j);
-            Identifier requiredBlockId = requiredBlockIds.get(j);
-            Block block = BuiltInRegistries.BLOCK.getValue(requiredBlockId);
-
-            int detectedCount = 0;
-            boolean foundRequiredBlock = false;
-            for (int i = 0; i < blockIds.size() && !blockIds.isEmpty(); i++) {
-                Identifier blockId = blockIds.get(i);
-                if (blockId.equals(requiredBlockId)) {
-                    detectedCount = blockCounts.get(i);
-                    foundRequiredBlock = true;
-                    break;
-                }
-            }
-
-            if (!foundRequiredBlock) {
-                detectedCount = 0;
-            }
+            Identifier blockId = blockIds.get(j);
+            Block block = BuiltInRegistries.BLOCK.getValue(blockId);
+            int detectedCount = blockCounts.get(j);
             if (detectedCount < countRequired) {
                 this.vsq$hasRequiredBlocks = false;
             }
@@ -377,8 +340,11 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
             tooltipLines.add(line);
             this.vsq$detectedBlockTooltipLines = Collections.unmodifiableList(tooltipLines);
         }
-        if (requiredBlockIds.isEmpty()) {
+        if (this.vsq$blockRequirement == -1) {
             this.vsq$hasRequiredBlocks = false;
+            this.vsq$detectedBlockTooltipLines = List.of(Component.translatable("vsq.gui.container.enchantment_table.blocks.tooltip.none"));
+        } else if (blockIds.isEmpty()) {
+            this.vsq$hasRequiredBlocks = true;
             this.vsq$detectedBlockTooltipLines = List.of(Component.translatable("vsq.gui.container.enchantment_table.blocks.tooltip.none"));
         }
     }
@@ -391,7 +357,9 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
 
         EnchantingRecipeInput recipeInput = this.vsq$createRecipeInput();
         List<RecipeHolder<EnchantingRecipe>> enchantingRecipes = List.copyOf(EnchantingRecipeRegistry.recipes());
-        Optional<RecipeHolder<EnchantingRecipe>> recipeHolder = EnchantingRecipeRegistry.findFirstCraftableMatch(recipeInput, player.experienceLevel);
+        Map<Identifier, Integer> detectedBlocks = new TreeMap<>(Identifier::compareTo);
+        this.vsq$access.execute((level, tablePos) -> detectedBlocks.putAll(this.vsq$collectDetectedBlocks(level, tablePos)));
+        Optional<RecipeHolder<EnchantingRecipe>> recipeHolder = EnchantingRecipeRegistry.findFirstCraftableMatch(recipeInput, player.experienceLevel, detectedBlocks);
         if (recipeHolder.isEmpty()) {
             VanillaSquared.LOGGER.info(
                     "No Enchanting recipe matched. loadedEnchantingRecipes={}, input={}, material={}, cross=[{},{},{},{}]",
@@ -408,6 +376,9 @@ public abstract class EnchantmentMenuMixin extends AbstractContainerMenu impleme
 
         RecipeHolder<EnchantingRecipe> holder = recipeHolder.get();
         EnchantingRecipe recipe = holder.value();
+        if (!recipe.hasRequiredBlocks(detectedBlocks)) {
+            return false;
+        }
         Optional<EnchantingRecipe.Match> match = recipe.findMatch(recipeInput);
         if (match.isEmpty()) {
             VanillaSquared.LOGGER.warn("Enchanting recipe {} was selected but no longer matches at craft time", holder.id());

@@ -28,11 +28,16 @@ public record EnchantingRecipe(
         EnchantingIngredient input,
         EnchantingIngredient material,
         List<EnchantingIngredient> ingredients,
+        List<EnchantingBlockRequirement> blocks,
         EnchantingComponentModifier componentModifier
 ) implements Recipe<EnchantingRecipeInput> {
     private static final com.mojang.serialization.Codec<List<EnchantingIngredient>> INGREDIENTS_CODEC = net.minecraft.util.ExtraCodecs.JSON.flatXmap(
             EnchantingRecipe::vsq$decodeIngredients,
             EnchantingRecipe::vsq$encodeIngredients
+    );
+    private static final com.mojang.serialization.Codec<List<EnchantingBlockRequirement>> BLOCKS_CODEC = net.minecraft.util.ExtraCodecs.JSON.flatXmap(
+            EnchantingRecipe::vsq$decodeBlocks,
+            EnchantingRecipe::vsq$encodeBlocks
     );
 
     public static final MapCodec<EnchantingRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -41,6 +46,7 @@ public record EnchantingRecipe(
             EnchantingIngredient.CODEC.fieldOf("input").forGetter(EnchantingRecipe::input),
             EnchantingIngredient.CODEC.fieldOf("material").forGetter(EnchantingRecipe::material),
             INGREDIENTS_CODEC.fieldOf("ingredients").forGetter(EnchantingRecipe::ingredients),
+            BLOCKS_CODEC.optionalFieldOf("blocks", List.of()).forGetter(EnchantingRecipe::blocks),
             EnchantingComponentModifier.CODEC.fieldOf("component_modifier").forGetter(EnchantingRecipe::componentModifier)
     ).apply(instance, EnchantingRecipe::vsq$create));
 
@@ -50,12 +56,14 @@ public record EnchantingRecipe(
             EnchantingIngredient.STREAM_CODEC, EnchantingRecipe::input,
             EnchantingIngredient.STREAM_CODEC, EnchantingRecipe::material,
             EnchantingIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()), EnchantingRecipe::ingredients,
+            EnchantingBlockRequirement.STREAM_CODEC.apply(ByteBufCodecs.list()), EnchantingRecipe::blocks,
             EnchantingComponentModifier.STREAM_CODEC, EnchantingRecipe::componentModifier,
             EnchantingRecipe::vsq$create
     );
 
     public EnchantingRecipe {
         ingredients = List.copyOf(ingredients);
+        blocks = List.copyOf(blocks);
         if (ingredients.size() != 4) {
             throw new IllegalArgumentException("Enchanting recipes require exactly 4 cross ingredients");
         }
@@ -159,8 +167,25 @@ public record EnchantingRecipe(
         return playerLevel >= this.level;
     }
 
-    private static EnchantingRecipe vsq$create(int level, int consumedLevels, EnchantingIngredient input, EnchantingIngredient material, List<EnchantingIngredient> ingredients, EnchantingComponentModifier componentModifier) {
-        return new EnchantingRecipe(level, consumedLevels, input, material, ingredients, componentModifier);
+    public boolean hasRequiredBlocks(java.util.Map<net.minecraft.resources.Identifier, Integer> countedBlocks) {
+        for (EnchantingBlockRequirement requirement : this.blocks) {
+            if (!requirement.matches(countedBlocks)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public List<BlockRequirementDisplay> blockRequirementDisplay(java.util.Map<net.minecraft.resources.Identifier, Integer> countedBlocks) {
+        List<BlockRequirementDisplay> display = new ArrayList<>(this.blocks.size());
+        for (EnchantingBlockRequirement requirement : this.blocks) {
+            display.add(new BlockRequirementDisplay(requirement.displayBlockId(), requirement.placedCount(countedBlocks), requirement.count()));
+        }
+        return display;
+    }
+
+    private static EnchantingRecipe vsq$create(int level, int consumedLevels, EnchantingIngredient input, EnchantingIngredient material, List<EnchantingIngredient> ingredients, List<EnchantingBlockRequirement> blocks, EnchantingComponentModifier componentModifier) {
+        return new EnchantingRecipe(level, consumedLevels, input, material, ingredients, blocks, componentModifier);
     }
 
     private static DataResult<List<EnchantingIngredient>> vsq$decodeIngredients(JsonElement json) {
@@ -195,9 +220,44 @@ public record EnchantingRecipe(
         return DataResult.success(array);
     }
 
+    private static DataResult<List<EnchantingBlockRequirement>> vsq$decodeBlocks(JsonElement json) {
+        if (!json.isJsonArray()) {
+            return DataResult.error(() -> "Enchanting recipe blocks must be a JSON array");
+        }
+
+        List<EnchantingBlockRequirement> decoded = new ArrayList<>();
+        int index = 0;
+        for (JsonElement element : json.getAsJsonArray()) {
+            int currentIndex = index++;
+            var parsedResult = EnchantingBlockRequirement.CODEC.parse(JsonOps.INSTANCE, element);
+            var parsed = parsedResult.result();
+            if (parsed.isEmpty()) {
+                String details = parsedResult.error().map(DataResult.Error::message).orElse("unknown reason");
+                return DataResult.error(() -> "Failed to parse enchanting block requirement at index " + currentIndex + ": " + details);
+            }
+            decoded.add(parsed.get());
+        }
+        return DataResult.success(decoded);
+    }
+
+    private static DataResult<JsonElement> vsq$encodeBlocks(List<EnchantingBlockRequirement> blocks) {
+        JsonArray array = new JsonArray();
+        for (EnchantingBlockRequirement blockRequirement : blocks) {
+            var encoded = EnchantingBlockRequirement.CODEC.encodeStart(JsonOps.INSTANCE, blockRequirement).result();
+            if (encoded.isEmpty()) {
+                return DataResult.error(() -> "Failed to encode enchanting block requirement list");
+            }
+            array.add(encoded.get());
+        }
+        return DataResult.success(array);
+    }
+
     public record Match(List<Integer> matchedCrossSlots) {
         public Match {
             matchedCrossSlots = List.copyOf(matchedCrossSlots);
         }
+    }
+
+    public record BlockRequirementDisplay(net.minecraft.resources.Identifier blockId, int placedCount, int requiredCount) {
     }
 }

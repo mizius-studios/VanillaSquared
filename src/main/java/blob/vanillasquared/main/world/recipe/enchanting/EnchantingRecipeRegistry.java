@@ -58,10 +58,14 @@ public final class EnchantingRecipeRegistry {
     }
 
     public static Optional<RecipeHolder<EnchantingRecipe>> findFirstCraftableMatch(EnchantingRecipeInput input, int playerLevel) {
+        return findFirstCraftableMatch(input, playerLevel, Map.of());
+    }
+
+    public static Optional<RecipeHolder<EnchantingRecipe>> findFirstCraftableMatch(EnchantingRecipeInput input, int playerLevel, Map<Identifier, Integer> countedBlocks) {
         return RECIPES.values().stream()
                 .filter(holder -> {
                     EnchantingRecipe recipe = holder.value();
-                    return recipe.findMatch(input).isPresent() && recipe.canPlayerCraft(playerLevel);
+                    return recipe.findMatch(input).isPresent() && recipe.canPlayerCraft(playerLevel) && recipe.hasRequiredBlocks(countedBlocks);
                 })
                 .findFirst();
     }

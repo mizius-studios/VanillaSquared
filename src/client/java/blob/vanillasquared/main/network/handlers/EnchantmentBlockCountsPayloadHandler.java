@@ -18,7 +18,7 @@ public final class EnchantmentBlockCountsPayloadHandler {
     public static void register() {
         ClientPlayNetworking.registerGlobalReceiver(EnchantmentBlockCountsPayload.TYPE, (payload, context) ->
                 context.client().execute(() -> {
-                    VSQ$PENDING_COUNTS.put(payload.containerId(), new CachedCounts(payload.blockIds(), payload.blockCounts(), payload.requiredBlockIds(), payload.requiredBlockCounts(), payload.levelRequirement(), payload.playerLevel()));
+                    VSQ$PENDING_COUNTS.put(payload.containerId(), new CachedCounts(payload.blockIds(), payload.blockCounts(), payload.requiredBlockCounts(), payload.levelRequirement(), payload.blockRequirement(), payload.playerLevel()));
 
                     if (context.client().player == null) {
                         return;
@@ -28,7 +28,7 @@ public final class EnchantmentBlockCountsPayloadHandler {
                         return;
                     }
 
-                    properties.vsq$setDetectedBlockCounts(payload.containerId(), payload.blockIds(), payload.blockCounts(), payload.requiredBlockIds(), payload.requiredBlockCounts(), payload.levelRequirement(), payload.playerLevel());
+                    properties.vsq$setDetectedBlockCounts(payload.containerId(), payload.blockIds(), payload.blockCounts(), payload.requiredBlockCounts(), payload.levelRequirement(), payload.blockRequirement(), payload.playerLevel());
                 })
         );
     }
@@ -39,14 +39,13 @@ public final class EnchantmentBlockCountsPayloadHandler {
             return;
         }
 
-        properties.vsq$setDetectedBlockCounts(containerId, cachedCounts.blockIds(), cachedCounts.blockCounts(), cachedCounts.requiredBlockIds(), cachedCounts.requiredBlockCounts(), cachedCounts.levelRequirement(), cachedCounts.playerLevel());
+        properties.vsq$setDetectedBlockCounts(containerId, cachedCounts.blockIds(), cachedCounts.blockCounts(), cachedCounts.requiredBlockCounts(), cachedCounts.levelRequirement(), cachedCounts.blockRequirement(), cachedCounts.playerLevel());
     }
 
-    private record CachedCounts(List<Identifier> blockIds, List<Integer> blockCounts, List<Identifier> requiredBlockIds, List<Integer> requiredBlockCounts, int levelRequirement, int playerLevel) {
+    private record CachedCounts(List<Identifier> blockIds, List<Integer> blockCounts, List<Integer> requiredBlockCounts, int levelRequirement, int blockRequirement, int playerLevel) {
         private CachedCounts {
             blockIds = List.copyOf(blockIds);
             blockCounts = List.copyOf(blockCounts);
-            requiredBlockIds = List.copyOf(requiredBlockIds);
             requiredBlockCounts = List.copyOf(requiredBlockCounts);
         }
     }

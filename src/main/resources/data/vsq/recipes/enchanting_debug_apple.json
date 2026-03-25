@@ -28,6 +28,16 @@
       "count": 2
     }
   ],
+  "blocks": [
+    {
+      "block": "minecraft:bookshelf",
+      "count": 1
+    },
+    {
+      "tag": "minecraft:planks",
+      "count": 5
+    }
+  ],
   "component_modifier": {
     "minecraft:enchantments": {
       "minecraft:sharpness": 5
