@@ -4,6 +4,7 @@ import blob.vanillasquared.main.VanillaSquared;
 import blob.vanillasquared.main.world.recipe.enchanting.EnchantingIngredient;
 import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipe;
 import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipeCategory;
+import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipeInput;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -43,12 +44,12 @@ public record EnchantingRecipeBookSyncPayload(int containerId, boolean replace, 
         entries = List.copyOf(entries);
     }
 
-    public static EnchantingRecipeBookSyncPayload create(int containerId, boolean replace, Iterable<RecipeHolder<EnchantingRecipe>> recipes, HolderLookup.Provider registries) {
+    public static EnchantingRecipeBookSyncPayload create(int containerId, boolean replace, Iterable<RecipeView> recipes, HolderLookup.Provider registries) {
         List<Entry> entries = new ArrayList<>();
         Map<String, Integer> groupIds = new LinkedHashMap<>();
         int displayId = 0;
-        for (RecipeHolder<EnchantingRecipe> holder : recipes) {
-            EnchantingRecipe recipe = holder.value();
+        for (RecipeView view : recipes) {
+            EnchantingRecipe recipe = view.holder().value();
             OptionalInt group = recipe.group().isBlank()
                     ? OptionalInt.empty()
                     : OptionalInt.of(groupIds.computeIfAbsent(recipe.group(), ignored -> groupIds.size()));
@@ -56,22 +57,35 @@ public record EnchantingRecipeBookSyncPayload(int containerId, boolean replace, 
                     displayId++,
                     recipe.category(),
                     group,
-                    vsq$createDisplay(recipe, registries),
-                    vsq$createCraftingRequirements(recipe)
+                    vsq$createDisplay(recipe, registries, view.previewInput()),
+                    view.craftable() ? vsq$createCraftingRequirements(recipe) : Optional.empty()
             ));
         }
         return new EnchantingRecipeBookSyncPayload(containerId, replace, entries);
     }
 
-    private static RecipeDisplay vsq$createDisplay(EnchantingRecipe recipe, HolderLookup.Provider registries) {
+    public static RecipeDisplay createDisplay(EnchantingRecipe recipe, HolderLookup.Provider registries) {
+        return vsq$createDisplay(recipe, registries, Optional.empty());
+    }
+
+    private static RecipeDisplay vsq$createDisplay(EnchantingRecipe recipe, HolderLookup.Provider registries, Optional<EnchantingRecipeInput> previewInput) {
         List<SlotDisplay> ingredients = new ArrayList<>(6);
-        ingredients.add(recipe.input().display());
-        ingredients.add(recipe.material().display());
-        for (EnchantingIngredient ingredient : recipe.ingredients()) {
-            ingredients.add(ingredient.display());
+        if (previewInput.isPresent()) {
+            EnchantingRecipeInput input = previewInput.get();
+            ingredients.add(vsq$stackDisplay(input.input()));
+            ingredients.add(vsq$stackDisplay(input.material()));
+            for (ItemStack stack : input.ingredients()) {
+                ingredients.add(vsq$stackDisplay(stack));
+            }
+        } else {
+            ingredients.add(recipe.input().display());
+            ingredients.add(recipe.material().display());
+            for (EnchantingIngredient ingredient : recipe.ingredients()) {
+                ingredients.add(ingredient.display());
+            }
         }
-        ItemStack previewInput = recipe.input().previewStack();
-        ItemStack previewResult = previewInput.isEmpty() ? new ItemStack(Items.ENCHANTED_BOOK) : recipe.componentModifier().apply(previewInput, registries);
+        ItemStack previewStack = previewInput.map(EnchantingRecipeInput::input).map(ItemStack::copy).orElseGet(recipe.input()::previewStack);
+        ItemStack previewResult = previewStack.isEmpty() ? new ItemStack(Items.ENCHANTED_BOOK) : recipe.componentModifier().apply(previewStack, registries);
         return new ShapelessCraftingRecipeDisplay(
                 ingredients,
                 previewResult.isEmpty() ? Empty.INSTANCE : new SlotDisplay.ItemStackSlotDisplay(ItemStackTemplate.fromNonEmptyStack(previewResult)),
@@ -106,6 +120,10 @@ public record EnchantingRecipeBookSyncPayload(int containerId, boolean replace, 
         return true;
     }
 
+    private static SlotDisplay vsq$stackDisplay(ItemStack stack) {
+        return stack.isEmpty() ? Empty.INSTANCE : new SlotDisplay.ItemStackSlotDisplay(ItemStackTemplate.fromNonEmptyStack(stack));
+    }
+
     @Override
     public @NonNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
@@ -136,5 +154,8 @@ public record EnchantingRecipeBookSyncPayload(int containerId, boolean replace, 
                     this.craftingRequirements
             );
         }
+    }
+
+    public record RecipeView(RecipeHolder<EnchantingRecipe> holder, Optional<EnchantingRecipeInput> previewInput, boolean craftable) {
     }
 }

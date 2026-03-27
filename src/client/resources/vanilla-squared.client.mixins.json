@@ -4,7 +4,9 @@
 	"compatibilityLevel": "JAVA_21",
 	"client": [
 		"gui.GuiMixin",
+		"gui.GhostSlotAccessor",
 		"gui.GhostSlotsAccessor",
+		"gui.GhostSlotsMixin",
 		"gui.SearchRecipeBookCategoryMixin",
       "world.entities.LocalPlayerMixin",
 		"world.entities.PlayerMixin"
