@@ -2,15 +2,10 @@ package blob.vanillasquared.main.world.inventory;
 
 import blob.vanillasquared.main.network.payload.EnchantingRecipeBookSyncPayload;
 import blob.vanillasquared.main.network.payload.EnchantingRecipeStatePayload;
-import blob.vanillasquared.main.world.recipe.enchanting.EnchantingBlockRequirement;
-import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipe;
-import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipeInput;
-import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipeRegistry;
+import blob.vanillasquared.main.world.recipe.enchanting.*;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -18,7 +13,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.inventory.RecipeBookType;
@@ -26,38 +20,27 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 
 public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantmentMenuProperties {
-    public static final int INPUT_SLOT = 0;
-    public static final int MATERIAL_SLOT = 1;
-    public static final int FIRST_CROSS_SLOT = 2;
-    public static final int CROSS_SLOT_COUNT = 4;
-    public static final int TABLE_SLOT_COUNT = 6;
-    private static final int PLAYER_INV_START = TABLE_SLOT_COUNT;
-    private static final int PLAYER_INV_END = PLAYER_INV_START + 27;
-    private static final int HOTBAR_START = PLAYER_INV_END;
-    private static final int PROPERTY_PLAYER_LEVEL = 0;
-    private static final int PROPERTY_BLOCK_COUNT = 1;
-    private static final int PROPERTY_LEVEL_REQUIREMENT = 2;
-    private static final int PROPERTY_BLOCK_REQUIREMENT = 3;
+    public static final BlockPos SYNTHETIC_OPEN_POS = new BlockPos(0, -2_048, 0);
+    public static final int INPUT_SLOT = EnchantingSlotLayout.INPUT_SLOT;
+    public static final int MATERIAL_SLOT = EnchantingSlotLayout.MATERIAL_SLOT;
+    public static final int FIRST_CROSS_SLOT = EnchantingSlotLayout.FIRST_CROSS_SLOT;
+    public static final int CROSS_SLOT_COUNT = EnchantingSlotLayout.CROSS_SLOT_COUNT;
+    public static final int TABLE_SLOT_COUNT = EnchantingSlotLayout.TABLE_SLOT_COUNT;
     private static final Identifier ENCHANTABLE_TAG_ID = Identifier.fromNamespaceAndPath("vsq", "enchanting/enchantable");
     private static final Identifier MATERIAL_TAG_ID = Identifier.fromNamespaceAndPath("vsq", "enchanting/material");
     private static final TagKey<Item> ENCHANTABLE_TAG = TagKey.create(net.minecraft.core.registries.Registries.ITEM, ENCHANTABLE_TAG_ID);
     private static final TagKey<Item> MATERIAL_TAG = TagKey.create(net.minecraft.core.registries.Registries.ITEM, MATERIAL_TAG_ID);
 
-    private final Container enchantSlots = new SimpleContainer(TABLE_SLOT_COUNT) {
+    private final Container enchantSlots = new SimpleContainer(EnchantingSlotLayout.TABLE_SLOT_COUNT) {
         @Override
         public void setChanged() {
             super.setChanged();
@@ -66,35 +49,7 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
     };
     private final ContainerLevelAccess access;
     private final Player player;
-    private final ContainerData properties = new ContainerData() {
-        @Override
-        public int get(int index) {
-            return switch (index) {
-                case PROPERTY_PLAYER_LEVEL -> VSQEnchantmentMenu.this.playerLevel;
-                case PROPERTY_BLOCK_COUNT -> VSQEnchantmentMenu.this.nearbyBlockCount;
-                case PROPERTY_LEVEL_REQUIREMENT -> VSQEnchantmentMenu.this.levelRequirement;
-                case PROPERTY_BLOCK_REQUIREMENT -> VSQEnchantmentMenu.this.blockRequirement;
-                default -> 0;
-            };
-        }
-
-        @Override
-        public void set(int index, int value) {
-            switch (index) {
-                case PROPERTY_PLAYER_LEVEL -> VSQEnchantmentMenu.this.playerLevel = value;
-                case PROPERTY_BLOCK_COUNT -> VSQEnchantmentMenu.this.nearbyBlockCount = value;
-                case PROPERTY_LEVEL_REQUIREMENT -> VSQEnchantmentMenu.this.levelRequirement = value;
-                case PROPERTY_BLOCK_REQUIREMENT -> VSQEnchantmentMenu.this.blockRequirement = value;
-                default -> {
-                }
-            }
-        }
-
-        @Override
-        public int getCount() {
-            return 4;
-        }
-    };
+    private final boolean requireEnchantingTable;
 
     private int playerLevel = -1;
     private int nearbyBlockCount = -1;
@@ -108,23 +63,25 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
     private final Map<Integer, RecipeHolder<EnchantingRecipe>> displayRecipes = new LinkedHashMap<>();
 
     public VSQEnchantmentMenu(int containerId, Inventory playerInventory) {
-        this(containerId, playerInventory, BlockPos.ZERO);
+        this(containerId, playerInventory, SYNTHETIC_OPEN_POS);
     }
 
     public VSQEnchantmentMenu(int containerId, Inventory playerInventory, BlockPos blockPos) {
         super(VSQMenuTypes.ENCHANTING, containerId);
-        this.access = ContainerLevelAccess.create(playerInventory.player.level(), blockPos);
+        this.requireEnchantingTable = !SYNTHETIC_OPEN_POS.equals(blockPos);
+        this.access = this.requireEnchantingTable
+                ? ContainerLevelAccess.create(playerInventory.player.level(), blockPos)
+                : ContainerLevelAccess.NULL;
         this.player = playerInventory.player;
-        this.addDataSlots(this.properties);
         this.vsq$rebuildRecipeBookIndex();
-        this.addSlot(new Slot(this.enchantSlots, INPUT_SLOT, 26, 23));
-        this.addSlot(new Slot(this.enchantSlots, MATERIAL_SLOT, 80, 36));
-        this.addSlot(new Slot(this.enchantSlots, FIRST_CROSS_SLOT, 80, 18));
-        this.addSlot(new Slot(this.enchantSlots, FIRST_CROSS_SLOT + 1, 62, 36));
-        this.addSlot(new Slot(this.enchantSlots, FIRST_CROSS_SLOT + 2, 98, 36));
-        this.addSlot(new Slot(this.enchantSlots, FIRST_CROSS_SLOT + 3, 80, 54));
-        this.vsq$addPlayerSlots(playerInventory);
-        if (blockPos == BlockPos.ZERO) {
+        this.addSlot(new Slot(this.enchantSlots, EnchantingSlotLayout.INPUT_SLOT, 26, 23));
+        this.addSlot(new Slot(this.enchantSlots, EnchantingSlotLayout.MATERIAL_SLOT, 80, 36));
+        this.addSlot(new Slot(this.enchantSlots, EnchantingSlotLayout.FIRST_CROSS_SLOT, 80, 18));
+        this.addSlot(new Slot(this.enchantSlots, EnchantingSlotLayout.FIRST_CROSS_SLOT + 1, 62, 36));
+        this.addSlot(new Slot(this.enchantSlots, EnchantingSlotLayout.FIRST_CROSS_SLOT + 2, 98, 36));
+        this.addSlot(new Slot(this.enchantSlots, EnchantingSlotLayout.FIRST_CROSS_SLOT + 3, 80, 54));
+        EnchantingMenuSharedLogic.addPlayerSlots(this::addSlot, playerInventory);
+        if (SYNTHETIC_OPEN_POS.equals(blockPos)) {
             this.selectedDisplayId = -1;
         }
         if (this.player instanceof ServerPlayer serverPlayer) {
@@ -179,7 +136,7 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(this.access, player, Blocks.ENCHANTING_TABLE);
+        return !this.requireEnchantingTable || stillValid(this.access, player, Blocks.ENCHANTING_TABLE);
     }
 
     @Override
@@ -198,19 +155,19 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
         ItemStack stack = slot.getItem();
         ItemStack original = stack.copy();
 
-        if (index < TABLE_SLOT_COUNT) {
-            if (!this.moveItemStackTo(stack, PLAYER_INV_START, this.slots.size(), true)) {
+        if (index < EnchantingSlotLayout.TABLE_SLOT_COUNT) {
+            if (!this.moveItemStackTo(stack, EnchantingSlotLayout.PLAYER_INV_START, this.slots.size(), true)) {
                 return ItemStack.EMPTY;
             }
         } else if (stack.is(ENCHANTABLE_TAG)) {
-            if (!this.moveItemStackTo(stack, INPUT_SLOT, INPUT_SLOT + 1, false)) {
+            if (!this.moveItemStackTo(stack, EnchantingSlotLayout.INPUT_SLOT, EnchantingSlotLayout.INPUT_SLOT + 1, false)) {
                 return ItemStack.EMPTY;
             }
         } else if (stack.is(MATERIAL_TAG)) {
-            if (!this.moveItemStackTo(stack, MATERIAL_SLOT, MATERIAL_SLOT + 1, false)) {
+            if (!this.moveItemStackTo(stack, EnchantingSlotLayout.MATERIAL_SLOT, EnchantingSlotLayout.MATERIAL_SLOT + 1, false)) {
                 return ItemStack.EMPTY;
             }
-        } else if (!this.moveItemStackTo(stack, FIRST_CROSS_SLOT, FIRST_CROSS_SLOT + CROSS_SLOT_COUNT, false)) {
+        } else if (!this.moveItemStackTo(stack, EnchantingSlotLayout.FIRST_CROSS_SLOT, EnchantingSlotLayout.FIRST_CROSS_SLOT + EnchantingSlotLayout.CROSS_SLOT_COUNT, false)) {
             return ItemStack.EMPTY;
         }
 
@@ -281,7 +238,9 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
         this.hasRequiredXp = this.levelRequirement != -1 && this.playerLevel >= this.levelRequirement;
         this.hasRequiredBlocks = this.blockRequirement != -1;
         this.bookTooltipLines = this.levelRequirement == -1 || this.blockRequirement == -1 ? List.of() : List.of(recipeName.copy(), recipeDescription.copy());
-        this.detectedBlockTooltipLines = this.vsq$buildDetectedBlockTooltipLines(blockIds, counts, requiredBlockCounts);
+        EnchantingMenuSharedLogic.TooltipBuildResult tooltipBuildResult = EnchantingMenuSharedLogic.buildDetectedBlockTooltipLines(blockIds, counts, requiredBlockCounts, this.blockRequirement != -1);
+        this.detectedBlockTooltipLines = tooltipBuildResult.lines();
+        this.hasRequiredBlocks = tooltipBuildResult.hasRequiredBlocks();
 
         if (this.blockRequirement == -1) {
             this.hasRequiredBlocks = false;
@@ -317,15 +276,15 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
             return false;
         }
 
-        this.getSlot(MATERIAL_SLOT).remove(recipe.material().count());
+        this.getSlot(EnchantingSlotLayout.MATERIAL_SLOT).remove(recipe.material().count());
         for (int ingredientIndex = 0; ingredientIndex < recipe.ingredients().size(); ingredientIndex++) {
             int matchedSlotIndex = match.get().matchedCrossSlots().get(ingredientIndex);
-            this.getSlot(FIRST_CROSS_SLOT + matchedSlotIndex).remove(recipe.ingredients().get(ingredientIndex).count());
+            this.getSlot(EnchantingSlotLayout.FIRST_CROSS_SLOT + matchedSlotIndex).remove(recipe.ingredients().get(ingredientIndex).count());
         }
         if (recipe.consumedLevels() > 0) {
             player.giveExperienceLevels(-recipe.consumedLevels());
         }
-        this.getSlot(INPUT_SLOT).set(result);
+        this.getSlot(EnchantingSlotLayout.INPUT_SLOT).set(result);
         this.broadcastChanges();
         this.vsq$refresh(player);
         return true;
@@ -348,16 +307,16 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
         if (!this.vsq$returnInputsToInventory()) {
             return false;
         }
-        if (!this.vsq$fillRecipeSlot(INPUT_SLOT, recipe.input(), false)) {
+        if (!this.vsq$fillRecipeSlot(EnchantingSlotLayout.INPUT_SLOT, recipe.input(), false)) {
             this.vsq$returnInputsToInventory();
             return false;
         }
-        if (!this.vsq$fillRecipeSlot(MATERIAL_SLOT, recipe.material(), false)) {
+        if (!this.vsq$fillRecipeSlot(EnchantingSlotLayout.MATERIAL_SLOT, recipe.material(), false)) {
             this.vsq$returnInputsToInventory();
             return false;
         }
         for (int index = 0; index < recipe.ingredients().size(); index++) {
-            if (!this.vsq$fillRecipeSlot(FIRST_CROSS_SLOT + index, recipe.ingredients().get(index), false)) {
+            if (!this.vsq$fillRecipeSlot(EnchantingSlotLayout.FIRST_CROSS_SLOT + index, recipe.ingredients().get(index), false)) {
                 this.vsq$returnInputsToInventory();
                 return false;
             }
@@ -369,7 +328,7 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
     }
 
     private boolean vsq$returnInputsToInventory() {
-        for (int slotIndex = 0; slotIndex < TABLE_SLOT_COUNT; slotIndex++) {
+        for (int slotIndex = 0; slotIndex < EnchantingSlotLayout.TABLE_SLOT_COUNT; slotIndex++) {
             ItemStack stack = this.enchantSlots.getItem(slotIndex);
             if (stack.isEmpty()) {
                 continue;
@@ -473,14 +432,14 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
     }
 
     private boolean vsq$canSatisfyRecipe(EnchantingRecipe recipe) {
-        List<ItemStack> available = new ArrayList<>(this.player.getInventory().getContainerSize() + TABLE_SLOT_COUNT);
+        List<ItemStack> available = new ArrayList<>(this.player.getInventory().getContainerSize() + EnchantingSlotLayout.TABLE_SLOT_COUNT);
         for (int slotIndex = 0; slotIndex < this.player.getInventory().getContainerSize(); slotIndex++) {
             ItemStack stack = this.player.getInventory().getItem(slotIndex);
             if (!stack.isEmpty()) {
                 available.add(stack.copy());
             }
         }
-        for (int slotIndex = 0; slotIndex < TABLE_SLOT_COUNT; slotIndex++) {
+        for (int slotIndex = 0; slotIndex < EnchantingSlotLayout.TABLE_SLOT_COUNT; slotIndex++) {
             ItemStack stack = this.enchantSlots.getItem(slotIndex);
             if (!stack.isEmpty()) {
                 available.add(stack.copy());
@@ -493,7 +452,7 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
         if (!this.vsq$consumeAvailable(available, recipe.material())) {
             return false;
         }
-        for (blob.vanillasquared.main.world.recipe.enchanting.EnchantingIngredient ingredient : recipe.ingredients()) {
+        for (EnchantingIngredient ingredient : recipe.ingredients()) {
             if (!this.vsq$consumeAvailable(available, ingredient)) {
                 return false;
             }
@@ -519,92 +478,18 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
     }
 
     private Map<Identifier, Integer> vsq$collectDetectedBlocks() {
-        Map<Identifier, Integer> detectedBlocks = new TreeMap<>(Identifier::compareTo);
-        this.access.execute((level, tablePos) -> detectedBlocks.putAll(this.vsq$collectDetectedBlocks(level, tablePos)));
-        return detectedBlocks;
-    }
-
-    private Map<Identifier, Integer> vsq$collectDetectedBlocks(Level level, BlockPos tablePos) {
-        Map<Identifier, Integer> blockCounts = new TreeMap<>(Identifier::compareTo);
-        for (int dx = -2; dx <= 2; dx++) {
-            for (int dz = -2; dz <= 2; dz++) {
-                for (int dy = 0; dy <= 2; dy++) {
-                    BlockPos pos = tablePos.offset(dx, dy, dz);
-                    if (pos.equals(tablePos)) {
-                        continue;
-                    }
-                    BlockState state = level.getBlockState(pos);
-                    if (state.isAir()) {
-                        continue;
-                    }
-                    Identifier key = BuiltInRegistries.BLOCK.getKey(state.getBlock());
-                    if (key != null) {
-                        blockCounts.merge(key, 1, Integer::sum);
-                    }
-                }
-            }
-        }
-        return blockCounts;
-    }
-
-    private List<Component> vsq$buildDetectedBlockTooltipLines(List<Identifier> blockIds, List<Integer> blockCounts, List<Integer> requiredBlockCounts) {
-        List<Component> tooltipLines = new ArrayList<>(blockIds.size());
-        this.hasRequiredBlocks = this.blockRequirement != -1;
-        for (int index = 0; index < blockIds.size(); index++) {
-            int requiredCount = requiredBlockCounts.get(index);
-            int detectedCount = blockCounts.get(index);
-            Block block = BuiltInRegistries.BLOCK.getValue(blockIds.get(index));
-            if (detectedCount < requiredCount) {
-                this.hasRequiredBlocks = false;
-            }
-            MutableComponent line = Component.translatable(
-                    "vsq.gui.container.enchantment_table.blocks.tooltip.entry",
-                    detectedCount,
-                    requiredCount,
-                    block.getName()
-            );
-            tooltipLines.add(line);
-        }
-        return Collections.unmodifiableList(tooltipLines);
+        List<Map<Identifier, Integer>> detectedBlocks = new ArrayList<>(1);
+        this.access.execute((level, tablePos) -> detectedBlocks.add(EnchantingMenuSharedLogic.collectDetectedBlocks(level, tablePos)));
+        return detectedBlocks.isEmpty() ? Map.of() : detectedBlocks.getFirst();
     }
 
     private void vsq$sendDetectedBlockCounts(List<EnchantingRecipe.BlockRequirementDisplay> blockDisplay, int levelRequirement, int blockRequirement, int playerLevel, Component recipeName, Component recipeDescription, ServerPlayer player) {
-        List<Identifier> blockIds = new ArrayList<>(blockDisplay.size());
-        List<Integer> blockCounts = new ArrayList<>(blockDisplay.size());
-        List<Integer> requiredBlockCounts = new ArrayList<>(blockDisplay.size());
-        for (EnchantingRecipe.BlockRequirementDisplay entry : blockDisplay) {
-            blockIds.add(entry.blockId());
-            blockCounts.add(entry.placedCount());
-            requiredBlockCounts.add(entry.requiredCount());
-        }
-        ServerPlayNetworking.send(player, new EnchantingRecipeStatePayload(this.containerId, blockIds, blockCounts, requiredBlockCounts, playerLevel, levelRequirement, blockRequirement, recipeName, recipeDescription));
+        EnchantingMenuSharedLogic.BlockDisplayLists blockDisplayLists = EnchantingMenuSharedLogic.flattenBlockDisplay(blockDisplay);
+        ServerPlayNetworking.send(player, new EnchantingRecipeStatePayload(this.containerId, blockDisplayLists.blockIds(), blockDisplayLists.blockCounts(), blockDisplayLists.requiredBlockCounts(), playerLevel, levelRequirement, blockRequirement, recipeName, recipeDescription));
     }
 
     private EnchantingRecipeInput vsq$createRecipeInput() {
-        return new EnchantingRecipeInput(
-                this.enchantSlots.getItem(INPUT_SLOT).copy(),
-                this.enchantSlots.getItem(MATERIAL_SLOT).copy(),
-                this.vsq$getCrossSlotItems()
-        );
-    }
-
-    private List<ItemStack> vsq$getCrossSlotItems() {
-        List<ItemStack> items = new ArrayList<>(CROSS_SLOT_COUNT);
-        for (int index = 0; index < CROSS_SLOT_COUNT; index++) {
-            items.add(this.enchantSlots.getItem(FIRST_CROSS_SLOT + index).copy());
-        }
-        return List.copyOf(items);
-    }
-
-    private void vsq$addPlayerSlots(Inventory playerInventory) {
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 84 + row * 18));
-            }
-        }
-        for (int hotbarSlot = 0; hotbarSlot < 9; hotbarSlot++) {
-            this.addSlot(new Slot(playerInventory, hotbarSlot, 8 + hotbarSlot * 18, 142));
-        }
+        return EnchantingMenuSharedLogic.createRecipeInput(this.enchantSlots::getItem);
     }
 
     private void vsq$rebuildRecipeBookIndex() {
@@ -621,7 +506,7 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
     }
 
     public List<Slot> vsq$getEnchantingSlots() {
-        return this.slots.subList(0, TABLE_SLOT_COUNT);
+        return this.slots.subList(0, EnchantingSlotLayout.TABLE_SLOT_COUNT);
     }
 
     public Map<Integer, RecipeHolder<EnchantingRecipe>> vsq$getDisplayRecipes() {
