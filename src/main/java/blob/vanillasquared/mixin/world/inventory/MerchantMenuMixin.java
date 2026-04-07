@@ -15,7 +15,7 @@ public abstract class MerchantMenuMixin {
     private void vsq$filterAestheticTrades(CallbackInfoReturnable<MerchantOffers> cir) {
         MerchantOffers offers = cir.getReturnValue();
         if (offers != null && !offers.isEmpty()) {
-            offers.removeIf(offer -> offer.getResult().is(Items.ENCHANTED_BOOK) || offer.getResult().isEmpty());
+            offers.removeIf(offer -> offer.getResult().is(Items.ENCHANTED_BOOK));
         }
     }
 }
