@@ -239,7 +239,7 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
             return;
         }
 
-        this.selectionCleared = selectionCleared;
+        this.selectionCleared |= selectionCleared;
         this.playerLevel = playerLevel;
         this.levelRequirement = levelRequirement;
         this.nearbyBlockCount = blockRequirement == -1 ? -1 : counts.stream().mapToInt(Integer::intValue).sum();
