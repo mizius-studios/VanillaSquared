@@ -27,7 +27,8 @@ public final class EnchantingRecipeStatePayloadHandler {
                             payload.blockRequirement(),
                             payload.playerLevel(),
                             payload.recipeName(),
-                            payload.recipeDescription()
+                            payload.recipeDescription(),
+                            payload.selectionCleared()
                     ));
 
                     if (context.client().player == null) {
@@ -46,7 +47,8 @@ public final class EnchantingRecipeStatePayloadHandler {
                             payload.blockRequirement(),
                             payload.playerLevel(),
                             payload.recipeName(),
-                            payload.recipeDescription()
+                            payload.recipeDescription(),
+                            payload.selectionCleared()
                     );
                 })
         );
@@ -67,7 +69,8 @@ public final class EnchantingRecipeStatePayloadHandler {
                 cachedRecipeState.blockRequirement(),
                 cachedRecipeState.playerLevel(),
                 cachedRecipeState.recipeName(),
-                cachedRecipeState.recipeDescription()
+                cachedRecipeState.recipeDescription(),
+                cachedRecipeState.selectionCleared()
         );
     }
 
@@ -83,7 +86,8 @@ public final class EnchantingRecipeStatePayloadHandler {
             int blockRequirement,
             int playerLevel,
             Component recipeName,
-            Component recipeDescription
+            Component recipeDescription,
+            boolean selectionCleared
     ) {
         private CachedRecipeState {
             blockIds = List.copyOf(blockIds);

@@ -304,6 +304,9 @@ public class VSQEnchantmentScreen extends AbstractRecipeBookScreen<VSQEnchantmen
         this.vsq$hasRequiredXp = properties.vsq$hasRequiredXp();
         this.vsq$hasRequiredBlocks = properties.vsq$hasRequiredBlocks();
         this.vsq$bookTooltipLines = properties.vsq$getBookTooltipLines();
+        if (properties.vsq$isSelectionCleared()) {
+            this.vsq$recipeBookComponent.vsq$clearSelection();
+        }
     }
 
     private Identifier vsq$getRequirementSprite(boolean hasData, boolean meetsRequirement, boolean hovered, Identifier disabledSprite, Identifier enabledSprite, Identifier hoverSprite, GuiGraphicsExtractor guiGraphics) {

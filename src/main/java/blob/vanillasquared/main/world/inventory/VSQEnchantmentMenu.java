@@ -62,6 +62,7 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
     private List<Component> detectedBlockTooltipLines = List.of();
     private List<Component> bookTooltipLines = List.of();
     private int selectedDisplayId = -1;
+    private boolean selectionCleared;
     private final Map<Integer, RecipeHolder<EnchantingRecipe>> displayRecipes = new LinkedHashMap<>();
 
     public VSQEnchantmentMenu(int containerId, Inventory playerInventory) {
@@ -224,11 +225,21 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
     }
 
     @Override
-    public void vsq$applyRecipeState(int containerId, List<Identifier> blockIds, List<Integer> counts, List<Integer> requiredBlockCounts, int levelRequirement, int blockRequirement, int playerLevel, Component recipeName, Component recipeDescription) {
+    public boolean vsq$isSelectionCleared() {
+        if (this.selectionCleared) {
+            this.selectionCleared = false;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void vsq$applyRecipeState(int containerId, List<Identifier> blockIds, List<Integer> counts, List<Integer> requiredBlockCounts, int levelRequirement, int blockRequirement, int playerLevel, Component recipeName, Component recipeDescription, boolean selectionCleared) {
         if (this.containerId != containerId) {
             return;
         }
 
+        this.selectionCleared = selectionCleared;
         this.playerLevel = playerLevel;
         this.levelRequirement = levelRequirement;
         this.nearbyBlockCount = blockRequirement == -1 ? -1 : counts.stream().mapToInt(Integer::intValue).sum();
@@ -363,12 +374,14 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
         this.vsq$sendRecipeBookSync(player, true);
         Map<Identifier, Integer> detectedBlocks = this.vsq$collectDetectedBlocks();
         EnchantingRecipeInput input = this.vsq$createRecipeInput();
+        int previousSelectedId = this.selectedDisplayId;
         Optional<RecipeHolder<EnchantingRecipe>> recipeHolder = this.vsq$getPreviewRecipe(input, player.registryAccess());
+        boolean selectionWasCleared = previousSelectedId != -1 && this.selectedDisplayId == -1;
         if (recipeHolder.isEmpty()) {
             this.levelRequirement = -1;
             this.blockRequirement = -1;
             this.nearbyBlockCount = -1;
-            this.vsq$sendDetectedBlockCounts(List.of(), -1, -1, player.experienceLevel, Component.empty(), Component.empty(), player);
+            this.vsq$sendDetectedBlockCounts(List.of(), -1, -1, player.experienceLevel, Component.empty(), Component.empty(), player, selectionWasCleared);
             return;
         }
 
@@ -379,7 +392,7 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
         this.nearbyBlockCount = this.blockRequirement == -1 ? -1 : blockDisplay.stream().mapToInt(EnchantingRecipe.BlockRequirementDisplay::placedCount).sum();
         Component recipeName = recipe.displayName(input, player.registryAccess());
         Component recipeDescription = recipe.description();
-        this.vsq$sendDetectedBlockCounts(blockDisplay, this.levelRequirement, this.blockRequirement, player.experienceLevel, recipeName, recipeDescription, player);
+        this.vsq$sendDetectedBlockCounts(blockDisplay, this.levelRequirement, this.blockRequirement, player.experienceLevel, recipeName, recipeDescription, player, selectionWasCleared);
     }
 
     private Optional<RecipeHolder<EnchantingRecipe>> vsq$getPreviewRecipe(EnchantingRecipeInput input, net.minecraft.core.HolderLookup.Provider registries) {
@@ -421,9 +434,9 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
         return detectedBlocks.isEmpty() ? Map.of() : detectedBlocks.getFirst();
     }
 
-    private void vsq$sendDetectedBlockCounts(List<EnchantingRecipe.BlockRequirementDisplay> blockDisplay, int levelRequirement, int blockRequirement, int playerLevel, Component recipeName, Component recipeDescription, ServerPlayer player) {
+    private void vsq$sendDetectedBlockCounts(List<EnchantingRecipe.BlockRequirementDisplay> blockDisplay, int levelRequirement, int blockRequirement, int playerLevel, Component recipeName, Component recipeDescription, ServerPlayer player, boolean selectionCleared) {
         EnchantingMenuSharedLogic.BlockDisplayLists blockDisplayLists = EnchantingMenuSharedLogic.flattenBlockDisplay(blockDisplay);
-        ServerPlayNetworking.send(player, new EnchantingRecipeStatePayload(this.containerId, blockDisplayLists.blockIds(), blockDisplayLists.blockCounts(), blockDisplayLists.requiredBlockCounts(), playerLevel, levelRequirement, blockRequirement, recipeName, recipeDescription));
+        ServerPlayNetworking.send(player, new EnchantingRecipeStatePayload(this.containerId, blockDisplayLists.blockIds(), blockDisplayLists.blockCounts(), blockDisplayLists.requiredBlockCounts(), playerLevel, levelRequirement, blockRequirement, recipeName, recipeDescription, selectionCleared));
     }
 
     private EnchantingRecipeInput vsq$createRecipeInput() {

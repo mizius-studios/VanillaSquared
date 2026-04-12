@@ -156,8 +156,7 @@ public record EnchantingIngredient(Ingredient ingredient, int count, Identifier 
         if (this.ingredient != null) {
             return this.ingredient;
         }
-        return this.safeIngredient()
-                .orElseThrow(() -> new IllegalStateException("Unknown or empty item tag: " + this.tagId));
+        return this.safeIngredient().orElse(Ingredient.EMPTY);
     }
 
     public Optional<Ingredient> safeIngredient() {
