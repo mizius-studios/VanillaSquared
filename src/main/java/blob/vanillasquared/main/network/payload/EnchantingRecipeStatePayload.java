@@ -26,13 +26,16 @@ public record EnchantingRecipeStatePayload(
 ) implements CustomPacketPayload {
     public static final Type<EnchantingRecipeStatePayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath(VanillaSquared.MOD_ID, "enchanting_recipe_state"));
 
+    private static final StreamCodec<RegistryFriendlyByteBuf, List<Identifier>> IDENTIFIER_LIST_CODEC = Identifier.STREAM_CODEC.apply(ByteBufCodecs.list());
+    private static final StreamCodec<RegistryFriendlyByteBuf, List<Integer>> VAR_INT_LIST_CODEC = ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list());
+
     public static final StreamCodec<RegistryFriendlyByteBuf, EnchantingRecipeStatePayload> CODEC = new StreamCodec<>() {
         @Override
         public EnchantingRecipeStatePayload decode(RegistryFriendlyByteBuf buf) {
             int containerId = ByteBufCodecs.VAR_INT.decode(buf);
-            List<Identifier> blockIds = Identifier.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
-            List<Integer> blockCounts = ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list()).decode(buf);
-            List<Integer> requiredBlockCounts = ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list()).decode(buf);
+            List<Identifier> blockIds = IDENTIFIER_LIST_CODEC.decode(buf);
+            List<Integer> blockCounts = VAR_INT_LIST_CODEC.decode(buf);
+            List<Integer> requiredBlockCounts = VAR_INT_LIST_CODEC.decode(buf);
             int playerLevel = ByteBufCodecs.VAR_INT.decode(buf);
             int levelRequirement = ByteBufCodecs.VAR_INT.decode(buf);
             int blockRequirement = ByteBufCodecs.VAR_INT.decode(buf);
@@ -45,9 +48,9 @@ public record EnchantingRecipeStatePayload(
         @Override
         public void encode(RegistryFriendlyByteBuf buf, EnchantingRecipeStatePayload value) {
             ByteBufCodecs.VAR_INT.encode(buf, value.containerId);
-            Identifier.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, value.blockIds);
-            ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list()).encode(buf, value.blockCounts);
-            ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list()).encode(buf, value.requiredBlockCounts);
+            IDENTIFIER_LIST_CODEC.encode(buf, value.blockIds);
+            VAR_INT_LIST_CODEC.encode(buf, value.blockCounts);
+            VAR_INT_LIST_CODEC.encode(buf, value.requiredBlockCounts);
             ByteBufCodecs.VAR_INT.encode(buf, value.playerLevel);
             ByteBufCodecs.VAR_INT.encode(buf, value.levelRequirement);
             ByteBufCodecs.VAR_INT.encode(buf, value.blockRequirement);
