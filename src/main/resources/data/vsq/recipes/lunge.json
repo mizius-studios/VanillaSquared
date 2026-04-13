@@ -14,9 +14,7 @@
   },
   "ingredients": [
     {
-      "tag": "minecraft:spearss",
-      "count": 1
-    },
+      "tag": "minecraft:spears",
     {
       "item": "minecraft:wind_charge",
       "count": 4
