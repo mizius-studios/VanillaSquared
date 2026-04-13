@@ -8,7 +8,6 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -18,8 +17,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.item.crafting.display.SlotDisplay.Empty;
@@ -156,8 +153,7 @@ public record EnchantingIngredient(Ingredient ingredient, int count, Identifier 
 
     public boolean matchesIgnoringCount(ItemStack stack) {
         if (this.tagId != null) {
-            return stack.is(TagKey.create(net.minecraft.core.registries.Registries.ITEM, this.tagId))
-                    && vsq$isSupportedEnchantingItem(stack.getItem());
+            return stack.is(TagKey.create(net.minecraft.core.registries.Registries.ITEM, this.tagId));
         }
         return this.ingredient.test(stack);
     }
@@ -180,7 +176,6 @@ public record EnchantingIngredient(Ingredient ingredient, int count, Identifier 
     private static Optional<Ingredient> resolveTagIngredient(Identifier tagId) {
         TagKey<Item> tagKey = TagKey.create(net.minecraft.core.registries.Registries.ITEM, tagId);
         List<Holder<Item>> holders = StreamSupport.stream(BuiltInRegistries.ITEM.getTagOrEmpty(tagKey).spliterator(), false)
-                .filter(holder -> vsq$isSupportedEnchantingItem(holder.value()))
                 .toList();
         if (holders.isEmpty()) {
             return Optional.empty();
@@ -229,13 +224,8 @@ public record EnchantingIngredient(Ingredient ingredient, int count, Identifier 
     private static List<ItemStack> resolveTagPreview(Identifier tagId) {
         TagKey<Item> tagKey = TagKey.create(net.minecraft.core.registries.Registries.ITEM, tagId);
         return StreamSupport.stream(BuiltInRegistries.ITEM.getTagOrEmpty(tagKey).spliterator(), false)
-                .filter(holder -> vsq$isSupportedEnchantingItem(holder.value()))
                 .map(holder -> new ItemStack(holder.value()))
                 .toList();
-    }
-
-    private static boolean vsq$isSupportedEnchantingItem(Item item) {
-        return item != Items.AIR && item.components().has(DataComponents.ENCHANTABLE);
     }
 
     private static <T> T vsq$removeCount(DynamicOps<T> ops, T input) {
