@@ -55,5 +55,16 @@
   "vsq.enchantment.thorns.description": "Deals damage to attackers.",
   "vsq.enchantment.unbreaking.description": "Reduces the chance of breaking an item.",
   "vsq.enchantment.vanishing_curse.description": "Items with curse of vanishing disappear when you die.",
-  "vsq.enchantment.wind_burst.description": "Summons a wind charge explosion upon a mace hit,\nboosting you up again."
+  "vsq.enchantment.wind_burst.description": "Summons a wind charge explosion upon a mace hit,\nboosting you up again.",
+  "vsq.enchantment_slot.special": "Special",
+  "vsq.enchantment_slot.damage": "Damage",
+  "vsq.enchantment_slot.secondary": "Secondary",
+  "vsq.enchantment_slot.defense": "Defense",
+  "vsq.enchantment_slot.util": "Utility",
+  "vsq.enchantment_slot.curse": "Curse",
+  "vsq.tooltip.enchantment_slots.header": "Enchantment Slots",
+  "vsq.tooltip.enchantment_slots.slot": "%s %s/%s",
+  "vsq.tooltip.enchantment_slots.slot.selected": "> %s %s/%s",
+  "vsq.tooltip.enchantment_slots.empty": "Empty",
+  "vsq.tooltip.enchantment_slots.hint": "Hold Left Alt. Use arrows or scroll to cycle."
 }

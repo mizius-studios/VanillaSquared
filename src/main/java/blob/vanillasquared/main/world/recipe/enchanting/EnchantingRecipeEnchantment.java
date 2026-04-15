@@ -1,9 +1,9 @@
 package blob.vanillasquared.main.world.recipe.enchanting;
 
+import blob.vanillasquared.main.world.item.components.enchantment.VSQEnchantmentSlots;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -16,7 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 
@@ -42,16 +41,12 @@ public record EnchantingRecipeEnchantment(Identifier enchantment) {
     };
 
     public ItemStack apply(ItemStack originalStack, HolderLookup.Provider registries) {
-        if (!this.canApplyNextLevel(originalStack, registries)) {
+        Holder.Reference<Enchantment> enchantment = this.vsq$enchantmentHolder(registries);
+        int nextLevel = this.nextLevel(originalStack, registries);
+        if (!this.canApplyNextLevel(originalStack, registries) || !VSQEnchantmentSlots.canApplyInSlots(originalStack, enchantment, nextLevel)) {
             return originalStack.copy();
         }
-        ItemStack result = originalStack.copy();
-        DataComponentType<ItemEnchantments> targetComponent = vsq$targetComponent(result);
-        ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(result.getOrDefault(targetComponent, ItemEnchantments.EMPTY));
-        Holder.Reference<Enchantment> enchantment = this.vsq$enchantmentHolder(registries);
-        mutable.set(enchantment, this.nextLevel(originalStack, registries));
-        result.set(targetComponent, mutable.toImmutable());
-        return result;
+        return VSQEnchantmentSlots.applyEnchant(originalStack, enchantment, nextLevel);
     }
 
     public Ingredient supportedItemsIngredient(HolderLookup.Provider registries) {
@@ -92,9 +87,7 @@ public record EnchantingRecipeEnchantment(Identifier enchantment) {
 
     public int currentLevel(ItemStack originalStack, HolderLookup.Provider registries) {
         Holder.Reference<Enchantment> enchantment = this.vsq$enchantmentHolder(registries);
-        int currentLevel = originalStack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY).getLevel(enchantment);
-        currentLevel = Math.max(currentLevel, originalStack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY).getLevel(enchantment));
-        return Math.max(currentLevel, 0);
+        return Math.max(VSQEnchantmentSlots.currentLevel(originalStack, enchantment), 0);
     }
 
     public int nextLevel(ItemStack originalStack, HolderLookup.Provider registries) {
@@ -133,21 +126,7 @@ public record EnchantingRecipeEnchantment(Identifier enchantment) {
     }
 
     public boolean respectsVanillaEnchantmentIncompatibilities(ItemStack originalStack, HolderLookup.Provider registries) {
-        ItemStack result = this.apply(originalStack, registries);
-        return vsq$hasCompatibleEnchantments(result.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY))
-                && vsq$hasCompatibleEnchantments(result.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY));
-    }
-
-    private static DataComponentType<ItemEnchantments> vsq$targetComponent(ItemStack stack) {
-        ItemEnchantments storedEnchantments = stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
-        if (stack.is(Items.ENCHANTED_BOOK) || !storedEnchantments.isEmpty()) {
-            return DataComponents.STORED_ENCHANTMENTS;
-        }
-        return DataComponents.ENCHANTMENTS;
-    }
-
-    private static boolean vsq$hasCompatibleEnchantments(ItemEnchantments enchantments) {
-        var entries = enchantments.entrySet().stream().toList();
+        var entries = VSQEnchantmentSlots.aggregate(this.apply(originalStack, registries)).entrySet().stream().toList();
         for (int leftIndex = 0; leftIndex < entries.size(); leftIndex++) {
             var left = entries.get(leftIndex).getKey();
             for (int rightIndex = leftIndex + 1; rightIndex < entries.size(); rightIndex++) {

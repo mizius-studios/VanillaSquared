@@ -1,5 +1,4 @@
 package blob.vanillasquared.mixin.client.gui;
-
 import blob.vanillasquared.main.world.inventory.VSQEnchantmentMenu;
 import com.google.common.collect.Lists;
 import net.minecraft.client.ClientRecipeBook;
@@ -9,16 +8,19 @@ import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookPage;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookTabButton;
 import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.crafting.display.RecipeDisplayEntry;
 import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import net.minecraft.world.inventory.RecipeBookMenu;
+import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 import java.util.Locale;
@@ -31,6 +33,17 @@ public abstract class RecipeBookComponentMixin<T extends RecipeBookMenu> {
     @Shadow private RecipeBookPage recipeBookPage;
     @Shadow private RecipeBookTabButton selectedTab;
     @Shadow private EditBox searchBox;
+
+    @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
+    private void vsq$ignoreVerticalArrowsOnSearchBox(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
+        if (this.searchBox == null || !this.searchBox.isFocused() || !this.searchBox.isVisible()) {
+            return;
+        }
+
+        if (event.key() == GLFW.GLFW_KEY_UP || event.key() == GLFW.GLFW_KEY_DOWN) {
+            cir.setReturnValue(false);
+        }
+    }
 
     @Inject(method = "updateCollections", at = @At("HEAD"), cancellable = true)
     private void vsq$updateEnchantingCollections(boolean resetCurrentPage, boolean filtering, CallbackInfo ci) {
