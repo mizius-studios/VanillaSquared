@@ -375,6 +375,7 @@ public final class VSQEnchantmentSlots {
         }
 
         List<Component> lines = new ArrayList<>();
+        lines.add(Component.empty());
         lines.add(Component.translatable("vsq.tooltip.enchantment_slots.header").withStyle(ChatFormatting.GRAY));
         for (int index = 0; index < slotTypes.size(); index++) {
             VSQEnchantmentSlotType slotType = slotTypes.get(index);
@@ -396,6 +397,7 @@ public final class VSQEnchantmentSlots {
                 }
             }
         }
+        lines.add(Component.empty());
         lines.add(Component.translatable("vsq.tooltip.enchantment_slots.hint").withStyle(ChatFormatting.DARK_GRAY));
         return List.copyOf(lines);
     }
