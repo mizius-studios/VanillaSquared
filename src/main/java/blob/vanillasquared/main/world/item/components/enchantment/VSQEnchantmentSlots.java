@@ -312,7 +312,7 @@ public final class VSQEnchantmentSlots {
             int level = entry.getIntValue();
             VSQEnchantmentSlotType slotType = slotType(enchantment);
             if (slotType == null) {
-                return Optional.empty();
+                continue;
             }
 
             Optional<List<VSQEnchantmentSlotEntry>> maybeEntries = working.slots(slotType);

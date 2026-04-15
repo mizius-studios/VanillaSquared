@@ -1,6 +1,7 @@
 package blob.vanillasquared.main.world.item.components.enchantment;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 
 import java.util.Locale;
 
@@ -12,7 +13,16 @@ public enum VSQEnchantmentSlotType {
     UTIL,
     CURSE;
 
-    public static final Codec<VSQEnchantmentSlotType> CODEC = Codec.STRING.xmap(VSQEnchantmentSlotType::byName, VSQEnchantmentSlotType::serializedName);
+    public static final Codec<VSQEnchantmentSlotType> CODEC = Codec.STRING.comapFlatMap(
+            name -> {
+                try {
+                    return DataResult.success(byName(name));
+                } catch (IllegalArgumentException exception) {
+                    return DataResult.error(exception::getMessage);
+                }
+            },
+            VSQEnchantmentSlotType::serializedName
+    );
 
     public static VSQEnchantmentSlotType byName(String name) {
         return switch (name.toLowerCase(Locale.ROOT)) {
