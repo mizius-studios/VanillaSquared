@@ -6,7 +6,6 @@ import net.minecraft.core.component.TypedDataComponent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
@@ -34,51 +33,6 @@ import java.util.Optional;
 
 public final class VSQEnchantmentSlots {
     private static final ThreadLocal<Boolean> DERIVED_SYNC_GUARD = ThreadLocal.withInitial(() -> false);
-    private static final Map<String, VSQEnchantmentSlotType> FALLBACK_SLOT_TYPES = Map.ofEntries(
-            Map.entry("minecraft:aqua_affinity", VSQEnchantmentSlotType.UTIL),
-            Map.entry("minecraft:bane_of_arthropods", VSQEnchantmentSlotType.DAMAGE),
-            Map.entry("minecraft:binding_curse", VSQEnchantmentSlotType.CURSE),
-            Map.entry("minecraft:blast_protection", VSQEnchantmentSlotType.DEFENSE),
-            Map.entry("minecraft:breach", VSQEnchantmentSlotType.DAMAGE),
-            Map.entry("minecraft:channeling", VSQEnchantmentSlotType.SPECIAL),
-            Map.entry("minecraft:density", VSQEnchantmentSlotType.DAMAGE),
-            Map.entry("minecraft:depth_strider", VSQEnchantmentSlotType.UTIL),
-            Map.entry("minecraft:efficiency", VSQEnchantmentSlotType.UTIL),
-            Map.entry("minecraft:feather_falling", VSQEnchantmentSlotType.DEFENSE),
-            Map.entry("minecraft:fire_aspect", VSQEnchantmentSlotType.SECONDARY),
-            Map.entry("minecraft:fire_protection", VSQEnchantmentSlotType.DEFENSE),
-            Map.entry("minecraft:flame", VSQEnchantmentSlotType.SECONDARY),
-            Map.entry("minecraft:fortune", VSQEnchantmentSlotType.UTIL),
-            Map.entry("minecraft:frost_walker", VSQEnchantmentSlotType.UTIL),
-            Map.entry("minecraft:impaling", VSQEnchantmentSlotType.DAMAGE),
-            Map.entry("minecraft:infinity", VSQEnchantmentSlotType.SPECIAL),
-            Map.entry("minecraft:knockback", VSQEnchantmentSlotType.SECONDARY),
-            Map.entry("minecraft:looting", VSQEnchantmentSlotType.SECONDARY),
-            Map.entry("minecraft:loyalty", VSQEnchantmentSlotType.SECONDARY),
-            Map.entry("minecraft:luck_of_the_sea", VSQEnchantmentSlotType.UTIL),
-            Map.entry("minecraft:lure", VSQEnchantmentSlotType.UTIL),
-            Map.entry("minecraft:mending", VSQEnchantmentSlotType.UTIL),
-            Map.entry("minecraft:multishot", VSQEnchantmentSlotType.SECONDARY),
-            Map.entry("minecraft:piercing", VSQEnchantmentSlotType.SECONDARY),
-            Map.entry("minecraft:power", VSQEnchantmentSlotType.DAMAGE),
-            Map.entry("minecraft:projectile_protection", VSQEnchantmentSlotType.DEFENSE),
-            Map.entry("minecraft:protection", VSQEnchantmentSlotType.DEFENSE),
-            Map.entry("minecraft:punch", VSQEnchantmentSlotType.SECONDARY),
-            Map.entry("minecraft:quick_charge", VSQEnchantmentSlotType.UTIL),
-            Map.entry("minecraft:respiration", VSQEnchantmentSlotType.UTIL),
-            Map.entry("minecraft:riptide", VSQEnchantmentSlotType.SPECIAL),
-            Map.entry("minecraft:sharpness", VSQEnchantmentSlotType.DAMAGE),
-            Map.entry("minecraft:silk_touch", VSQEnchantmentSlotType.SPECIAL),
-            Map.entry("minecraft:smite", VSQEnchantmentSlotType.DAMAGE),
-            Map.entry("minecraft:soul_speed", VSQEnchantmentSlotType.UTIL),
-            Map.entry("minecraft:sweeping_edge", VSQEnchantmentSlotType.SECONDARY),
-            Map.entry("minecraft:swift_sneak", VSQEnchantmentSlotType.UTIL),
-            Map.entry("minecraft:thorns", VSQEnchantmentSlotType.DEFENSE),
-            Map.entry("minecraft:unbreaking", VSQEnchantmentSlotType.UTIL),
-            Map.entry("minecraft:vanishing_curse", VSQEnchantmentSlotType.CURSE),
-            Map.entry("minecraft:wind_burst", VSQEnchantmentSlotType.SPECIAL),
-            Map.entry("minecraft:lunge", VSQEnchantmentSlotType.DAMAGE)
-    );
 
     private VSQEnchantmentSlots() {
     }
@@ -88,7 +42,7 @@ public final class VSQEnchantmentSlots {
     }
 
     public static void ensureSeeded(ItemStack stack) {
-        if (stack.isEmpty() || stack.has(DataComponents.VSQ_ENCHANTMENT) || !stack.has(net.minecraft.core.component.DataComponents.ENCHANTABLE)) {
+        if (stack.isEmpty() || stack.has(DataComponents.VSQ_ENCHANTMENT) || !supportsSlotComponent(stack)) {
             return;
         }
 
@@ -270,21 +224,16 @@ public final class VSQEnchantmentSlots {
     }
 
     public static VSQEnchantmentSlotType slotType(Holder<Enchantment> enchantment) {
-        if (((Object) enchantment.value()) instanceof VSQEnchantmentAccess access && access.vsq$getEnchantmentSlotType() != null) {
+        if ((Object) enchantment.value() instanceof VSQEnchantmentAccess access) {
             return access.vsq$getEnchantmentSlotType();
         }
-
-        Identifier id = enchantment.unwrapKey().map(key -> key.identifier()).orElse(null);
-        if (id == null) {
-            return null;
-        }
-        return FALLBACK_SLOT_TYPES.get(id.toString());
+        return null;
     }
 
     public static Map<VSQEnchantmentSlotType, Integer> definedCapacities(ItemStack stack) {
         Item item = stack.getItem();
         EnumMap<VSQEnchantmentSlotType, Integer> capacities = new EnumMap<>(VSQEnchantmentSlotType.class);
-        if (!(item instanceof Item) || !stack.has(net.minecraft.core.component.DataComponents.ENCHANTABLE)) {
+        if (!(item instanceof Item)) {
             return capacities;
         }
 
@@ -293,34 +242,35 @@ public final class VSQEnchantmentSlots {
         boolean sword = itemPath.endsWith("_sword");
         boolean pickaxe = itemPath.endsWith("_pickaxe");
         boolean elytra = itemPath.equals("elytra");
+        boolean spear = itemPath.endsWith("_spear");
 
         if (armor) {
-            capacities.put(VSQEnchantmentSlotType.DEFENSE, 2);
-            capacities.put(VSQEnchantmentSlotType.UTIL, 2);
-            capacities.put(VSQEnchantmentSlotType.CURSE, 1);
+            capacities.put(VSQEnchantmentSlotType.DEFENSE, 3);
+            capacities.put(VSQEnchantmentSlotType.SECONDARY, 3);
+            capacities.put(VSQEnchantmentSlotType.UTIL, 3);
+            capacities.put(VSQEnchantmentSlotType.CURSE, 2);
         } else if (elytra) {
-            capacities.put(VSQEnchantmentSlotType.DEFENSE, 1);
+            capacities.put(VSQEnchantmentSlotType.DEFENSE, 2);
+            capacities.put(VSQEnchantmentSlotType.SECONDARY, 3);
             capacities.put(VSQEnchantmentSlotType.UTIL, 2);
             capacities.put(VSQEnchantmentSlotType.CURSE, 1);
-        } else if (item instanceof ShieldItem) {
-            capacities.put(VSQEnchantmentSlotType.DEFENSE, 2);
-            capacities.put(VSQEnchantmentSlotType.SPECIAL, 1);
-            capacities.put(VSQEnchantmentSlotType.CURSE, 1);
-        } else if (sword || item instanceof AxeItem || item instanceof MaceItem || item instanceof TridentItem || item instanceof BowItem || item instanceof CrossbowItem) {
-            capacities.put(VSQEnchantmentSlotType.DAMAGE, 2);
+        } else if (item instanceof ShieldItem || itemPath.equals("shield")) {
             capacities.put(VSQEnchantmentSlotType.SECONDARY, 2);
-            capacities.put(VSQEnchantmentSlotType.UTIL, 1);
+            capacities.put(VSQEnchantmentSlotType.UTIL, 2);
+            capacities.put(VSQEnchantmentSlotType.CURSE, 1);
+        } else if (sword || item instanceof AxeItem || item instanceof MaceItem || item instanceof TridentItem || item instanceof BowItem || item instanceof CrossbowItem || spear) {
+            capacities.put(VSQEnchantmentSlotType.DAMAGE, 3);
+            capacities.put(VSQEnchantmentSlotType.SECONDARY, 2);
+            capacities.put(VSQEnchantmentSlotType.UTIL, 3);
             capacities.put(VSQEnchantmentSlotType.SPECIAL, 1);
             capacities.put(VSQEnchantmentSlotType.CURSE, 1);
         } else if (pickaxe || item instanceof ShovelItem || item instanceof HoeItem || item instanceof ShearsItem || item instanceof FlintAndSteelItem) {
-            capacities.put(VSQEnchantmentSlotType.UTIL, 2);
-            capacities.put(VSQEnchantmentSlotType.SECONDARY, 1);
-            capacities.put(VSQEnchantmentSlotType.SPECIAL, 1);
+            capacities.put(VSQEnchantmentSlotType.SECONDARY, 4);
+            capacities.put(VSQEnchantmentSlotType.UTIL, 3);
             capacities.put(VSQEnchantmentSlotType.CURSE, 1);
         } else if (item instanceof FishingRodItem) {
-            capacities.put(VSQEnchantmentSlotType.SECONDARY, 1);
-            capacities.put(VSQEnchantmentSlotType.UTIL, 2);
-            capacities.put(VSQEnchantmentSlotType.SPECIAL, 1);
+            capacities.put(VSQEnchantmentSlotType.SECONDARY, 4);
+            capacities.put(VSQEnchantmentSlotType.UTIL, 3);
             capacities.put(VSQEnchantmentSlotType.CURSE, 1);
         } else if (stack.has(net.minecraft.core.component.DataComponents.ENCHANTABLE)) {
             Enchantable enchantable = stack.get(net.minecraft.core.component.DataComponents.ENCHANTABLE);
@@ -331,6 +281,11 @@ public final class VSQEnchantmentSlots {
         }
 
         return capacities;
+    }
+
+    private static boolean supportsSlotComponent(ItemStack stack) {
+        Item item = stack.getItem();
+        return stack.has(net.minecraft.core.component.DataComponents.ENCHANTABLE) || item instanceof ShieldItem || BuiltInRegistries.ITEM.getKey(item).getPath().equals("shield");
     }
 
     public static VSQEnchantmentComponent createSeededComponent(ItemStack stack) {
