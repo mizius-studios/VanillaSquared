@@ -9,7 +9,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -60,7 +59,7 @@ public abstract class EnchantCommandMixin {
             }
 
             boolean compatible = enchantment.canEnchant(item)
-                    && EnchantmentHelper.isEnchantmentCompatible(EnchantmentHelper.getEnchantmentsForCrafting(item).keySet(), enchantmentHolder)
+                    && VSQEnchantmentSlots.aggregate(item).keySet().stream().allMatch(other -> VSQEnchantmentSlots.areCompatible(item, other, enchantmentHolder))
                     && VSQEnchantmentSlots.canApplyInSlots(item, enchantmentHolder, level);
             if (!compatible) {
                 if (targets.size() == 1) {

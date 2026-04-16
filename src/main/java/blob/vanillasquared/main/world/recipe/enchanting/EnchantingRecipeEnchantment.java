@@ -131,7 +131,7 @@ public record EnchantingRecipeEnchantment(Identifier enchantment) {
             var left = entries.get(leftIndex).getKey();
             for (int rightIndex = leftIndex + 1; rightIndex < entries.size(); rightIndex++) {
                 var right = entries.get(rightIndex).getKey();
-                if (!Enchantment.areCompatible(left, right)) {
+                if (!VSQEnchantmentSlots.areCompatible(originalStack, left, right)) {
                     return false;
                 }
             }
