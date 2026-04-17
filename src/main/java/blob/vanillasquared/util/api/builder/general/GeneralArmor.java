@@ -3,9 +3,9 @@ package blob.vanillasquared.util.api.builder.general;
 import blob.vanillasquared.main.VanillaSquared;
 import blob.vanillasquared.util.api.modules.attributes.RegisterAttributes;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 public class GeneralArmor {

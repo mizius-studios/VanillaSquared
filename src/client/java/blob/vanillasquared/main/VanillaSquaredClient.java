@@ -1,13 +1,13 @@
 package blob.vanillasquared.main;
 
-import net.fabricmc.api.ClientModInitializer;
+import blob.vanillasquared.main.gui.enchantment.VSQEnchantmentScreen;
 import blob.vanillasquared.main.network.handlers.EnchantingRecipeBookSyncPayloadHandler;
 import blob.vanillasquared.main.network.handlers.EnchantingRecipeStatePayloadHandler;
 import blob.vanillasquared.main.world.inventory.VSQMenuTypes;
 import blob.vanillasquared.main.world.recipe.enchanting.EnchantingIngredient;
+import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.gui.screens.MenuScreens;
-import blob.vanillasquared.main.gui.enchantment.VSQEnchantmentScreen;
 
 public class VanillaSquaredClient implements ClientModInitializer {
     public static final String MOD_ID = "vsq";

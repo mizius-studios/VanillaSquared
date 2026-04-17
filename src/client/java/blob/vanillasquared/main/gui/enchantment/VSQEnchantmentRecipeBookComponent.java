@@ -1,26 +1,26 @@
 package blob.vanillasquared.main.gui.enchantment;
 
-import blob.vanillasquared.main.VanillaSquaredClient;
-import blob.vanillasquared.mixin.client.gui.GhostSlotsAccessor;
 import blob.vanillasquared.main.network.handlers.EnchantingRecipeBookSyncPayloadHandler;
 import blob.vanillasquared.main.network.payload.EnchantingRecipeSelectionPayload;
+import blob.vanillasquared.main.VanillaSquaredClient;
 import blob.vanillasquared.main.world.inventory.VSQEnchantmentMenu;
 import blob.vanillasquared.main.world.recipe.enchanting.VSQEnchantmentRecipeBookCategories;
+import blob.vanillasquared.mixin.client.gui.GhostSlotsAccessor;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.gui.screens.recipebook.SearchRecipeBookCategory;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.recipebook.GhostSlots;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
+import net.minecraft.client.gui.screens.recipebook.SearchRecipeBookCategory;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.player.StackedItemContents;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.item.crafting.display.RecipeDisplayId;
 import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 import java.util.Optional;

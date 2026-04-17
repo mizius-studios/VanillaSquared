@@ -1,9 +1,9 @@
 package blob.vanillasquared.util.api.builder.components;
 
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.item.component.BlocksAttacks;

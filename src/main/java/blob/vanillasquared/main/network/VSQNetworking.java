@@ -5,9 +5,9 @@ import blob.vanillasquared.main.network.payload.EnchantingRecipeBookSyncPayload;
 import blob.vanillasquared.main.network.payload.EnchantingRecipeSelectionPayload;
 import blob.vanillasquared.main.network.payload.EnchantingRecipeStatePayload;
 import blob.vanillasquared.main.world.inventory.VSQEnchantmentMenu;
-import net.minecraft.server.level.ServerPlayer;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.server.level.ServerPlayer;
 
 public final class VSQNetworking {
     private VSQNetworking() {

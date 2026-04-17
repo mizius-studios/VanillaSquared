@@ -3,23 +3,23 @@ package blob.vanillasquared.mixin.world.inventory;
 import blob.vanillasquared.main.world.inventory.VSQEnchantmentMenu;
 import blob.vanillasquared.main.world.inventory.VSQEnchantmentMenuProvider;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.EnchantingTableBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EnchantingTableBlock;
 import net.minecraft.world.level.block.entity.EnchantingTableBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.core.registries.Registries;
-import org.spongepowered.asm.mixin.Mixin;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.MenuProvider;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(EnchantingTableBlock.class)
 public abstract class EnchantingTableBlockMixin {

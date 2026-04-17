@@ -2,8 +2,8 @@ package blob.vanillasquared.main.world.item.components.enchantment;
 
 import blob.vanillasquared.util.api.references.RegistryReference;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.mojang.serialization.DataResult;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;

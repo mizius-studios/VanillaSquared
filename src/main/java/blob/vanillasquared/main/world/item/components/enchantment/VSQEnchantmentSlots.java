@@ -1,15 +1,20 @@
 package blob.vanillasquared.main.world.item.components.enchantment;
 
 import blob.vanillasquared.util.api.modules.components.DataComponents;
-import net.minecraft.core.Holder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.TypedDataComponent;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.ChatFormatting;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.enchantment.Enchantable;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.FlintAndSteelItem;
 import net.minecraft.world.item.HoeItem;
@@ -17,12 +22,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.MaceItem;
 import net.minecraft.world.item.ShearsItem;
-import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.ShieldItem;
+import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.TridentItem;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.Enchantable;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -57,6 +59,7 @@ public final class VSQEnchantmentSlots {
             return;
         }
 
+        boolean alreadySeeded = stack.has(DataComponents.VSQ_ENCHANTMENT);
         ensureSeeded(stack);
         VSQEnchantmentComponent component = stack.get(DataComponents.VSQ_ENCHANTMENT);
         if (component == null || enchantments == null) {
@@ -67,6 +70,8 @@ public final class VSQEnchantmentSlots {
         if (migrated.isPresent()) {
             stack.set(DataComponents.VSQ_ENCHANTMENT, migrated.get());
             syncDerivedEnchantments(stack);
+        } else if (!alreadySeeded) {
+            stack.remove(DataComponents.VSQ_ENCHANTMENT);
         }
     }
 
@@ -213,12 +218,74 @@ public final class VSQEnchantmentSlots {
             }
 
             List<VSQEnchantmentSlotEntry> source = maybeEntries.get();
-            List<VSQEnchantmentSlotEntry> randomized = new ArrayList<>(source.size());
-            int nulls = Math.max(0, Math.min(entry.getValue(), source.size()));
-            for (int index = 0; index < source.size(); index++) {
-                randomized.add(index < nulls ? null : source.get(index));
+            List<VSQEnchantmentSlotEntry> randomized = new ArrayList<>(source.size() + Math.max(0, entry.getValue()));
+            for (VSQEnchantmentSlotEntry slotEntry : source) {
+                if (slotEntry != null) {
+                    randomized.add(slotEntry);
+                }
+            }
+            for (int index = 0; index < Math.max(0, entry.getValue()); index++) {
+                randomized.add(null);
             }
             updated = updated.withSlots(entry.getKey(), Optional.of(randomized));
+        }
+        return updated;
+    }
+
+    public static boolean randomizeSlotCapacities(ItemStack stack, RandomSource random, int minCapacity, int maxCapacity) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+
+        boolean alreadySeeded = stack.has(DataComponents.VSQ_ENCHANTMENT);
+        ensureSeeded(stack);
+        VSQEnchantmentComponent component = stack.get(DataComponents.VSQ_ENCHANTMENT);
+        if (component == null) {
+            return false;
+        }
+
+        ItemEnchantments vanillaEnchantments = stack.getOrDefault(vanillaTargetComponent(stack), ItemEnchantments.EMPTY);
+        if (!vanillaEnchantments.isEmpty()) {
+            Optional<VSQEnchantmentComponent> migrated = tryPopulateFromVanilla(component, stack, vanillaEnchantments);
+            if (migrated.isEmpty()) {
+                if (!alreadySeeded) {
+                    stack.remove(DataComponents.VSQ_ENCHANTMENT);
+                }
+                return false;
+            }
+            component = migrated.get();
+        }
+
+        stack.set(DataComponents.VSQ_ENCHANTMENT, randomizeSlotCapacities(component, random, minCapacity, maxCapacity));
+        syncDerivedEnchantments(stack);
+        return true;
+    }
+
+    public static VSQEnchantmentComponent randomizeSlotCapacities(VSQEnchantmentComponent component, RandomSource random, int minCapacity, int maxCapacity) {
+        int min = Math.max(0, Math.min(minCapacity, maxCapacity));
+        int max = Math.max(0, Math.max(minCapacity, maxCapacity));
+        VSQEnchantmentComponent updated = component;
+        for (VSQEnchantmentSlotType slotType : VSQEnchantmentSlotType.values()) {
+            if (slotType == VSQEnchantmentSlotType.SPECIAL) {
+                // SPECIAL capacity is fixed by item type and is not randomized by loot generation.
+                continue;
+            }
+
+            Optional<List<VSQEnchantmentSlotEntry>> maybeEntries = updated.slots(slotType);
+            if (maybeEntries.isEmpty()) {
+                continue;
+            }
+
+            List<VSQEnchantmentSlotEntry> existingEnchantments = maybeEntries.get().stream()
+                    .filter(Objects::nonNull)
+                    .toList();
+            int targetCapacity = Math.max(Mth.nextInt(random, min, max), existingEnchantments.size());
+            List<VSQEnchantmentSlotEntry> resized = new ArrayList<>(targetCapacity);
+            resized.addAll(existingEnchantments);
+            while (resized.size() < targetCapacity) {
+                resized.add(null);
+            }
+            updated = updated.withSlots(slotType, Optional.of(resized));
         }
         return updated;
     }
@@ -289,6 +356,7 @@ public final class VSQEnchantmentSlots {
         Item item = stack.getItem();
         EnumMap<VSQEnchantmentSlotType, Integer> capacities = new EnumMap<>(VSQEnchantmentSlotType.class);
         String itemPath = BuiltInRegistries.ITEM.getKey(item).getPath();
+        // These suffix checks intentionally mirror vanilla-style item names; generic ENCHANTABLE items get fallback slots below.
         boolean armor = itemPath.endsWith("_helmet") || itemPath.endsWith("_chestplate") || itemPath.endsWith("_leggings") || itemPath.endsWith("_boots");
         boolean sword = itemPath.endsWith("_sword");
         boolean pickaxe = itemPath.endsWith("_pickaxe");

@@ -2,16 +2,16 @@ package blob.vanillasquared.mixin.world.inventory;
 
 import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipeRegistry;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.stats.ServerRecipeBook;
-import org.spongepowered.asm.mixin.Mixin;
+import net.minecraft.world.item.crafting.Recipe;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.Mixin;
 
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.List;
 
 @Mixin(ServerRecipeBook.class)
 public abstract class ServerRecipeBookMixin {

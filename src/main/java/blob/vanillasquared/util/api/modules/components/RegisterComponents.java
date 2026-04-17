@@ -3,9 +3,9 @@ package blob.vanillasquared.util.api.modules.components;
 import blob.vanillasquared.main.VanillaSquared;
 import blob.vanillasquared.main.world.item.components.enchantment.VSQEnchantmentComponent;
 import blob.vanillasquared.main.world.item.components.hitthrough.HitThroughComponent;
-import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
 
 public final class RegisterComponents {

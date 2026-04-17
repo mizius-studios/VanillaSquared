@@ -2,17 +2,17 @@ package blob.vanillasquared.main.network.handlers;
 
 import blob.vanillasquared.main.network.payload.EnchantingRecipeBookSyncPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
 import net.minecraft.client.ClientRecipeBook;
+import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.item.crafting.display.RecipeDisplayId;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
-import java.util.concurrent.ConcurrentHashMap;
 
 public final class EnchantingRecipeBookSyncPayloadHandler {
     private static final Map<Integer, List<RecipeDisplayId>> CONTAINER_DISPLAY_IDS = new ConcurrentHashMap<>();
