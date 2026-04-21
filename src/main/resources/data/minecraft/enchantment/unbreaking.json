@@ -32,7 +32,8 @@
               "predicate": {
                 "items": "#minecraft:enchantable/armor"
               }
-            }
+            },
+            "id": "minecraft_item_damage_0"
           },
           {
             "effect": {
@@ -59,7 +60,8 @@
                   "items": "#minecraft:enchantable/armor"
                 }
               }
-            }
+            },
+            "id": "minecraft_item_damage_1"
           }
         ]
       },

@@ -19,7 +19,8 @@
                 "base": -0.15,
                 "per_level_above_first": -0.15
               }
-            }
+            },
+            "id": "minecraft_armor_effectiveness_0"
           }
         ]
       },

@@ -18,7 +18,8 @@
                 "base": 0.5,
                 "per_level_above_first": 0.5
               }
-            }
+            },
+            "id": "minecraft_smash_damage_per_fallen_block_0"
           }
         ]
       },
@@ -52,7 +53,8 @@
                 "base": 1,
                 "per_level_above_first": 0.5
               }
-            }
+            },
+            "id": "minecraft_damage_0"
           }
         ]
       },
@@ -92,7 +94,8 @@
               "predicate": {
                 "type": "#minecraft:arrows"
               }
-            }
+            },
+            "id": "minecraft_damage_0"
           }
         ]
       },

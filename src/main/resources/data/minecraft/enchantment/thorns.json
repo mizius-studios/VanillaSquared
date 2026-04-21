@@ -38,7 +38,8 @@
                 }
               },
               "condition": "minecraft:random_chance"
-            }
+            },
+            "id": "minecraft_post_attack_0"
           }
         ]
       },

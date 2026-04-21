@@ -1,7 +1,7 @@
 {
 	"required": true,
 	"package": "blob.vanillasquared.mixin.client",
-	"compatibilityLevel": "JAVA_21",
+	"compatibilityLevel": "JAVA_25",
 	"client": [
 		"gui.AbstractContainerScreenMixin",
 		"gui.AbstractContainerScreenAccessor",
@@ -10,6 +10,8 @@
 		"gui.AnvilScreenMixin",
 		"gui.CreativeModeInventoryScreenMixin",
 		"gui.CyclingSlotBackgroundMixin",
+		"gui.ContextualBarRendererMixin",
+		"gui.ExperienceBarRendererMixin",
 		"gui.GuiMixin",
 		"gui.ScreenMixin",
 		"gui.GhostSlotAccessor",
@@ -20,7 +22,7 @@
 		"gui.RecipeBookComponentAccessor",
 		"gui.SearchRecipeBookCategoryMixin",
 		"world.ItemStackMixin",
-      "world.entities.LocalPlayerMixin",
+      	"world.entities.LocalPlayerMixin",
 		"world.entities.PlayerMixin"
 	],
 	"injectors": {

@@ -18,7 +18,8 @@
                 "base": 5,
                 "per_level_above_first": 5
               }
-            }
+            },
+            "id": "minecraft_fishing_time_reduction_0"
           }
         ]
       },

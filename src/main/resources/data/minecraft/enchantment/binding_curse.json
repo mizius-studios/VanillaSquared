@@ -9,7 +9,9 @@
       "enchantment_slot": "curse",
       "max_level": 1,
       "effects": {
-        "minecraft:prevent_armor_change": {}
+        "minecraft:prevent_armor_change": {
+          "id": "minecraft_prevent_armor_change_0"
+        }
       },
       "slots": [
         "armor"

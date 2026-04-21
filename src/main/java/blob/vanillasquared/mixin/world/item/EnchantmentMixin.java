@@ -2,6 +2,8 @@ package blob.vanillasquared.mixin.world.item;
 
 import blob.vanillasquared.main.world.item.components.enchantment.VSQEnchantmentAccess;
 import blob.vanillasquared.main.world.item.components.enchantment.VSQEnchantmentProfile;
+import blob.vanillasquared.main.world.item.components.enchantment.SpecialEffectMetadataIndex;
+import blob.vanillasquared.main.world.item.components.enchantment.SpecialEnchantmentCooldowns;
 import blob.vanillasquared.main.world.item.components.enchantment.VSQEnchantmentSlots;
 import blob.vanillasquared.main.world.item.components.enchantment.VSQEnchantmentSlotType;
 import com.mojang.serialization.Codec;
@@ -33,6 +35,7 @@ import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -76,6 +79,20 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
         return item instanceof ItemStack stack ? stack : ItemStack.EMPTY;
     }
 
+    @Unique
+    private <T> boolean vsq$allowSpecialEffect(
+            ServerLevel level,
+            ItemStack stack,
+            DataComponentType<List<T>> componentType,
+            int effectIndex,
+            @Nullable Entity contextEntity
+    ) {
+        if (stack.isEmpty()) {
+            return true;
+        }
+        return SpecialEnchantmentCooldowns.shouldRunSpecialEffect(level, stack, (Enchantment) (Object) this, componentType, effectIndex, contextEntity);
+    }
+
     @Inject(method = "modifyDamageProtection", at = @At("HEAD"), cancellable = true)
     private void vsq$useSelectedProfileDamageProtection(
             ServerLevel level,
@@ -115,9 +132,15 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
             return;
         }
 
-        for (TargetedConditionalEffect<EnchantmentEntityEffect> effect : effects.get()) {
-            if (forTarget == effect.enchanted()) {
-                Enchantment.doPostAttack(effect, serverLevel, enchantmentLevel, item, victim, damageSource);
+        var context = Enchantment.damageContext(serverLevel, enchantmentLevel, victim, damageSource);
+        List<TargetedConditionalEffect<EnchantmentEntityEffect>> list = effects.get();
+        for (int index = 0; index < list.size(); index++) {
+            TargetedConditionalEffect<EnchantmentEntityEffect> effect = list.get(index);
+            if (forTarget == effect.enchanted()
+                    && effect.matches(context)
+                    && vsq$allowSpecialEffect(serverLevel, item.itemStack(), EnchantmentEffectComponents.POST_ATTACK, index, item.owner())) {
+                Entity affected = effect.affected() == EnchantmentTarget.ATTACKER && item.owner() != null ? item.owner() : victim;
+                effect.effect().apply(serverLevel, enchantmentLevel, item, affected, affected.position());
             }
         }
         ci.cancel();
@@ -130,11 +153,14 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
             return;
         }
 
-        Enchantment.applyEffects(
-                effects.get(),
-                Enchantment.entityContext(level, enchantmentLevel, user, user.position()),
-                effect -> effect.apply(level, enchantmentLevel, item, user, user.position())
-        );
+        var context = Enchantment.entityContext(level, enchantmentLevel, user, user.position());
+        List<ConditionalEffect<EnchantmentEntityEffect>> list = effects.get();
+        for (int index = 0; index < list.size(); index++) {
+            ConditionalEffect<EnchantmentEntityEffect> conditional = list.get(index);
+            if (conditional.matches(context) && vsq$allowSpecialEffect(level, item.itemStack(), EnchantmentEffectComponents.POST_PIERCING_ATTACK, index, item.owner())) {
+                conditional.effect().apply(level, enchantmentLevel, item, user, user.position());
+            }
+        }
         ci.cancel();
     }
 
@@ -145,11 +171,14 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
             return;
         }
 
-        Enchantment.applyEffects(
-                effects.get(),
-                Enchantment.entityContext(level, enchantmentLevel, entity, entity.position()),
-                effect -> effect.apply(level, enchantmentLevel, item, entity, entity.position())
-        );
+        var context = Enchantment.entityContext(level, enchantmentLevel, entity, entity.position());
+        List<ConditionalEffect<EnchantmentEntityEffect>> list = effects.get();
+        for (int index = 0; index < list.size(); index++) {
+            ConditionalEffect<EnchantmentEntityEffect> conditional = list.get(index);
+            if (conditional.matches(context) && vsq$allowSpecialEffect(level, item.itemStack(), EnchantmentEffectComponents.TICK, index, item.owner())) {
+                conditional.effect().apply(level, enchantmentLevel, item, entity, entity.position());
+            }
+        }
         ci.cancel();
     }
 
@@ -160,11 +189,14 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
             return;
         }
 
-        Enchantment.applyEffects(
-                effects.get(),
-                Enchantment.entityContext(level, enchantmentLevel, projectile, projectile.position()),
-                effect -> effect.apply(level, enchantmentLevel, weapon, projectile, projectile.position())
-        );
+        var context = Enchantment.entityContext(level, enchantmentLevel, projectile, projectile.position());
+        List<ConditionalEffect<EnchantmentEntityEffect>> list = effects.get();
+        for (int index = 0; index < list.size(); index++) {
+            ConditionalEffect<EnchantmentEntityEffect> conditional = list.get(index);
+            if (conditional.matches(context) && vsq$allowSpecialEffect(level, weapon.itemStack(), EnchantmentEffectComponents.PROJECTILE_SPAWNED, index, weapon.owner())) {
+                conditional.effect().apply(level, enchantmentLevel, weapon, projectile, projectile.position());
+            }
+        }
         ci.cancel();
     }
 
@@ -183,11 +215,14 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
             return;
         }
 
-        Enchantment.applyEffects(
-                effects.get(),
-                Enchantment.blockHitContext(level, enchantmentLevel, projectile, position, hitBlock),
-                effect -> effect.apply(level, enchantmentLevel, weapon, projectile, position)
-        );
+        var context = Enchantment.blockHitContext(level, enchantmentLevel, projectile, position, hitBlock);
+        List<ConditionalEffect<EnchantmentEntityEffect>> list = effects.get();
+        for (int index = 0; index < list.size(); index++) {
+            ConditionalEffect<EnchantmentEntityEffect> conditional = list.get(index);
+            if (conditional.matches(context) && vsq$allowSpecialEffect(level, weapon.itemStack(), EnchantmentEffectComponents.HIT_BLOCK, index, weapon.owner())) {
+                conditional.effect().apply(level, enchantmentLevel, weapon, projectile, position);
+            }
+        }
         ci.cancel();
     }
 
@@ -205,12 +240,13 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
             return;
         }
 
-        Enchantment.applyEffects(
-                effects.get(),
-                Enchantment.itemContext(level, enchantmentLevel, item),
-                value,
-                (effect, currentValue) -> effect.process(enchantmentLevel, level.getRandom(), currentValue)
-        );
+        var context = Enchantment.itemContext(level, enchantmentLevel, item);
+        for (int index = 0; index < effects.get().size(); index++) {
+            ConditionalEffect<EnchantmentValueEffect> conditional = effects.get().get(index);
+            if (conditional.matches(context) && vsq$allowSpecialEffect(level, vsq$itemStack(item), effectType, index, null)) {
+                value.setValue(conditional.effect().process(enchantmentLevel, level.getRandom(), value.floatValue()));
+            }
+        }
         ci.cancel();
     }
 
@@ -229,12 +265,13 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
             return;
         }
 
-        Enchantment.applyEffects(
-                effects.get(),
-                Enchantment.entityContext(level, enchantmentLevel, entity, entity.position()),
-                value,
-                (effect, currentValue) -> effect.process(enchantmentLevel, entity.getRandom(), currentValue)
-        );
+        var context = Enchantment.entityContext(level, enchantmentLevel, entity, entity.position());
+        for (int index = 0; index < effects.get().size(); index++) {
+            ConditionalEffect<EnchantmentValueEffect> conditional = effects.get().get(index);
+            if (conditional.matches(context) && vsq$allowSpecialEffect(level, item, effectType, index, entity)) {
+                value.setValue(conditional.effect().process(enchantmentLevel, entity.getRandom(), value.floatValue()));
+            }
+        }
         ci.cancel();
     }
 
@@ -254,12 +291,13 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
             return;
         }
 
-        Enchantment.applyEffects(
-                effects.get(),
-                Enchantment.damageContext(level, enchantmentLevel, entity, damageSource),
-                value,
-                (effect, currentValue) -> effect.process(enchantmentLevel, entity.getRandom(), currentValue)
-        );
+        var context = Enchantment.damageContext(level, enchantmentLevel, entity, damageSource);
+        for (int index = 0; index < effects.get().size(); index++) {
+            ConditionalEffect<EnchantmentValueEffect> conditional = effects.get().get(index);
+            if (conditional.matches(context) && vsq$allowSpecialEffect(level, stack, effectType, index, entity)) {
+                value.setValue(conditional.effect().process(enchantmentLevel, entity.getRandom(), value.floatValue()));
+            }
+        }
         ci.cancel();
     }
 
@@ -283,10 +321,12 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
             } else {
                 Set<EnchantmentLocationBasedEffect> activeEffects = activeLocationDependentEffects.get((Enchantment) (Object) this);
 
-                for (ConditionalEffect<EnchantmentLocationBasedEffect> filteredEffect : effects.get()) {
+                for (int index = 0; index < effects.get().size(); index++) {
+                    ConditionalEffect<EnchantmentLocationBasedEffect> filteredEffect = effects.get().get(index);
                     EnchantmentLocationBasedEffect effect = filteredEffect.effect();
                     boolean wasActive = activeEffects != null && activeEffects.contains(effect);
-                    if (filteredEffect.matches(Enchantment.locationContext(level, enchantmentLevel, entity, wasActive))) {
+                    if (filteredEffect.matches(Enchantment.locationContext(level, enchantmentLevel, entity, wasActive))
+                            && vsq$allowSpecialEffect(level, item.itemStack(), EnchantmentEffectComponents.LOCATION_CHANGED, index, item.owner())) {
                         if (!wasActive) {
                             if (activeEffects == null) {
                                 activeEffects = new HashSet<>();
@@ -352,6 +392,8 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
                 legacyExclusiveSet.orElse(HolderSet.empty()),
                 legacyMaxLevel.orElseThrow(() -> new IllegalArgumentException("Missing max_level")),
                 legacyEffects.orElse(DataComponentMap.EMPTY),
+                Optional.empty(),
+                SpecialEffectMetadataIndex.EMPTY,
                 legacySlots.orElseThrow(() -> new IllegalArgumentException("Missing slots")),
                 legacyMaxCost.orElseThrow(() -> new IllegalArgumentException("Missing max_cost")),
                 legacyMinCost.orElseThrow(() -> new IllegalArgumentException("Missing min_cost"))

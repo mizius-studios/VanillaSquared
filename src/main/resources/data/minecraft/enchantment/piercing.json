@@ -19,7 +19,8 @@
                 "base": 1,
                 "per_level_above_first": 1
               }
-            }
+            },
+            "id": "minecraft_projectile_piercing_0"
           }
         ]
       },

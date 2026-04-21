@@ -1,0 +1,56 @@
+{
+  "anvil_cost": 2,
+  "profiles": [
+    {
+      "requirement": {
+        "type": "ITEM",
+        "item": "#minecraft:enchantable/weapon"
+      },
+      "enchantment_slot": "special",
+      "max_level": 1,
+      "effects": {
+        "minecraft:tick": [
+          {
+            "id": "p9",
+            "effect": {
+              "type": "vsq:send_chat_msg",
+              "message": {
+                "text": "[P9] closest range <=4 passed: $e used $i"
+              }
+            },
+            "requirements": {
+              "condition": "minecraft:entity_properties",
+              "entity": "this",
+              "predicate": {
+                "distance": {
+                  "absolute": {
+                    "max": 4
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "slots": [
+        "hand"
+      ],
+      "max_cost": {
+        "base": 20,
+        "per_level_above_first": 0
+      },
+      "min_cost": {
+        "base": 5,
+        "per_level_above_first": 0
+      },
+      "special": {
+        "cooldown": 6
+      }
+    }
+  ],
+  "description": {
+    "text": "Predicate Case 9 - Closest Range"
+  },
+  "supported_items": "#minecraft:enchantable/weapon",
+  "weight": 2
+}

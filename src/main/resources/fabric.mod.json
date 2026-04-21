@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "vanilla-squared",
-	"version": "-2.11.0-snapshot.1",
+	"version": "-2.11.0-snapshot.2",
 	"name": "Vanilla²",
 	"description": "This Mod overhauls outdated systems!",
 	"authors": [
@@ -34,7 +34,7 @@
 		}
 	],
 	"depends": {
-		"fabricloader": ">=0.18.4",
+		"fabricloader": ">=0.19.2",
 		"minecraft": "~26.1.2",
 		"java": ">=25",
 		"fabric-api": "*"

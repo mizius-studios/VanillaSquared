@@ -19,7 +19,8 @@
                 "base": 2,
                 "per_level_above_first": 2
               }
-            }
+            },
+            "id": "minecraft_projectile_count_0"
           }
         ],
         "minecraft:projectile_spread": [
@@ -31,7 +32,8 @@
                 "base": 10,
                 "per_level_above_first": 10
               }
-            }
+            },
+            "id": "minecraft_projectile_spread_0"
           }
         ]
       },

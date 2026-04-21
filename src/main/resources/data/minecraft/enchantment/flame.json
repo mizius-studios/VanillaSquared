@@ -14,7 +14,8 @@
             "effect": {
               "type": "minecraft:ignite",
               "duration": 100
-            }
+            },
+            "id": "minecraft_projectile_spawned_0"
           }
         ]
       },

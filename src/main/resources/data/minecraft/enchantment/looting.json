@@ -26,7 +26,8 @@
               "predicate": {
                 "type": "minecraft:player"
               }
-            }
+            },
+            "id": "minecraft_equipment_drops_0"
           }
         ]
       },
@@ -59,7 +60,8 @@
                 "base": 1,
                 "per_level_above_first": 1
               }
-            }
+            },
+            "id": "minecraft_fishing_luck_bonus_0"
           }
         ]
       },

@@ -26,7 +26,8 @@
               "predicate": {
                 "type": "#minecraft:sensitive_to_impaling"
               }
-            }
+            },
+            "id": "minecraft_damage_0"
           }
         ]
       },

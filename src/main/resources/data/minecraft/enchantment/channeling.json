@@ -51,7 +51,8 @@
                   }
                 }
               ]
-            }
+            },
+            "id": "minecraft_hit_block_0"
           }
         ],
         "minecraft:post_attack": [
@@ -97,7 +98,8 @@
                   }
                 }
               ]
-            }
+            },
+            "id": "minecraft_post_attack_0"
           }
         ]
       },

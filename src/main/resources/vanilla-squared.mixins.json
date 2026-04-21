@@ -32,6 +32,7 @@
     "world.item.CreativeInventoryMixin",
     "world.item.EnchantedBookEliminatorMixin",
     "world.item.trading.MerchantOffersPacketMixin",
+    "world.loot.LootItemEntityPropertyConditionMixin",
     "world.entity.entities.TradeOffersEnchantBookMixin",
     "world.entity.entities.FishingRodHookMixin",
     "world.entity.entities.PlayerAttributesMixin",

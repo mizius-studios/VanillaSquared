@@ -1,0 +1,78 @@
+{
+  "windowTitleContains": "Minecraft",
+  "controls": {
+    "enchantmentHotkey": "ALT",
+    "openChat": "T",
+    "confirmChat": "ENTER",
+    "hotbarKeybinds": {
+      "1": "1",
+      "2": "3",
+      "3": "2",
+      "4": "c",
+      "5": "4",
+      "6": "z",
+      "7": "x",
+      "8": "r",
+      "9": "q"
+    }
+  },
+  "timing": {
+    "afterSlotSwitchDelayMs": 350,
+    "betweenHotkeyPressDelayMs": 500,
+    "chatOpenDelayMs": 120,
+    "chatTypingDelayMs": 60,
+    "afterChatSubmitDelayMs": 250
+  },
+  "preRunCommands": [],
+  "postRunCommands": [],
+  "cases": [
+    {
+      "name": "Predicate P1 - self health low",
+      "hotbarSlot": "1",
+      "hotkeyPresses": 1,
+      "waitSecondsAfterCase": 7.0
+    },
+    {
+      "name": "Predicate P2 - self not on fire",
+      "hotbarSlot": "2",
+      "hotkeyPresses": 1,
+      "waitSecondsAfterCase": 7.0
+    },
+    {
+      "name": "Predicate P3 - target zombie only",
+      "hotbarSlot": "3",
+      "hotkeyPresses": 1,
+      "waitSecondsAfterCase": 7.0
+    },
+    {
+      "name": "Predicate P4 - target swimming",
+      "hotbarSlot": "4",
+      "hotkeyPresses": 1,
+      "waitSecondsAfterCase": 7.0
+    },
+    {
+      "name": "Predicate P5 - weather raining",
+      "hotbarSlot": "5",
+      "hotkeyPresses": 1,
+      "waitSecondsAfterCase": 7.0
+    },
+    {
+      "name": "Predicate P6 - biome plains",
+      "hotbarSlot": "6",
+      "hotkeyPresses": 1,
+      "waitSecondsAfterCase": 7.0
+    },
+    {
+      "name": "Predicate P7 - composed all_of",
+      "hotbarSlot": "7",
+      "hotkeyPresses": 1,
+      "waitSecondsAfterCase": 7.0
+    },
+    {
+      "name": "Predicate P8 - random chance",
+      "hotbarSlot": "8",
+      "hotkeyPresses": 4,
+      "waitSecondsAfterCase": 7.0
+    }
+  ]
+}

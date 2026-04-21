@@ -27,7 +27,8 @@
                   }
                 ]
               }
-            }
+            },
+            "id": "minecraft_damage_immunity_0"
           }
         ],
         "minecraft:location_changed": [
@@ -109,7 +110,8 @@
                   }
                 }
               ]
-            }
+            },
+            "id": "minecraft_location_changed_0"
           }
         ]
       },

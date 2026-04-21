@@ -9,7 +9,9 @@
       "enchantment_slot": "curse",
       "max_level": 1,
       "effects": {
-        "minecraft:prevent_equipment_drop": {}
+        "minecraft:prevent_equipment_drop": {
+          "id": "minecraft_prevent_equipment_drop_0"
+        }
       },
       "slots": [
         "any"

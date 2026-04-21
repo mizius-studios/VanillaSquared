@@ -26,7 +26,8 @@
               "predicate": {
                 "is_direct": true
               }
-            }
+            },
+            "id": "minecraft_post_attack_0"
           }
         ]
       },
@@ -55,7 +56,8 @@
             "effect": {
               "type": "minecraft:ignite",
               "duration": 100
-            }
+            },
+            "id": "minecraft_projectile_spawned_0"
           }
         ]
       },

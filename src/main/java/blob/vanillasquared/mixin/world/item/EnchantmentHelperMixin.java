@@ -2,6 +2,7 @@ package blob.vanillasquared.mixin.world.item;
 
 import blob.vanillasquared.main.world.item.components.enchantment.VSQEnchantmentProfile;
 import blob.vanillasquared.main.world.item.components.enchantment.VSQEnchantmentSlots;
+import blob.vanillasquared.main.world.item.components.enchantment.SpecialEnchantmentCooldowns;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.core.Holder;
@@ -46,6 +47,18 @@ import java.util.function.Predicate;
 
 @Mixin(EnchantmentHelper.class)
 public abstract class EnchantmentHelperMixin {
+    @Unique
+    private static <T> boolean vsq$allowSpecialEffect(
+            ServerLevel level,
+            ItemStack stack,
+            Holder<Enchantment> enchantment,
+            DataComponentType<List<T>> componentType,
+            int index,
+            LivingEntity contextEntity
+    ) {
+        return SpecialEnchantmentCooldowns.shouldRunSpecialEffect(level, stack, enchantment.value(), componentType, index, contextEntity);
+    }
+
     @Inject(method = "isImmuneToDamage", at = @At("HEAD"), cancellable = true)
     private static void vsq$useSelectedProfileDamageImmunity(ServerLevel level, LivingEntity victim, DamageSource source, CallbackInfoReturnable<Boolean> cir) {
         MutableBoolean result = new MutableBoolean();
@@ -54,8 +67,10 @@ public abstract class EnchantmentHelperMixin {
                 return;
             }
             LootContext context = Enchantment.damageContext(level, enchantmentLevel, victim, source);
-            for (ConditionalEffect<DamageImmunity> effect : VSQEnchantmentSlots.profileEffects(item.itemStack(), enchantment, EnchantmentEffectComponents.DAMAGE_IMMUNITY)) {
-                if (effect.matches(context)) {
+            List<ConditionalEffect<DamageImmunity>> effects = VSQEnchantmentSlots.profileEffects(item.itemStack(), enchantment, EnchantmentEffectComponents.DAMAGE_IMMUNITY);
+            for (int index = 0; index < effects.size(); index++) {
+                ConditionalEffect<DamageImmunity> effect = effects.get(index);
+                if (effect.matches(context) && vsq$allowSpecialEffect(level, item.itemStack(), enchantment, EnchantmentEffectComponents.DAMAGE_IMMUNITY, index, item.owner())) {
                     result.setTrue();
                     return;
                 }
@@ -100,20 +115,32 @@ public abstract class EnchantmentHelperMixin {
         RandomSource random = entity.getRandom();
         EnchantmentHelper.runIterationOnEquipment(entity, (enchantment, enchantmentLevel, item) -> {
             LootContext context = Enchantment.damageContext(level, enchantmentLevel, entity, killingBlow);
-            VSQEnchantmentSlots.profileEffects(item.itemStack(), enchantment, EnchantmentEffectComponents.EQUIPMENT_DROPS).forEach(effect -> {
-                if (effect.enchanted() == EnchantmentTarget.VICTIM && effect.affected() == EnchantmentTarget.VICTIM && effect.matches(context)) {
+            List<net.minecraft.world.item.enchantment.TargetedConditionalEffect<EnchantmentValueEffect>> effects =
+                    VSQEnchantmentSlots.profileEffects(item.itemStack(), enchantment, EnchantmentEffectComponents.EQUIPMENT_DROPS);
+            for (int index = 0; index < effects.size(); index++) {
+                net.minecraft.world.item.enchantment.TargetedConditionalEffect<EnchantmentValueEffect> effect = effects.get(index);
+                if (effect.enchanted() == EnchantmentTarget.VICTIM
+                        && effect.affected() == EnchantmentTarget.VICTIM
+                        && effect.matches(context)
+                        && vsq$allowSpecialEffect(level, item.itemStack(), enchantment, EnchantmentEffectComponents.EQUIPMENT_DROPS, index, item.owner())) {
                     modifiedChance.setValue(((EnchantmentValueEffect) effect.effect()).process(enchantmentLevel, random, modifiedChance.floatValue()));
                 }
-            });
+            }
         });
         if (killingBlow.getEntity() instanceof LivingEntity attacker) {
             EnchantmentHelper.runIterationOnEquipment(attacker, (enchantment, enchantmentLevel, item) -> {
                 LootContext context = Enchantment.damageContext(level, enchantmentLevel, entity, killingBlow);
-                VSQEnchantmentSlots.profileEffects(item.itemStack(), enchantment, EnchantmentEffectComponents.EQUIPMENT_DROPS).forEach(effect -> {
-                    if (effect.enchanted() == EnchantmentTarget.ATTACKER && effect.affected() == EnchantmentTarget.VICTIM && effect.matches(context)) {
+                List<net.minecraft.world.item.enchantment.TargetedConditionalEffect<EnchantmentValueEffect>> effects =
+                        VSQEnchantmentSlots.profileEffects(item.itemStack(), enchantment, EnchantmentEffectComponents.EQUIPMENT_DROPS);
+                for (int index = 0; index < effects.size(); index++) {
+                    net.minecraft.world.item.enchantment.TargetedConditionalEffect<EnchantmentValueEffect> effect = effects.get(index);
+                    if (effect.enchanted() == EnchantmentTarget.ATTACKER
+                            && effect.affected() == EnchantmentTarget.VICTIM
+                            && effect.matches(context)
+                            && vsq$allowSpecialEffect(level, item.itemStack(), enchantment, EnchantmentEffectComponents.EQUIPMENT_DROPS, index, item.owner())) {
                         modifiedChance.setValue(((EnchantmentValueEffect) effect.effect()).process(enchantmentLevel, random, modifiedChance.floatValue()));
                     }
-                });
+                }
             });
         }
 

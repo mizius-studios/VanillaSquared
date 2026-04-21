@@ -25,7 +25,8 @@
               "predicate": {
                 "type": "#minecraft:sensitive_to_smite"
               }
-            }
+            },
+            "id": "minecraft_smash_damage_per_fallen_block_0"
           }
         ]
       },
@@ -66,7 +67,8 @@
               "predicate": {
                 "type": "#minecraft:sensitive_to_smite"
               }
-            }
+            },
+            "id": "minecraft_damage_0"
           }
         ]
       },
@@ -119,7 +121,8 @@
                   }
                 }
               ]
-            }
+            },
+            "id": "minecraft_damage_0"
           }
         ]
       },

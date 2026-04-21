@@ -1,0 +1,59 @@
+{
+  "anvil_cost": 2,
+  "profiles": [
+    {
+      "requirement": {
+        "type": "ITEM",
+        "item": "#minecraft:enchantable/weapon"
+      },
+      "enchantment_slot": "special",
+      "max_level": 1,
+      "effects": {
+        "minecraft:tick": [
+          {
+            "id": "p1",
+            "effect": {
+              "type": "vsq:send_chat_msg",
+              "message": {
+                "text": "[P1] food predicate passed: $e used $i"
+              }
+            },
+            "requirements": {
+              "condition": "minecraft:entity_properties",
+              "entity": "this",
+              "predicate": {
+                "type_specific": {
+                  "type": "minecraft:player",
+                  "food": {
+                    "level": {
+                      "min": 7
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "slots": [
+        "hand"
+      ],
+      "max_cost": {
+        "base": 20,
+        "per_level_above_first": 0
+      },
+      "min_cost": {
+        "base": 5,
+        "per_level_above_first": 0
+      },
+      "special": {
+        "cooldown": 6
+      }
+    }
+  ],
+  "description": {
+    "text": "Predicate Case 1 - Food Level"
+  },
+  "supported_items": "#minecraft:enchantable/weapon",
+  "weight": 2
+}
