@@ -1,40 +1,20 @@
 {
-  "anvil_cost": 4,
-  "profiles": [
-    {
-      "requirement": {
-        "type": "item",
-        "item": "#minecraft:enchantable/bow"
-      },
-      "enchantment_slot": "secondary",
-      "max_level": 1,
-      "effects": {
-        "minecraft:projectile_spawned": [
-          {
-            "effect": {
-              "type": "minecraft:ignite",
-              "duration": 100
-            },
-            "id": "minecraft_projectile_spawned_0"
-          }
-        ]
-      },
-      "slots": [
-        "mainhand"
-      ],
-      "max_cost": {
-        "base": 50,
-        "per_level_above_first": 0
-      },
-      "min_cost": {
-        "base": 20,
-        "per_level_above_first": 0
-      }
-    }
-  ],
   "description": {
     "translate": "enchantment.minecraft.flame"
   },
-  "supported_items": "#minecraft:enchantable/bow",
-  "weight": 2
+  "supported_items": "#vsq:enchanting/removed",
+  "weight": 1,
+  "anvil_cost": 1,
+  "max_level": 1,
+  "min_cost": {
+    "base": 1,
+    "per_level_above_first": 0
+  },
+  "max_cost": {
+    "base": 1,
+    "per_level_above_first": 0
+  },
+  "slots": [
+    "mainhand"
+  ]
 }
