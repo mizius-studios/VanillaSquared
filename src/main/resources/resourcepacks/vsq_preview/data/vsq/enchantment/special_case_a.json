@@ -20,8 +20,9 @@
             },
             "special": {
               "limit": {
-                "type": "minecraft:constant",
-                "value": 3
+                "type": "minecraft:linear",
+                "base": 3,
+                "per_level_above_first": 0
               }
             },
             "affected": "attacker",

@@ -51,3 +51,7 @@ viewBytecode.txt
 
 # Sourcecode
 mc-source/
+
+# codex
+
+.codex/

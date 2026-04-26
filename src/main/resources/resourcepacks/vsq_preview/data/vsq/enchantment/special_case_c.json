@@ -20,8 +20,9 @@
             },
             "special": {
               "limit": {
-                "type": "minecraft:constant",
-                "value": 4
+                "type": "minecraft:linear",
+                "base": 4,
+                "per_level_above_first": 0
               }
             }
           }

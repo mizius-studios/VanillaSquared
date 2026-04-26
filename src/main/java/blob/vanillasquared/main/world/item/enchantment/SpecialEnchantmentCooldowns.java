@@ -50,9 +50,9 @@ public final class SpecialEnchantmentCooldowns {
         });
 
         state.activatedByHotkey = true;
-        updateCooldownStart(player.level().getGameTime(), use.profile(), state);
+        startCooldownIfEligible(player.level().getGameTime(), use.profile(), state);
 
-        if (!state.cooldownStarted && !isBlocked(use.profile(), state)) {
+        if (shouldClearState(use.profile(), state)) {
             removeState(player, use.enchantmentId());
         }
         sync(player, use);
@@ -139,11 +139,8 @@ public final class SpecialEnchantmentCooldowns {
             return true;
         }
         ActivationState state = state(player, enchantmentId).orElse(null);
-        if (state == null || !state.activatedByHotkey) {
+        if (state == null || !isActivationWindowOpen(state, profile.get())) {
             return false;
-        }
-        if (metadata.isEmpty() || metadata.get().special().isEmpty()) {
-            return state.cooldownStarted || isPreCooldownPhaseActive(profile.get(), state);
         }
 
         Holder<Enchantment> enchantmentHolder = enchantmentRegistry.getOrThrow(ResourceKey.create(Registries.ENCHANTMENT, enchantmentId));
@@ -159,21 +156,24 @@ public final class SpecialEnchantmentCooldowns {
                 profile.get().special().orElseThrow()
         );
 
-        boolean allowed = allowSpecialEffect(level, use, state, metadata.get());
-        updateCooldownStart(level.getGameTime(), profile.get(), state);
-        if (!state.cooldownStarted && !isBlocked(profile.get(), state)) {
+        boolean allowed = consumeLimitIfNeeded(use, state, metadata.orElse(null));
+        startCooldownIfEligible(level.getGameTime(), profile.get(), state);
+        if (shouldClearState(profile.get(), state)) {
             removeState(player, enchantmentId);
         }
         syncForEnchantment(player, enchantmentId);
         return allowed;
     }
 
-    private static boolean allowSpecialEffect(
-            ServerLevel level,
+    private static boolean consumeLimitIfNeeded(
             SpecialEnchantmentUse use,
             ActivationState state,
-            SpecialEffectMetadata metadata
+            @Nullable SpecialEffectMetadata metadata
     ) {
+        if (metadata == null || metadata.special().isEmpty()) {
+            return true;
+        }
+
         String id = metadata.id();
         SpecialEffectSettings settings = metadata.special().orElseThrow();
 
@@ -192,9 +192,6 @@ public final class SpecialEnchantmentCooldowns {
 
         remaining--;
         state.remainingLimits.put(id, remaining);
-        if (remaining <= 0) {
-            maybeStartCooldownAfterLimit(level, use.profile(), state, id);
-        }
         return true;
     }
 
@@ -253,8 +250,8 @@ public final class SpecialEnchantmentCooldowns {
         return state;
     }
 
-    private static void updateCooldownStart(long gameTime, VSQEnchantmentProfile profile, ActivationState state) {
-        if (state.cooldownStarted || isBlocked(profile, state)) {
+    private static void startCooldownIfEligible(long gameTime, VSQEnchantmentProfile profile, ActivationState state) {
+        if (state.cooldownStarted || isPreCooldownPhaseActive(profile, state)) {
             return;
         }
         SpecialEnchantmentProfileConfig special = profile.special().orElse(null);
@@ -271,37 +268,17 @@ public final class SpecialEnchantmentCooldowns {
         state.cooldownEndTick = gameTime + totalTicks;
     }
 
-    private static void maybeStartCooldownAfterLimit(
-            ServerLevel level,
-            VSQEnchantmentProfile profile,
-            ActivationState state,
-            String consumedEffectId
-    ) {
-        if (state.cooldownStarted) {
-            return;
+    private static boolean isActivationWindowOpen(ActivationState state, VSQEnchantmentProfile profile) {
+        if (!state.activatedByHotkey) {
+            return false;
         }
-
-        SpecialEnchantmentProfileConfig config = profile.special().orElse(null);
-        if (config == null) {
-            return;
-        }
-
-        if (config.cooldownAfterLimit().filter(consumedEffectId::equals).isEmpty()) {
-            return;
-        }
-
-        long totalTicks = config.cooldownTicks();
-        if (totalTicks <= 0L) {
-            state.cooldownStarted = true;
-            state.cooldownEndTick = level.getGameTime();
-            return;
-        }
-
-        state.cooldownStarted = true;
-        state.cooldownEndTick = level.getGameTime() + totalTicks;
+        return state.cooldownStarted || isPreCooldownPhaseActive(profile, state);
     }
 
-    private static boolean isBlocked(VSQEnchantmentProfile profile, ActivationState state) {
+    private static boolean isPreCooldownPhaseActive(VSQEnchantmentProfile profile, ActivationState state) {
+        if (state.cooldownStarted) {
+            return false;
+        }
         SpecialEnchantmentProfileConfig config = profile.special().orElse(null);
         if (config == null) {
             return false;
@@ -309,17 +286,14 @@ public final class SpecialEnchantmentCooldowns {
         return isCooldownAfterLimitBlocked(config, state);
     }
 
-    private static boolean isPreCooldownPhaseActive(VSQEnchantmentProfile profile, ActivationState state) {
-        if (state.cooldownStarted) {
-            return false;
-        }
-        return isBlocked(profile, state);
-    }
-
     private static boolean isCooldownAfterLimitBlocked(SpecialEnchantmentProfileConfig config, ActivationState state) {
         return config.cooldownAfterLimit()
                 .map(id -> state.remainingLimits.getOrDefault(id, 0) > 0)
                 .orElse(false);
+    }
+
+    private static boolean shouldClearState(VSQEnchantmentProfile profile, ActivationState state) {
+        return !state.cooldownStarted && !isPreCooldownPhaseActive(profile, state);
     }
 
     private static boolean isFinished(ServerPlayer player, ActivationState state) {

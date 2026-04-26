@@ -1,5 +1,6 @@
 package blob.vanillasquared.main.world.item.enchantment;
 
+import blob.vanillasquared.main.VanillaSquared;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
@@ -10,12 +11,19 @@ import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public record SpecialEffectMetadataIndex(Map<String, List<SpecialEffectMetadata>> byComponent) {
+    private static final Set<String> SUPPORTED_SPECIAL_KEYS = SpecialEffectSettings.MAP_CODEC.keys(JsonOps.INSTANCE)
+            .map(JsonElement::getAsString)
+            .collect(Collectors.toUnmodifiableSet());
+
     public static final SpecialEffectMetadataIndex EMPTY = new SpecialEffectMetadataIndex(Map.of());
     public static final Codec<SpecialEffectMetadataIndex> CODEC = Codec.unboundedMap(
             Codec.STRING,
@@ -52,7 +60,7 @@ public record SpecialEffectMetadataIndex(Map<String, List<SpecialEffectMetadata>
             if (componentKey.isEmpty()) {
                 continue;
             }
-            List<SpecialEffectMetadata> list = parseEntries(entry.getValue());
+            List<SpecialEffectMetadata> list = parseEntries(componentKey, entry.getValue());
             if (!list.isEmpty()) {
                 byComponent.merge(componentKey, List.copyOf(list), (existing, added) -> {
                     ArrayList<SpecialEffectMetadata> merged = new ArrayList<>(existing.size() + added.size());
@@ -65,7 +73,7 @@ public record SpecialEffectMetadataIndex(Map<String, List<SpecialEffectMetadata>
         return new SpecialEffectMetadataIndex(Collections.unmodifiableMap(byComponent));
     }
 
-    private static List<SpecialEffectMetadata> parseEntries(JsonElement arrayElement) {
+    private static List<SpecialEffectMetadata> parseEntries(String componentKey, JsonElement arrayElement) {
         if (!(arrayElement instanceof JsonArray entries)) {
             return List.of();
         }
@@ -87,21 +95,42 @@ public record SpecialEffectMetadataIndex(Map<String, List<SpecialEffectMetadata>
                 parsed.add(new SpecialEffectMetadata("", Optional.empty()));
                 continue;
             }
-            Optional<SpecialEffectSettings> special = parseSpecial(entry);
+            Optional<SpecialEffectSettings> special = parseSpecial(componentKey, id, entry);
             parsed.add(new SpecialEffectMetadata(id, special));
         }
         return parsed.isEmpty() ? List.of() : List.copyOf(parsed);
     }
 
-    private static Optional<SpecialEffectSettings> parseSpecial(JsonObject entry) {
+    private static Optional<SpecialEffectSettings> parseSpecial(String componentKey, String effectId, JsonObject entry) {
         if (!entry.has("special")) {
             return Optional.empty();
         }
 
         JsonElement json = entry.get("special");
         if (!(json instanceof JsonObject object)) {
+            warnInvalidSpecial(componentKey, effectId, "expected object");
             return Optional.empty();
         }
-        return SpecialEffectSettings.CODEC.parse(JsonOps.INSTANCE, object).result();
+
+        Set<String> unknownKeys = new HashSet<>(object.keySet());
+        unknownKeys.removeAll(SUPPORTED_SPECIAL_KEYS);
+        if (!unknownKeys.isEmpty()) {
+            warnInvalidSpecial(componentKey, effectId,
+                    "unsupported keys " + unknownKeys + "; supported keys: " + SUPPORTED_SPECIAL_KEYS);
+            return Optional.empty();
+        }
+
+        return SpecialEffectSettings.CODEC.parse(JsonOps.INSTANCE, object).resultOrPartial(
+                error -> warnInvalidSpecial(componentKey, effectId, error)
+        );
+    }
+
+    private static void warnInvalidSpecial(String componentKey, String effectId, String reason) {
+        VanillaSquared.LOGGER.warn(
+                "Invalid special effect metadata for component={}, effect_id={}: {}",
+                componentKey,
+                effectId,
+                reason
+        );
     }
 }

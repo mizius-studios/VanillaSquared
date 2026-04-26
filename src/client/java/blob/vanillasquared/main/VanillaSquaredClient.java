@@ -8,6 +8,8 @@ import blob.vanillasquared.main.network.handlers.EnchantingRecipeStatePayloadHan
 import blob.vanillasquared.main.network.handlers.SpecialEnchantmentCooldownPayloadHandler;
 import blob.vanillasquared.main.world.inventory.VSQMenuTypes;
 import blob.vanillasquared.main.world.particle.particles.LightningBoltParticle;
+import blob.vanillasquared.main.world.particle.particles.VoidedCloudParticle;
+import blob.vanillasquared.main.world.particle.particles.VoidedPixelParticle;
 import blob.vanillasquared.main.world.particle.VSQParticleTypes;
 import blob.vanillasquared.main.world.recipe.enchanting.EnchantingIngredient;
 import net.fabricmc.api.ClientModInitializer;
@@ -25,6 +27,8 @@ public class VanillaSquaredClient implements ClientModInitializer {
         SpecialEnchantmentCooldownPayloadHandler.register();
         SpecialEnchantmentCooldownClientState.initialize();
         VSQKeyMappings.initialize();
+        ParticleProviderRegistry.getInstance().register(VSQParticleTypes.VOID_CLOUD, VoidedCloudParticle.Provider::new);
+        ParticleProviderRegistry.getInstance().register(VSQParticleTypes.VOID_PIXEL, VoidedPixelParticle.Provider::new);
         ParticleProviderRegistry.getInstance().register(VSQParticleTypes.LIGHTNING_BOLT, new LightningBoltParticle.Provider());
         MenuScreens.register(VSQMenuTypes.ENCHANTING, VSQEnchantmentScreen::new);
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {

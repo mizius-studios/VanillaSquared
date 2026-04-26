@@ -1,10 +1,16 @@
 package blob.vanillasquared.main.world.util;
 
+import blob.vanillasquared.main.VanillaSquared;
+import blob.vanillasquared.main.world.effect.VSQMobEffects;
+import blob.vanillasquared.main.world.effect.VoidedEffectState;
 import blob.vanillasquared.util.api.modules.attributes.RegisterAttributes;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.Entity;
@@ -13,6 +19,10 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 
 public final class DamageUtil {
+    private static final TagKey<DamageType> BYPASSES_VOIDED = TagKey.create(
+            Registries.DAMAGE_TYPE,
+            Identifier.fromNamespaceAndPath(VanillaSquared.MOD_ID, "bypasses_voided")
+    );
 
     private DamageUtil() {
     }
@@ -22,6 +32,7 @@ public final class DamageUtil {
         protectedAmount = applyMagicProtection(entity, source, protectedAmount);
         protectedAmount = applyDripstoneProtection(entity, source, protectedAmount);
         protectedAmount = applySpearProtection(entity, source, protectedAmount);
+        protectedAmount = applyVoided(entity, source, protectedAmount);
         return Math.max(protectedAmount, 0.0F);
     }
 
@@ -55,6 +66,16 @@ public final class DamageUtil {
         }
 
         return applyPercentageProtection(entity, RegisterAttributes.spearProtectionAttribute, amount);
+    }
+
+    public static float applyVoided(LivingEntity entity, DamageSource source, float amount) {
+        if (!entity.hasEffect(VSQMobEffects.VOIDED) || source.is(BYPASSES_VOIDED) || amount <= 0.0F) {
+            return Math.max(amount, 0.0F);
+        }
+
+        float multiplier = VoidedEffectState.consume(entity);
+        VoidedEffectState.scheduleRemoveEffect(entity);
+        return Math.max(amount * multiplier, 0.0F);
     }
 
     private static float applyPercentageProtection(LivingEntity entity, Holder<Attribute> attribute, float amount) {
