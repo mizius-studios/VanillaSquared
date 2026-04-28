@@ -48,7 +48,6 @@
         "item": "#vsq:enchantable/melee_weapon"
       },
       "enchantment_slot": "damage",
-      "exclusive_set": "#minecraft:exclusive_set/damage",
       "max_level": 5,
       "effects": {
         "minecraft:damage": [
@@ -90,7 +89,6 @@
         "item": "#vsq:enchantable/ranged_weapon"
       },
       "enchantment_slot": "damage",
-      "exclusive_set": "#minecraft:exclusive_set/damage",
       "max_level": 5,
       "effects": {
         "minecraft:damage": [
@@ -144,7 +142,6 @@
         "item": "#vsq:enchantable/projectile_source"
       },
       "enchantment_slot": "damage",
-      "exclusive_set": "#minecraft:exclusive_set/damage",
       "max_level": 5,
       "effects": {
         "minecraft:damage": [

@@ -1,7 +1,7 @@
 {
   "values": [
-    "#vsq:enchantable/all_weapons",
-    "#minecraft:enchantable/fishing",
-    "#minecraft:enchantable/mining_loot"
+    "#minecraft:swords",
+    "#minecraft:enchantable/trident",
+    "#minecraft:enchantable/mace"
   ]
 }

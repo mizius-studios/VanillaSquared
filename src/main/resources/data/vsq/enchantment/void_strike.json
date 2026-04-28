@@ -1,0 +1,180 @@
+{
+  "anvil_cost": 2,
+  "profiles": [
+    {
+      "requirement": {
+        "type": "item",
+        "item": "#vsq:enchantable/weapon"
+      },
+      "enchantment_slot": "damage",
+      "max_level": 3,
+      "effects": {
+        "minecraft:post_attack": [
+          {
+            "affected": "victim",
+            "effect": {
+              "type": "minecraft:apply_mob_effect",
+              "max_amplifier": {
+                "type": "minecraft:linear",
+                "base": 0,
+                "per_level_above_first": 1
+              },
+              "max_duration": {
+                "type": "minecraft:linear",
+                "base": 5,
+                "per_level_above_first": 5
+              },
+              "min_amplifier": 0,
+              "min_duration": 5,
+              "to_apply": "vsq:voided"
+            },
+            "enchanted": "attacker",
+            "requirements": {
+              "condition": "minecraft:all_of",
+              "terms": [
+                {
+                  "condition": "minecraft:random_chance",
+                  "chance": 0.25
+                },
+                {
+                  "condition": "minecraft:damage_source_properties",
+                  "predicate": {
+                    "is_direct": true
+                  }
+                }
+              ]
+            },
+            "id": "vsq_voided"
+          }
+        ]
+      },
+      "slots": [
+        "mainhand",
+        "offhand"
+
+      ],
+      "max_cost": {
+        "base": 25,
+        "per_level_above_first": 8
+      },
+      "min_cost": {
+        "base": 5,
+        "per_level_above_first": 8
+      }
+    },
+    {
+      "requirement": {
+        "type": "item",
+        "item": "#vsq:enchantable/ranged_weapon"
+      },
+      "enchantment_slot": "damage",
+      "max_level": 3,
+      "effects": {
+        "minecraft:post_attack": [
+          {
+            "affected": "victim",
+            "effect": {
+              "type": "minecraft:apply_mob_effect",
+              "max_amplifier": {
+                "type": "minecraft:linear",
+                "base": 0,
+                "per_level_above_first": 1
+              },
+              "max_duration": {
+                "type": "minecraft:linear",
+                "base": 5,
+                "per_level_above_first": 5
+              },
+              "min_amplifier": 0,
+              "min_duration": 5,
+              "to_apply": "vsq:voided"
+            },
+            "enchanted": "attacker",
+            "requirements": {
+              "condition": "minecraft:all_of",
+              "terms": [
+                {
+                  "condition": "minecraft:random_chance",
+                  "chance": 0.25
+                }
+              ]
+            },
+            "id": "vsq_voided"
+          }
+        ]
+      },
+      "slots": [
+        "mainhand",
+        "offhand"
+      ],
+      "max_cost": {
+        "base": 25,
+        "per_level_above_first": 8
+      },
+      "min_cost": {
+        "base": 5,
+        "per_level_above_first": 8
+      }
+    },
+    {
+      "requirement": {
+        "type": "projectile_takeover",
+        "item": "#vsq:enchantable/projectile_source"
+      },
+      "enchantment_slot": "damage",
+      "max_level": 3,
+      "effects": {
+        "minecraft:post_attack": [
+          {
+            "affected": "victim",
+            "effect": {
+              "type": "minecraft:apply_mob_effect",
+              "max_amplifier": {
+                "type": "minecraft:linear",
+                "base": 0,
+                "per_level_above_first": 1
+              },
+              "max_duration": {
+                "type": "minecraft:linear",
+                "base": 5,
+                "per_level_above_first": 5
+              },
+              "min_amplifier": 0,
+              "min_duration": 5,
+              "to_apply": "vsq:voided"
+            },
+            "enchanted": "attacker",
+            "requirements": {
+              "condition": "minecraft:all_of",
+              "terms": [
+                {
+                  "condition": "minecraft:random_chance",
+                  "chance": 0.25
+                }
+              ]
+            },
+            "id": "vsq_voided"
+          }
+        ]
+      },
+      "slots": [
+        "mainhand",
+        "offhand"
+      ],
+      "max_cost": {
+        "base": 25,
+        "per_level_above_first": 8
+      },
+      "min_cost": {
+        "base": 5,
+        "per_level_above_first": 8
+      }
+    }
+  ],
+  "description": {
+    "translate": "enchantment.vsq.void_strike"
+  },
+  "primary_items": "#vsq:enchantable/all_weapons",
+  "supported_items": "#vsq:enchantable/all_weapons",
+  "weight": 5
+}

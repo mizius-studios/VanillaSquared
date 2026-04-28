@@ -1,5 +1,6 @@
 package blob.vanillasquared.main.world.effect;
 
+import blob.vanillasquared.main.network.VSQNetworking;
 import blob.vanillasquared.main.world.particle.VSQParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -63,6 +64,7 @@ public final class VoidedEffectState {
 
         state.multiplier = Math.min(state.multiplier + 0.1F, state.maxMultiplier);
         state.ticksUntilNextIncrement = state.incrementInterval;
+        VSQNetworking.sendVoidedSoundState(entity, true, true);
         if (effect.isVisible()) {
             spawnBurst(serverLevel, entity);
         }
@@ -84,6 +86,8 @@ public final class VoidedEffectState {
 
         STATES.put(entity, new State(multiplier, incrementInterval, ticksUntilNextIncrement, maxMultiplier));
 
+        VSQNetworking.sendVoidedSoundState(entity, true, multiplier > previousMultiplier && LOADING_FROM_NBT.get(entity) == null);
+
         if (entity.level() instanceof ServerLevel serverLevel
                 && multiplier > previousMultiplier
                 && effect.isVisible()
@@ -97,10 +101,14 @@ public final class VoidedEffectState {
         if (state == null) {
             return 1.0F;
         }
+        VSQNetworking.sendVoidedSoundState(entity, false, false);
         return state.multiplier;
     }
 
     public static void clear(LivingEntity entity) {
+        if (STATES.containsKey(entity)) {
+            VSQNetworking.sendVoidedSoundState(entity, false, false);
+        }
         STATES.remove(entity);
         PENDING_REMOVALS.remove(entity);
         LOADING_FROM_NBT.remove(entity);

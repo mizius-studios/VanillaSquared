@@ -57,6 +57,8 @@
   "vsq.recipe.vanishing_curse": "Vanishing Curse",
   "vsq.recipe.wind_burst": "Wind Burst",
   "enchantment.minecraft.testificate": "Testificate",
+  "enchantment.vsq.void_strike": "Void Strike",
+  "vsq.enchantment.void_strike.description": "Applies the voided effect to the target.",
   "vsq.enchantment.aqua_affinity.description": "Increases mining speed underwater.",
   "vsq.enchantment.bane_of_arthropods.description": "Increases damage dealt to arthropods.",
   "vsq.enchantment.binding_curse.description": "If you equip an item with curse of binding,\nyou cannot unequip it.",

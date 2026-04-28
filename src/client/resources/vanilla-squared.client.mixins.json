@@ -22,7 +22,6 @@
 		"gui.RecipeBookComponentMixin",
 		"gui.RecipeBookComponentAccessor",
 		"world.item.ItemStackMixin",
-		"world.entity.LivingEntityMixin",
 		"world.particle.ParticleEngineMixin",
       	"world.entities.LocalPlayerMixin",
 		"world.entities.PlayerMixin"

@@ -6,6 +6,7 @@ import blob.vanillasquared.main.gui.controls.VSQKeyMappings;
 import blob.vanillasquared.main.network.handlers.EnchantingRecipeBookSyncPayloadHandler;
 import blob.vanillasquared.main.network.handlers.EnchantingRecipeStatePayloadHandler;
 import blob.vanillasquared.main.network.handlers.SpecialEnchantmentCooldownPayloadHandler;
+import blob.vanillasquared.main.network.handlers.VoidedSoundPayloadHandler;
 import blob.vanillasquared.main.sound.VoidedSoundController;
 import blob.vanillasquared.main.world.inventory.VSQMenuTypes;
 import blob.vanillasquared.main.world.particle.particles.LightningBoltParticle;
@@ -26,17 +27,19 @@ public class VanillaSquaredClient implements ClientModInitializer {
         EnchantingRecipeStatePayloadHandler.register();
         EnchantingRecipeBookSyncPayloadHandler.register();
         SpecialEnchantmentCooldownPayloadHandler.register();
+        VoidedSoundPayloadHandler.register();
         SpecialEnchantmentCooldownClientState.initialize();
+        VoidedSoundController.initialize();
         VSQKeyMappings.initialize();
         ParticleProviderRegistry.getInstance().register(VSQParticleTypes.VOID_CLOUD, VoidedCloudParticle.Provider::new);
         ParticleProviderRegistry.getInstance().register(VSQParticleTypes.VOID_PIXEL, VoidedPixelParticle.Provider::new);
         ParticleProviderRegistry.getInstance().register(VSQParticleTypes.LIGHTNING_BOLT, new LightningBoltParticle.Provider());
         MenuScreens.register(VSQMenuTypes.ENCHANTING, VSQEnchantmentScreen::new);
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-                EnchantingRecipeStatePayloadHandler.clearAll();
-                SpecialEnchantmentCooldownClientState.clear();
-                VoidedSoundController.clear();
-                EnchantingIngredient.clearTagCache();
+            EnchantingRecipeStatePayloadHandler.clearAll();
+            SpecialEnchantmentCooldownClientState.clear();
+            VoidedSoundController.clear();
+            EnchantingIngredient.clearTagCache();
         });
     }
 }

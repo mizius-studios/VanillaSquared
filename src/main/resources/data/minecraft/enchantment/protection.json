@@ -7,7 +7,6 @@
         "item": "#minecraft:enchantable/armor"
       },
       "enchantment_slot": "defense",
-      "exclusive_set": "#minecraft:exclusive_set/armor",
       "max_level": 4,
       "effects": {
         "minecraft:damage_protection": [
