@@ -1,6 +1,7 @@
 package blob.vanillasquared.main;
 
 import blob.vanillasquared.main.network.VSQNetworking;
+import blob.vanillasquared.main.sound.VSQSoundEvents;
 import blob.vanillasquared.main.world.effect.VSQMobEffects;
 import blob.vanillasquared.main.world.inventory.VSQMenuTypes;
 import blob.vanillasquared.main.world.loot.VSQLootFunctions;
@@ -27,6 +28,7 @@ public class VanillaSquared implements ModInitializer {
     public void onInitialize() {
         VSQMenuTypes.initialize();
         VSQMobEffects.initialize();
+        VSQSoundEvents.initialize();
         VSQItems.initialize();
         VSQRecipeTypes.initialize();
         VSQExperiments.initialize();

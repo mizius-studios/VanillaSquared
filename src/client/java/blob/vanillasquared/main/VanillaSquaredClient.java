@@ -6,6 +6,7 @@ import blob.vanillasquared.main.gui.controls.VSQKeyMappings;
 import blob.vanillasquared.main.network.handlers.EnchantingRecipeBookSyncPayloadHandler;
 import blob.vanillasquared.main.network.handlers.EnchantingRecipeStatePayloadHandler;
 import blob.vanillasquared.main.network.handlers.SpecialEnchantmentCooldownPayloadHandler;
+import blob.vanillasquared.main.sound.VoidedSoundController;
 import blob.vanillasquared.main.world.inventory.VSQMenuTypes;
 import blob.vanillasquared.main.world.particle.particles.LightningBoltParticle;
 import blob.vanillasquared.main.world.particle.particles.VoidedCloudParticle;
@@ -34,6 +35,7 @@ public class VanillaSquaredClient implements ClientModInitializer {
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
                 EnchantingRecipeStatePayloadHandler.clearAll();
                 SpecialEnchantmentCooldownClientState.clear();
+                VoidedSoundController.clear();
                 EnchantingIngredient.clearTagCache();
         });
     }
