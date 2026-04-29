@@ -64,7 +64,7 @@
   "vsq.enchantment.binding_curse.description": "If you equip an item with curse of binding,\nyou cannot unequip it.",
   "vsq.enchantment.blast_protection.description": "Reduces damage from explosions.",
   "vsq.enchantment.breach.description": "Deals true damage, ignoring armor.",
-  "vsq.enchantment.channeling.description": "Summons lightning when attacking a mob during a thunderstorm.",
+  "vsq.enchantment.channeling.description": "Calls lightning on hit and chains it through nearby mobs.",
   "vsq.enchantment.depth_strider.description": "Increases movement speed underwater.",
   "vsq.enchantment.efficiency.description": "Increases mining speed.",
   "vsq.enchantment.feather_falling.description": "Reduces fall damage.",
@@ -117,5 +117,8 @@
   "tag.item.vsq.enchantable.material": "Enchanting Materials",
   "tag.item.vsq.enchantable.removed": "Removed Enchanting Items",
   "tag.item.vsq.enchantable.thorns": "Thorns Items",
-  "tag.item.vsq.enchantable.projectile_source": "Projectile Sources"
+  "tag.item.vsq.enchantable.projectile_source": "Projectile Sources",
+  "tag.item.vsq.enchantable.channeling": "Channeling Items",
+  "tag.block.vsq.channeling": "Blocks Channeling passes through"
+
 }

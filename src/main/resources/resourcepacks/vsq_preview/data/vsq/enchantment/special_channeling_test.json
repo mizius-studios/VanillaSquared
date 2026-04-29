@@ -1,0 +1,81 @@
+{
+  "anvil_cost": 4,
+  "profiles": [
+    {
+      "requirement": {
+        "type": "item",
+        "item": "#vsq:enchantable/channeling"
+      },
+      "enchantment_slot": "special",
+      "max_level": 1,
+      "effects": {
+        "minecraft:post_attack": [
+          {
+            "id": "channel_direct",
+            "affected": "victim",
+            "enchanted": "attacker",
+            "effect": {
+              "type": "minecraft:all_of",
+              "effects": [
+                {
+                  "type": "vsq:channeling",
+                  "algorithm": {},
+                  "target_limit": 3,
+                  "block_limit": 8,
+                  "duration": 10,
+                  "pass_through": "#vsq:hit_through"
+                },
+                {
+                  "type": "vsq:send_chat_msg",
+                  "message": {
+                    "text": "channel direct -> $a"
+                  }
+                }
+              ]
+            },
+            "special": {
+              "limit": 2
+            }
+          }
+        ],
+        "vsq:channeling_path": [
+          {
+            "id": "channel_path",
+            "affected": "victim",
+            "enchanted": "attacker",
+            "effect": {
+              "type": "minecraft:damage_entity",
+              "damage_type": "minecraft:lightning_bolt",
+              "min_damage": 1,
+              "max_damage": 1
+            },
+            "special": {
+              "limit": 2
+            }
+          }
+        ]
+      },
+      "slots": [
+        "hand"
+      ],
+      "max_cost": {
+        "base": 24,
+        "per_level_above_first": 0
+      },
+      "min_cost": {
+        "base": 8,
+        "per_level_above_first": 0
+      },
+      "special": {
+        "cooldown": 6,
+        "display_limit": "channel_direct",
+        "cooldown_after_limit": "channel_direct"
+      }
+    }
+  ],
+  "description": {
+    "text": "Special Channeling Test"
+  },
+  "supported_items": "#vsq:enchantable/channeling",
+  "weight": 2
+}

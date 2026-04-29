@@ -14,14 +14,15 @@ import net.minecraft.util.Mth;
 
 import java.util.List;
 
-public record LightningBoltParticleOptions(float yaw, float pitch, int variant) implements ParticleOptions {
-    public static final LightningBoltParticleOptions DEFAULT = new LightningBoltParticleOptions(0.0F, 0.0F, 0);
+public record LightningBoltParticleOptions(float yaw, float pitch, int variant, float length) implements ParticleOptions {
+    public static final LightningBoltParticleOptions DEFAULT = new LightningBoltParticleOptions(0.0F, 0.0F, 0, 1.0F);
     public static final int MIN_VARIANT = 0;
     public static final int MAX_VARIANT = 3;
 
     public static final MapCodec<LightningBoltParticleOptions> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             rotationCodec().optionalFieldOf("rotation", List.of(DEFAULT.yaw(), DEFAULT.pitch())).forGetter(LightningBoltParticleOptions::rotationValues),
-            variantCodec().optionalFieldOf("variant", DEFAULT.variant()).forGetter(LightningBoltParticleOptions::variant)
+            variantCodec().optionalFieldOf("variant", DEFAULT.variant()).forGetter(LightningBoltParticleOptions::variant),
+            Codec.FLOAT.optionalFieldOf("length", DEFAULT.length()).forGetter(LightningBoltParticleOptions::length)
     ).apply(instance, LightningBoltParticleOptions::fromCodecValues));
 
     public static final StreamCodec<ByteBuf, LightningBoltParticleOptions> STREAM_CODEC = StreamCodec.composite(
@@ -31,7 +32,9 @@ public record LightningBoltParticleOptions(float yaw, float pitch, int variant) 
             LightningBoltParticleOptions::pitch,
             ByteBufCodecs.VAR_INT,
             LightningBoltParticleOptions::variant,
-            (yaw, pitch, variant) -> new LightningBoltParticleOptions(yaw, pitch, Mth.clamp(variant, MIN_VARIANT, MAX_VARIANT))
+            ByteBufCodecs.FLOAT,
+            LightningBoltParticleOptions::length,
+            (yaw, pitch, variant, length) -> new LightningBoltParticleOptions(yaw, pitch, Mth.clamp(variant, MIN_VARIANT, MAX_VARIANT), Math.max(0.1F, length))
     );
 
     public LightningBoltParticleOptions {
@@ -69,7 +72,7 @@ public record LightningBoltParticleOptions(float yaw, float pitch, int variant) 
         }, values -> values);
     }
 
-    private static LightningBoltParticleOptions fromCodecValues(List<Float> rotation, int variant) {
-        return new LightningBoltParticleOptions(rotation.get(0), rotation.get(1), variant);
+    private static LightningBoltParticleOptions fromCodecValues(List<Float> rotation, int variant, float length) {
+        return new LightningBoltParticleOptions(rotation.get(0), rotation.get(1), variant, Math.max(0.1F, length));
     }
 }

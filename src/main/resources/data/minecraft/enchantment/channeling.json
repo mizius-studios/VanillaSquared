@@ -4,57 +4,12 @@
     {
       "requirement": {
         "type": "item",
-        "item": "#minecraft:enchantable/trident"
+        "item": "#vsq:enchantable/ranged_weapon"
       },
       "enchantment_slot": "secondary",
       "exclusive_set": "#minecraft:exclusive_set/riptide",
       "max_level": 1,
       "effects": {
-        "minecraft:hit_block": [
-          {
-            "effect": {
-              "type": "minecraft:all_of",
-              "effects": [
-                {
-                  "type": "minecraft:summon_entity",
-                  "entity": "minecraft:lightning_bolt"
-                },
-                {
-                  "type": "minecraft:play_sound",
-                  "pitch": 1,
-                  "sound": "minecraft:item.trident.thunder",
-                  "volume": 5
-                }
-              ]
-            },
-            "requirements": {
-              "condition": "minecraft:all_of",
-              "terms": [
-                {
-                  "condition": "minecraft:weather_check",
-                  "thundering": true
-                },
-                {
-                  "condition": "minecraft:entity_properties",
-                  "entity": "this",
-                  "predicate": {
-                    "type": "minecraft:trident"
-                  }
-                },
-                {
-                  "condition": "minecraft:location_check",
-                  "predicate": {
-                    "block": {
-                      "blocks": "#minecraft:lightning_rods"
-                    },
-                    "can_see_sky": true
-                  }
-                }
-              ]
-            },
-            "id": "minecraft_hit_block_0"
-          }
-        ],
         "minecraft:post_attack": [
           {
             "affected": "victim",
@@ -62,44 +17,110 @@
               "type": "minecraft:all_of",
               "effects": [
                 {
-                  "type": "minecraft:summon_entity",
-                  "entity": "minecraft:lightning_bolt"
+                  "type": "vsq:channeling",
+                  "algorithm": {},
+                  "target_limit": 3,
+                  "block_limit": 8,
+                  "duration": 10,
+                  "pass_through": "#vsq:hit_through"
+                },
+                {
+                  "type": "minecraft:damage_entity",
+                  "damage_type": "minecraft:lightning_bolt",
+                  "max_damage": 5,
+                  "min_damage": 5
                 },
                 {
                   "type": "minecraft:play_sound",
                   "pitch": 1,
                   "sound": "minecraft:item.trident.thunder",
-                  "volume": 5
+                  "volume": 1.5
                 }
               ]
             },
             "enchanted": "attacker",
-            "requirements": {
-              "condition": "minecraft:all_of",
-              "terms": [
+            "id": "minecraft_post_attack_0"
+          }
+        ],
+        "vsq:channeling_path": [
+          {
+            "affected": "victim",
+            "effect": {
+              "type": "minecraft:damage_entity",
+              "damage_type": "minecraft:player_attack",
+              "max_damage": 1,
+              "min_damage": 1
+            },
+            "enchanted": "attacker",
+            "id": "vsq_channeling_path_0"
+          }
+        ]
+      },
+      "slots": [
+        "mainhand",
+        "offhand"
+      ],
+      "max_cost": {
+        "base": 50,
+        "per_level_above_first": 0
+      },
+      "min_cost": {
+        "base": 25,
+        "per_level_above_first": 0
+      }
+    },
+    {
+      "requirement": {
+        "type": "item",
+        "item": "#vsq:enchantable/channeling"
+      },
+      "enchantment_slot": "secondary",
+      "exclusive_set": "#minecraft:exclusive_set/riptide",
+      "max_level": 1,
+      "effects": {
+        "minecraft:post_attack": [
+          {
+            "affected": "victim",
+            "effect": {
+              "type": "minecraft:all_of",
+              "effects": [
                 {
-                  "condition": "minecraft:weather_check",
-                  "thundering": true
+                  "type": "vsq:channeling",
+                  "algorithm": {},
+                  "target_limit": 3,
+                  "block_limit": 8,
+                  "duration": 10,
+                  "pass_through": "#vsq:channeling"
                 },
                 {
-                  "condition": "minecraft:entity_properties",
-                  "entity": "this",
-                  "predicate": {
-                    "location": {
-                      "can_see_sky": true
-                    }
-                  }
+                  "type": "minecraft:damage_entity",
+                  "damage_type": "minecraft:lightning_bolt",
+                  "max_damage": 3,
+                  "min_damage": 2
                 },
                 {
-                  "condition": "minecraft:entity_properties",
-                  "entity": "direct_attacker",
-                  "predicate": {
-                    "type": "minecraft:trident"
-                  }
+                  "type": "minecraft:play_sound",
+                  "pitch": 1,
+                  "sound": "minecraft:item.trident.thunder",
+                  "volume": 1.5
                 }
               ]
             },
+            "enchanted": "attacker",
             "id": "minecraft_post_attack_0"
+          }
+        ],
+        "vsq:channeling_path": [
+          {
+            "affected": "victim",
+            "effect": {
+              "type": "minecraft:damage_entity",
+              "damage_type": "minecraft:lightning_bolt",
+              "max_damage": 2.5,
+              "min_damage": 2
+            },
+            "enchanted": "attacker",
+            "id": "vsq_channeling_path_0"
           }
         ]
       },
@@ -114,11 +135,79 @@
         "base": 25,
         "per_level_above_first": 0
       }
+    },
+    {
+      "requirement": {
+        "type": "projectile_takeover",
+        "item": "#vsq:enchantable/ranged_weapon"
+      },
+      "enchantment_slot": "secondary",
+      "exclusive_set": "#minecraft:exclusive_set/riptide",
+      "max_level": 1,
+      "effects": {
+        "minecraft:post_attack": [
+          {
+            "affected": "victim",
+            "effect": {
+              "type": "minecraft:all_of",
+              "effects": [
+                {
+                  "type": "vsq:channeling",
+                  "algorithm": {},
+                  "target_limit": 3,
+                  "block_limit": 8,
+                  "duration": 10,
+                  "pass_through": "#vsq:channeling"
+                },
+                {
+                  "type": "minecraft:damage_entity",
+                  "damage_type": "minecraft:lightning_bolt",
+                  "max_damage": 5,
+                  "min_damage": 5
+                },
+                {
+                  "type": "minecraft:play_sound",
+                  "pitch": 1,
+                  "sound": "minecraft:item.trident.thunder",
+                  "volume": 1.5
+                }
+              ]
+            },
+            "enchanted": "attacker",
+            "id": "minecraft_post_attack_takeover_0"
+          }
+        ],
+        "vsq:channeling_path": [
+          {
+            "affected": "victim",
+            "effect": {
+              "type": "minecraft:damage_entity",
+              "damage_type": "minecraft:player_attack",
+              "max_damage": 1,
+              "min_damage": 1
+            },
+            "enchanted": "attacker",
+            "id": "vsq_channeling_path_takeover_0"
+          }
+        ]
+      },
+      "slots": [
+        "mainhand",
+        "offhand"
+      ],
+      "max_cost": {
+        "base": 50,
+        "per_level_above_first": 0
+      },
+      "min_cost": {
+        "base": 25,
+        "per_level_above_first": 0
+      }
     }
   ],
   "description": {
     "translate": "enchantment.minecraft.channeling"
   },
-  "supported_items": "#minecraft:enchantable/trident",
+  "supported_items": "#vsq:enchantable/channeling",
   "weight": 1
 }

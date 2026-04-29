@@ -6,6 +6,7 @@ import blob.vanillasquared.main.world.item.enchantment.SpecialEffectMetadataInde
 import blob.vanillasquared.main.world.item.enchantment.SpecialEnchantmentCooldowns;
 import blob.vanillasquared.main.world.item.enchantment.VSQEnchantmentSlots;
 import blob.vanillasquared.main.world.item.enchantment.VSQEnchantmentSlotType;
+import blob.vanillasquared.main.world.effect.ChannelingState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.component.DataComponentType;
@@ -141,7 +142,12 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
                     && vsq$allowSpecialEffect(serverLevel, item.itemStack(), EnchantmentEffectComponents.POST_ATTACK, index, item.owner())) {
                 Entity affected = vsq$resolveAffectedEntity(effect, victim, damageSource);
                 if (affected != null) {
-                    effect.effect().apply(serverLevel, enchantmentLevel, item, affected, affected.position());
+                    ChannelingState.pushExecutionDamageSource(damageSource);
+                    try {
+                        effect.effect().apply(serverLevel, enchantmentLevel, item, affected, affected.position());
+                    } finally {
+                        ChannelingState.popExecutionDamageSource();
+                    }
                 }
             }
         }

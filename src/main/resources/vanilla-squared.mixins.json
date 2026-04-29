@@ -5,6 +5,7 @@
   "mixins": [
     "world.FeatureFlagsMixin",
     "world.PackFeatureSourceMixin",
+    "world.ServerLevelMixin",
     "world.commands.CommandNodeAccessor",
     "world.commands.RecipeCommandMixin",
     "world.commands.ResourceKeyArgumentMixin",

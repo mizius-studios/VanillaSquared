@@ -17,6 +17,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.AABB;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class LightningBoltParticle extends Particle {
     private static final float LIGHTNING_SCALE = 1.0F / 16.0F;
@@ -26,6 +27,7 @@ public class LightningBoltParticle extends Particle {
     private static final int SPINE_SEGMENTS = SPINE_POINTS - 1;
     private static final float CORE_START_Y = -7.45F;
     private static final float CORE_END_Y = 7.45F;
+    private static final float CORE_LENGTH = CORE_END_Y - CORE_START_Y;
     private static final float BASE_RED = 0.45F;
     private static final float BASE_GREEN = 0.45F;
     private static final float BASE_BLUE = 0.5F;
@@ -48,6 +50,7 @@ public class LightningBoltParticle extends Particle {
     private final float yaw;
     private final float pitch;
     private final int variant;
+    private final float length;
 
     protected LightningBoltParticle(ClientLevel level, double x, double y, double z, double xd, double yd, double zd, LightningBoltParticleOptions options) {
         super(level, x, y, z, xd, yd, zd);
@@ -55,6 +58,7 @@ public class LightningBoltParticle extends Particle {
         this.yaw = options.yaw();
         this.pitch = options.pitch();
         this.variant = options.variant();
+        this.length = options.length();
         this.hasPhysics = false;
         this.gravity = 0.0F;
         this.friction = 1.0F;
@@ -75,9 +79,21 @@ public class LightningBoltParticle extends Particle {
 
         PoseStack poseStack = new PoseStack();
         poseStack.translate(renderX, renderY, renderZ);
-        poseStack.mulPose(new Quaternionf().rotationYXZ(this.yaw * Mth.DEG_TO_RAD, this.pitch * Mth.DEG_TO_RAD, 0.0F));
-        poseStack.scale(LIGHTNING_SCALE, LIGHTNING_SCALE, LIGHTNING_SCALE);
+        poseStack.mulPose(pathRotation(this.yaw, this.pitch));
+        poseStack.scale(LIGHTNING_SCALE, this.length / CORE_LENGTH, LIGHTNING_SCALE);
         return new LightningBoltParticleRenderState(poseStack, this.seed, this.variant);
+    }
+
+    private static Quaternionf pathRotation(float yaw, float pitch) {
+        float yawRadians = yaw * Mth.DEG_TO_RAD;
+        float pitchRadians = pitch * Mth.DEG_TO_RAD;
+        float horizontal = Mth.cos(pitchRadians);
+        Vector3f direction = new Vector3f(
+                horizontal * Mth.cos(yawRadians),
+                Mth.sin(pitchRadians),
+                horizontal * Mth.sin(yawRadians)
+        ).normalize();
+        return new Quaternionf().rotationTo(new Vector3f(0.0F, 1.0F, 0.0F), direction);
     }
 
     private static void renderBolt(Matrix4f matrix, VertexConsumer consumer, long seed, int variant) {
