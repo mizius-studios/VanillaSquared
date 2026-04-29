@@ -6,7 +6,7 @@
         "type": "item",
         "item": "#vsq:enchantable/ranged_weapon"
       },
-      "enchantment_slot": "secondary",
+      "enchantment_slot": "damage",
       "exclusive_set": "#minecraft:exclusive_set/riptide",
       "max_level": 1,
       "effects": {
@@ -76,7 +76,7 @@
         "type": "item",
         "item": "#vsq:enchantable/channeling"
       },
-      "enchantment_slot": "secondary",
+      "enchantment_slot": "damage",
       "exclusive_set": "#minecraft:exclusive_set/riptide",
       "max_level": 1,
       "effects": {
