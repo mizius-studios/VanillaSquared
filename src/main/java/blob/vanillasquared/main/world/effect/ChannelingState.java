@@ -550,10 +550,6 @@ public final class ChannelingState {
         }
     }
 
-    private static void strikeTarget(ServerLevel level, LivingEntity target) {
-        strikeLightningAt(level, target.position());
-    }
-
     private static void strikeLightningAt(ServerLevel level, BlockPos pos) {
         strikeLightningAt(level, Vec3.atCenterOf(pos));
     }
