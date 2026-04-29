@@ -99,12 +99,6 @@
                   "damage_type": "minecraft:lightning_bolt",
                   "max_damage": 3,
                   "min_damage": 2
-                },
-                {
-                  "type": "minecraft:play_sound",
-                  "pitch": 1,
-                  "sound": "minecraft:item.trident.thunder",
-                  "volume": 1.5
                 }
               ]
             },
