@@ -18,7 +18,8 @@
             },
             "attribute": "minecraft:oxygen_bonus",
             "id": "minecraft:enchantment.respiration",
-            "operation": "add_value"
+            "operation": "add_value",
+            "effect_id": "minecraft:enchantment.respiration"
           }
         ]
       },

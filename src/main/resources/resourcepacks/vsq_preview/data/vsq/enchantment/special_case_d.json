@@ -19,7 +19,8 @@
               }
             },
             "affected": "attacker",
-            "enchanted": "attacker"
+            "enchanted": "attacker",
+            "effect_id": "gate"
           },
           {
             "id": "display",
@@ -37,7 +38,8 @@
               }
             },
             "affected": "attacker",
-            "enchanted": "attacker"
+            "enchanted": "attacker",
+            "effect_id": "display"
           }
         ]
       },

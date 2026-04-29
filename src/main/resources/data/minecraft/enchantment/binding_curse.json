@@ -10,7 +10,8 @@
       "max_level": 1,
       "effects": {
         "minecraft:prevent_armor_change": {
-          "id": "minecraft_prevent_armor_change_0"
+          "id": "minecraft_prevent_armor_change_0",
+          "effect_id": "minecraft_prevent_armor_change_0"
         }
       },
       "slots": [

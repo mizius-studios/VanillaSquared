@@ -120,7 +120,8 @@
                 }
               ]
             },
-            "id": "minecraft_location_changed_0"
+            "id": "minecraft_location_changed_0",
+            "effect_id": "minecraft_location_changed_0"
           },
           {
             "effect": {
@@ -153,7 +154,8 @@
                 }
               ]
             },
-            "id": "minecraft_location_changed_1"
+            "id": "minecraft_location_changed_1",
+            "effect_id": "minecraft_location_changed_1"
           }
         ],
         "minecraft:tick": [
@@ -199,7 +201,8 @@
                 "periodic_tick": 5
               }
             },
-            "id": "minecraft_tick_0"
+            "id": "minecraft_tick_0",
+            "effect_id": "minecraft_tick_0"
           },
           {
             "effect": {
@@ -242,7 +245,8 @@
                 }
               ]
             },
-            "id": "minecraft_tick_1"
+            "id": "minecraft_tick_1",
+            "effect_id": "minecraft_tick_1"
           }
         ]
       },

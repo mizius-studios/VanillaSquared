@@ -21,7 +21,8 @@
             "requirements": {
               "condition": "minecraft:weather_check",
               "raining": true
-            }
+            },
+            "effect_id": "p5"
           }
         ]
       },

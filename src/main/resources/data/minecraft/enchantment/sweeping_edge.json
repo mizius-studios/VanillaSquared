@@ -26,7 +26,8 @@
             },
             "attribute": "minecraft:sweeping_damage_ratio",
             "id": "minecraft:enchantment.sweeping_edge",
-            "operation": "add_value"
+            "operation": "add_value",
+            "effect_id": "minecraft:enchantment.sweeping_edge"
           }
         ]
       },

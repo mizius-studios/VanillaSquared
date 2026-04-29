@@ -53,7 +53,8 @@
                 }
               }
             },
-            "id": "minecraft_post_attack_0"
+            "id": "minecraft_post_attack_0",
+            "effect_id": "minecraft_post_attack_0"
           }
         ]
       },
@@ -107,7 +108,8 @@
               "sound": "minecraft:entity.wind_charge.wind_burst"
             },
             "enchanted": "attacker",
-            "id": "minecraft_post_attack_fishing_0"
+            "id": "minecraft_post_attack_fishing_0",
+            "effect_id": "minecraft_post_attack_fishing_0"
           }
         ]
       },

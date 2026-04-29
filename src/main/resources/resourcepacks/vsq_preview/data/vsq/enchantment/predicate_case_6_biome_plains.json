@@ -23,7 +23,8 @@
               "predicate": {
                 "biomes": "minecraft:plains"
               }
-            }
+            },
+            "effect_id": "p6"
           }
         ]
       },

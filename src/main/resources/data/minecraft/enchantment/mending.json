@@ -15,7 +15,8 @@
               "type": "minecraft:multiply",
               "factor": 2
             },
-            "id": "minecraft_repair_with_xp_0"
+            "id": "minecraft_repair_with_xp_0",
+            "effect_id": "minecraft_repair_with_xp_0"
           }
         ]
       },

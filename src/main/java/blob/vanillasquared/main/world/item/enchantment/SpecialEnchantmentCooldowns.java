@@ -174,7 +174,7 @@ public final class SpecialEnchantmentCooldowns {
             return true;
         }
 
-        String id = metadata.id();
+        String id = metadata.effectId();
         SpecialEffectSettings settings = metadata.special().orElseThrow();
 
         int limit = resolvedLimit(use, settings);
@@ -242,8 +242,8 @@ public final class SpecialEnchantmentCooldowns {
             metadata.special().ifPresent(settings -> {
                 int limit = resolvedLimit(use, settings);
                 if (limit > 0) {
-                    state.remainingLimits.put(metadata.id(), limit);
-                    state.totalLimits.put(metadata.id(), limit);
+                    state.remainingLimits.put(metadata.effectId(), limit);
+                    state.totalLimits.put(metadata.effectId(), limit);
                 }
             });
         }

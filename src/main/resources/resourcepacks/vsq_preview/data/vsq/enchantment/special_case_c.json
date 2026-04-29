@@ -24,7 +24,8 @@
                 "base": 4,
                 "per_level_above_first": 0
               }
-            }
+            },
+            "effect_id": "extra"
           }
         ]
       },

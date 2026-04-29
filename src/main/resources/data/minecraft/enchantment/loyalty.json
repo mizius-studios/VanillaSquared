@@ -20,7 +20,8 @@
                 "per_level_above_first": 1
               }
             },
-            "id": "minecraft_trident_return_acceleration_0"
+            "id": "minecraft_trident_return_acceleration_0",
+            "effect_id": "minecraft_trident_return_acceleration_0"
           }
         ]
       },

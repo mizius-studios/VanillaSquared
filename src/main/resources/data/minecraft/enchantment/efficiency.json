@@ -17,7 +17,8 @@
             },
             "attribute": "minecraft:mining_efficiency",
             "id": "minecraft:enchantment.efficiency",
-            "operation": "add_value"
+            "operation": "add_value",
+            "effect_id": "minecraft:enchantment.efficiency"
           }
         ]
       },

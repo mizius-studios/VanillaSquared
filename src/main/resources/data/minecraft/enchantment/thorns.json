@@ -39,7 +39,8 @@
               },
               "condition": "minecraft:random_chance"
             },
-            "id": "minecraft_post_attack_0"
+            "id": "minecraft_post_attack_0",
+            "effect_id": "minecraft_post_attack_0"
           }
         ]
       },
@@ -93,7 +94,8 @@
               },
               "condition": "minecraft:random_chance"
             },
-            "id": "vsq_post_block_0"
+            "id": "vsq_post_block_0",
+            "effect_id": "vsq_post_block_0"
           }
         ]
       },

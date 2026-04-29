@@ -28,7 +28,8 @@
                 "type": "minecraft:player"
               }
             },
-            "id": "minecraft_equipment_drops_0"
+            "id": "minecraft_equipment_drops_0",
+            "effect_id": "minecraft_equipment_drops_0"
           }
         ]
       },
@@ -70,7 +71,8 @@
                 "type": "minecraft:player"
               }
             },
-            "id": "minecraft_equipment_drops_0"
+            "id": "minecraft_equipment_drops_0",
+            "effect_id": "minecraft_equipment_drops_0"
           }
         ]
       },
@@ -104,7 +106,8 @@
                 "per_level_above_first": 1
               }
             },
-            "id": "minecraft_fishing_luck_bonus_0"
+            "id": "minecraft_fishing_luck_bonus_0",
+            "effect_id": "minecraft_fishing_luck_bonus_0"
           }
         ]
       },
@@ -166,7 +169,8 @@
                 "type": "minecraft:player"
               }
             },
-            "id": "minecraft_equipment_drops_0"
+            "id": "minecraft_equipment_drops_0",
+            "effect_id": "minecraft_equipment_drops_0"
           }
         ]
       },

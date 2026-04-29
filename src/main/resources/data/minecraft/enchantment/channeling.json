@@ -39,7 +39,8 @@
               ]
             },
             "enchanted": "attacker",
-            "id": "minecraft_post_attack_0"
+            "id": "minecraft_post_attack_0",
+            "effect_id": "minecraft_post_attack_0"
           }
         ],
         "vsq:channeling_path": [
@@ -52,7 +53,8 @@
               "min_damage": 1
             },
             "enchanted": "attacker",
-            "id": "vsq_channeling_path_0"
+            "id": "vsq_channeling_path_0",
+            "effect_id": "vsq_channeling_path_0"
           }
         ]
       },
@@ -107,7 +109,8 @@
               ]
             },
             "enchanted": "attacker",
-            "id": "minecraft_post_attack_0"
+            "id": "minecraft_post_attack_0",
+            "effect_id": "minecraft_post_attack_0"
           }
         ],
         "vsq:channeling_path": [
@@ -120,7 +123,8 @@
               "min_damage": 2
             },
             "enchanted": "attacker",
-            "id": "vsq_channeling_path_0"
+            "id": "vsq_channeling_path_0",
+            "effect_id": "vsq_channeling_path_0"
           }
         ]
       },
@@ -174,7 +178,8 @@
               ]
             },
             "enchanted": "attacker",
-            "id": "minecraft_post_attack_takeover_0"
+            "id": "minecraft_post_attack_takeover_0",
+            "effect_id": "minecraft_post_attack_takeover_0"
           }
         ],
         "vsq:channeling_path": [
@@ -187,7 +192,8 @@
               "min_damage": 1
             },
             "enchanted": "attacker",
-            "id": "vsq_channeling_path_takeover_0"
+            "id": "vsq_channeling_path_takeover_0",
+            "effect_id": "vsq_channeling_path_takeover_0"
           }
         ]
       },

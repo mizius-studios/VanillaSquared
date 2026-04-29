@@ -26,7 +26,8 @@
                 "type": "#minecraft:sensitive_to_bane_of_arthropods"
               }
             },
-            "id": "minecraft_smash_damage_per_fallen_block_0"
+            "id": "minecraft_smash_damage_per_fallen_block_0",
+            "effect_id": "minecraft_smash_damage_per_fallen_block_0"
           }
         ],
         "minecraft:post_attack": [
@@ -63,7 +64,8 @@
                 }
               ]
             },
-            "id": "minecraft_post_attack_0"
+            "id": "minecraft_post_attack_0",
+            "effect_id": "minecraft_post_attack_0"
           }
         ]
       },
@@ -104,7 +106,8 @@
                 "type": "#minecraft:sensitive_to_bane_of_arthropods"
               }
             },
-            "id": "minecraft_damage_0"
+            "id": "minecraft_damage_0",
+            "effect_id": "minecraft_damage_0"
           }
         ],
         "minecraft:post_attack": [
@@ -141,7 +144,8 @@
                 }
               ]
             },
-            "id": "minecraft_post_attack_0"
+            "id": "minecraft_post_attack_0",
+            "effect_id": "minecraft_post_attack_0"
           }
         ]
       },
@@ -194,7 +198,8 @@
                 }
               ]
             },
-            "id": "minecraft_damage_0"
+            "id": "minecraft_damage_0",
+            "effect_id": "minecraft_damage_0"
           }
         ],
         "minecraft:post_attack": [
@@ -232,7 +237,8 @@
                 }
               ]
             },
-            "id": "minecraft_post_attack_0"
+            "id": "minecraft_post_attack_0",
+            "effect_id": "minecraft_post_attack_0"
           }
         ]
       },
@@ -273,7 +279,8 @@
                 "type": "#minecraft:sensitive_to_bane_of_arthropods"
               }
             },
-            "id": "minecraft_damage_fishing_0"
+            "id": "minecraft_damage_fishing_0",
+            "effect_id": "minecraft_damage_fishing_0"
           }
         ],
         "minecraft:post_attack": [
@@ -299,7 +306,8 @@
                 "type": "#minecraft:sensitive_to_bane_of_arthropods"
               }
             },
-            "id": "minecraft_post_attack_fishing_0"
+            "id": "minecraft_post_attack_fishing_0",
+            "effect_id": "minecraft_post_attack_fishing_0"
           }
         ]
       },

@@ -34,7 +34,8 @@
                 ]
               }
             },
-            "id": "minecraft_damage_protection_0"
+            "id": "minecraft_damage_protection_0",
+            "effect_id": "minecraft_damage_protection_0"
           }
         ]
       },

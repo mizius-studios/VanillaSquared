@@ -85,18 +85,18 @@ public record SpecialEffectMetadataIndex(Map<String, List<SpecialEffectMetadata>
                 continue;
             }
 
-            JsonElement idElement = entry.get("id");
-            if (!(idElement instanceof JsonPrimitive primitive) || !primitive.isString()) {
+            JsonElement effectIdElement = entry.get("effect_id");
+            if (!(effectIdElement instanceof JsonPrimitive primitive) || !primitive.isString()) {
                 parsed.add(new SpecialEffectMetadata("", Optional.empty()));
                 continue;
             }
-            String id = primitive.getAsString().trim();
-            if (id.isEmpty()) {
+            String effectId = primitive.getAsString().trim();
+            if (effectId.isEmpty()) {
                 parsed.add(new SpecialEffectMetadata("", Optional.empty()));
                 continue;
             }
-            Optional<SpecialEffectSettings> special = parseSpecial(componentKey, id, entry);
-            parsed.add(new SpecialEffectMetadata(id, special));
+            Optional<SpecialEffectSettings> special = parseSpecial(componentKey, effectId, entry);
+            parsed.add(new SpecialEffectMetadata(effectId, special));
         }
         return parsed.isEmpty() ? List.of() : List.copyOf(parsed);
     }

@@ -18,7 +18,8 @@
             },
             "attribute": "minecraft:burning_time",
             "id": "minecraft:enchantment.fire_protection",
-            "operation": "add_multiplied_base"
+            "operation": "add_multiplied_base",
+            "effect_id": "minecraft:enchantment.fire_protection"
           }
         ],
         "minecraft:damage_protection": [
@@ -51,7 +52,8 @@
                 }
               ]
             },
-            "id": "minecraft_damage_protection_0"
+            "id": "minecraft_damage_protection_0",
+            "effect_id": "minecraft_damage_protection_0"
           }
         ]
       },

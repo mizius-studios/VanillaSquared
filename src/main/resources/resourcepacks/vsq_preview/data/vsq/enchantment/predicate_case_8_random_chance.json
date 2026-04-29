@@ -21,7 +21,8 @@
             "requirements": {
               "condition": "minecraft:random_chance",
               "chance": 0.5
-            }
+            },
+            "effect_id": "p8"
           }
         ]
       },

@@ -44,14 +44,14 @@
                 }
               ]
             },
-            "id": "vsq_voided"
+            "id": "vsq_voided",
+            "effect_id": "vsq_voided"
           }
         ]
       },
       "slots": [
         "mainhand",
         "offhand"
-
       ],
       "max_cost": {
         "base": 25,
@@ -99,7 +99,8 @@
                 }
               ]
             },
-            "id": "vsq_voided"
+            "id": "vsq_voided",
+            "effect_id": "vsq_voided"
           }
         ]
       },
@@ -153,7 +154,8 @@
                 }
               ]
             },
-            "id": "vsq_voided"
+            "id": "vsq_voided",
+            "effect_id": "vsq_voided"
           }
         ]
       },

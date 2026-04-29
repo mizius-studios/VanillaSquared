@@ -26,7 +26,8 @@
                 "type": "#minecraft:sensitive_to_smite"
               }
             },
-            "id": "minecraft_smash_damage_per_fallen_block_0"
+            "id": "minecraft_smash_damage_per_fallen_block_0",
+            "effect_id": "minecraft_smash_damage_per_fallen_block_0"
           }
         ]
       },
@@ -67,7 +68,8 @@
                 "type": "#minecraft:sensitive_to_smite"
               }
             },
-            "id": "minecraft_damage_0"
+            "id": "minecraft_damage_0",
+            "effect_id": "minecraft_damage_0"
           }
         ]
       },
@@ -120,7 +122,8 @@
                 }
               ]
             },
-            "id": "minecraft_damage_0"
+            "id": "minecraft_damage_0",
+            "effect_id": "minecraft_damage_0"
           }
         ]
       },
@@ -161,7 +164,8 @@
                 "type": "#minecraft:sensitive_to_smite"
               }
             },
-            "id": "minecraft_damage_fishing_0"
+            "id": "minecraft_damage_fishing_0",
+            "effect_id": "minecraft_damage_fishing_0"
           }
         ]
       },

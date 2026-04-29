@@ -33,7 +33,8 @@
                 "items": "#minecraft:enchantable/armor"
               }
             },
-            "id": "minecraft_item_damage_0"
+            "id": "minecraft_item_damage_0",
+            "effect_id": "minecraft_item_damage_0"
           },
           {
             "effect": {
@@ -61,7 +62,8 @@
                 }
               }
             },
-            "id": "minecraft_item_damage_1"
+            "id": "minecraft_item_damage_1",
+            "effect_id": "minecraft_item_damage_1"
           }
         ]
       },

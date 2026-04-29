@@ -24,7 +24,8 @@
               "predicate": {
                 "type": "minecraft:zombie"
               }
-            }
+            },
+            "effect_id": "p10"
           }
         ]
       },

@@ -16,7 +16,8 @@
               "type": "minecraft:set",
               "value": 0
             },
-            "id": "minecraft_block_experience_0"
+            "id": "minecraft_block_experience_0",
+            "effect_id": "minecraft_block_experience_0"
           }
         ]
       },

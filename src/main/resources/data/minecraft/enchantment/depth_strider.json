@@ -19,7 +19,8 @@
             },
             "attribute": "minecraft:water_movement_efficiency",
             "id": "minecraft:enchantment.depth_strider",
-            "operation": "add_value"
+            "operation": "add_value",
+            "effect_id": "minecraft:enchantment.depth_strider"
           }
         ]
       },

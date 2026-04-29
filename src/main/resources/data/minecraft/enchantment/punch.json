@@ -26,7 +26,8 @@
                 "type": "#minecraft:arrows"
               }
             },
-            "id": "minecraft_knockback_0"
+            "id": "minecraft_knockback_0",
+            "effect_id": "minecraft_knockback_0"
           }
         ]
       },
@@ -60,7 +61,8 @@
                 "per_level_above_first": 1
               }
             },
-            "id": "minecraft_knockback_0"
+            "id": "minecraft_knockback_0",
+            "effect_id": "minecraft_knockback_0"
           }
         ]
       },
@@ -94,7 +96,8 @@
                 "per_level_above_first": 1
               }
             },
-            "id": "minecraft_knockback_takeover_0"
+            "id": "minecraft_knockback_takeover_0",
+            "effect_id": "minecraft_knockback_takeover_0"
           }
         ]
       },

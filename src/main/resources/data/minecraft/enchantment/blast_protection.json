@@ -18,7 +18,8 @@
             },
             "attribute": "minecraft:explosion_knockback_resistance",
             "id": "minecraft:enchantment.blast_protection",
-            "operation": "add_value"
+            "operation": "add_value",
+            "effect_id": "minecraft:enchantment.blast_protection"
           }
         ],
         "minecraft:damage_protection": [
@@ -46,7 +47,8 @@
                 ]
               }
             },
-            "id": "minecraft_damage_protection_0"
+            "id": "minecraft_damage_protection_0",
+            "effect_id": "minecraft_damage_protection_0"
           }
         ]
       },

@@ -16,23 +16,27 @@
             "base": -0.25,
             "per_level_above_first": -0.25
           },
-          "id": "minecraft_crossbow_charge_time_0"
+          "id": "minecraft_crossbow_charge_time_0",
+          "effect_id": "minecraft_crossbow_charge_time_0"
         },
         "minecraft:crossbow_charging_sounds": [
           {
             "end": "minecraft:item.crossbow.loading_end",
             "start": "minecraft:item.crossbow.quick_charge_1",
-            "id": "minecraft_crossbow_charging_sounds_0"
+            "id": "minecraft_crossbow_charging_sounds_0",
+            "effect_id": "minecraft_crossbow_charging_sounds_0"
           },
           {
             "end": "minecraft:item.crossbow.loading_end",
             "start": "minecraft:item.crossbow.quick_charge_2",
-            "id": "minecraft_crossbow_charging_sounds_1"
+            "id": "minecraft_crossbow_charging_sounds_1",
+            "effect_id": "minecraft_crossbow_charging_sounds_1"
           },
           {
             "end": "minecraft:item.crossbow.loading_end",
             "start": "minecraft:item.crossbow.quick_charge_3",
-            "id": "minecraft_crossbow_charging_sounds_2"
+            "id": "minecraft_crossbow_charging_sounds_2",
+            "effect_id": "minecraft_crossbow_charging_sounds_2"
           }
         ]
       },

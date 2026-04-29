@@ -19,7 +19,8 @@
                 "per_level_above_first": 5
               }
             },
-            "id": "minecraft_fishing_time_reduction_0"
+            "id": "minecraft_fishing_time_reduction_0",
+            "effect_id": "minecraft_fishing_time_reduction_0"
           }
         ]
       },

@@ -20,7 +20,8 @@
                 "per_level_above_first": 1
               }
             },
-            "id": "minecraft_projectile_piercing_0"
+            "id": "minecraft_projectile_piercing_0",
+            "effect_id": "minecraft_projectile_piercing_0"
           }
         ]
       },
