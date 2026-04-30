@@ -10,6 +10,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,6 +19,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(AnvilMenu.class)
 public abstract class AnvilMenuMixin extends AbstractContainerMenu {
+    @Final
     @Shadow
     private DataSlot cost;
 
@@ -29,8 +31,8 @@ public abstract class AnvilMenuMixin extends AbstractContainerMenu {
     private void vsq$stopEnchantedBookCrafting(CallbackInfo ci) {
         if (this.slots.size() < 3) return;
 
-        Slot secondaryInput = (Slot) this.slots.get(1);
-        Slot resultSlot = (Slot) this.slots.get(2);
+        Slot secondaryInput = this.slots.get(1);
+        Slot resultSlot = this.slots.get(2);
 
         if (secondaryInput.getItem().is(Items.ENCHANTED_BOOK)) {
             resultSlot.set(ItemStack.EMPTY);
@@ -42,8 +44,8 @@ public abstract class AnvilMenuMixin extends AbstractContainerMenu {
     private void vsq$normalizeSlottedAnvilResult(CallbackInfo ci) {
         if (this.slots.size() < 3) return;
 
-        Slot inputSlot = (Slot) this.slots.get(0);
-        Slot resultSlot = (Slot) this.slots.get(2);
+        Slot inputSlot = this.slots.get(0);
+        Slot resultSlot = this.slots.get(2);
         ItemStack result = resultSlot.getItem();
         if (result.isEmpty() || !EnchantmentHelper.canStoreEnchantments(result)) {
             return;
