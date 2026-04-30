@@ -24,8 +24,16 @@
                 "base": 5,
                 "per_level_above_first": 5
               },
-              "min_amplifier": 0,
-              "min_duration": 5,
+              "min_amplifier": {
+                "type": "minecraft:linear",
+                "base": 0,
+                "per_level_above_first": 1
+              },
+              "min_duration": {
+                "type": "minecraft:linear",
+                "base": 5,
+                "per_level_above_first": 5
+              },
               "to_apply": "vsq:voided"
             },
             "enchanted": "attacker",
@@ -148,8 +156,16 @@
                 "base": 5,
                 "per_level_above_first": 5
               },
-              "min_amplifier": 0,
-              "min_duration": 5,
+              "min_amplifier": {
+                "type": "minecraft:linear",
+                "base": 0,
+                "per_level_above_first": 1
+              },
+              "min_duration": {
+                "type": "minecraft:linear",
+                "base": 5,
+                "per_level_above_first": 5
+              },
               "to_apply": "vsq:voided"
             },
             "enchanted": "attacker",
