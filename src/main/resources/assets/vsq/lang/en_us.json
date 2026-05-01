@@ -46,6 +46,7 @@
   "vsq.recipe.quick_charge": "Quick Charge",
   "vsq.recipe.respiration": "Respiration",
   "vsq.recipe.riptide": "Riptide",
+  "vsq.recipe.ruthless": "Ruthless",
   "vsq.recipe.sharpness": "Sharpness",
   "vsq.recipe.silk_touch": "Silk Touch",
   "vsq.recipe.smite": "Smite",
@@ -55,10 +56,11 @@
   "vsq.recipe.thorns": "Thorns",
   "vsq.recipe.unbreaking": "Unbreaking",
   "vsq.recipe.vanishing_curse": "Vanishing Curse",
+  "vsq.recipe.void_strike": "Void Strike",
   "vsq.recipe.wind_burst": "Wind Burst",
   "enchantment.minecraft.testificate": "Testificate",
+  "enchantment.vsq.ruthless": "Ruthless",
   "enchantment.vsq.void_strike": "Void Strike",
-  "vsq.enchantment.void_strike.description": "Applies the voided effect to the target.",
   "vsq.enchantment.aqua_affinity.description": "Increases mining speed underwater.",
   "vsq.enchantment.bane_of_arthropods.description": "Increases damage dealt to arthropods.",
   "vsq.enchantment.binding_curse.description": "If you equip an item with curse of binding,\nyou cannot unequip it.",
@@ -85,6 +87,7 @@
   "vsq.enchantment.punch.description": "Increases knockback.",
   "vsq.enchantment.quick_charge.description": "Charge up your crossbow faster.",
   "vsq.enchantment.riptide.description": "Launch yourself with the trident when in water or rain.",
+  "vsq.enchantment.ruthless.description": "Increases attack damage majorly, but deals damage to you.",
   "vsq.enchantment.sharpness.description": "Increases attack damage.",
   "vsq.enchantment.silk_touch.description": "Allows you to mine blocks without destroying them.",
   "vsq.enchantment.smite.description": "Increases damage dealt to undead mobs.",
@@ -94,6 +97,7 @@
   "vsq.enchantment.thorns.description": "Deals damage to attackers.",
   "vsq.enchantment.unbreaking.description": "Reduces the chance of breaking an item.",
   "vsq.enchantment.vanishing_curse.description": "Items with curse of vanishing disappear when you die.",
+  "vsq.enchantment.void_strike.description": "Applies the voided effect to the target.",
   "vsq.enchantment.wind_burst.description": "Summons a wind charge explosion upon a mace hit,\nboosting you up again.",
   "vsq.enchantment_slot.special": "Special",
   "vsq.enchantment_slot.damage": "Damage",
@@ -120,5 +124,4 @@
   "tag.item.vsq.enchantable.projectile_source": "Projectile Sources",
   "tag.item.vsq.enchantable.channeling": "Channeling Items",
   "tag.block.vsq.channeling": "Blocks Channeling passes through"
-
 }

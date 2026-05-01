@@ -1,0 +1,41 @@
+{
+  "type": "vsq:enchanting",
+  "category": "weapons",
+  "group": "riptide",
+  "name": {
+    "translate": "enchantment.vsq.ruthless"
+  },
+  "description": {
+    "translate": "vsq.enchantment.ruthless.description"
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": 5
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:skeleton_skull",
+      "count": 1
+    },
+    {
+      "item": "minecraft:wither_rose",
+      "count": 4
+    },
+    {
+      "item": "#minecraft:swords",
+      "count": 1
+    },
+    {
+      "item": "#minecraft:axes",
+      "count": 1
+    }
+  ],
+  "enchantment": "vsq:ruthless",
+  "blocks": [
+    {
+      "count": 9,
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level_multiplier": 8
+}

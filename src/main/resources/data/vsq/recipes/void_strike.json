@@ -3,7 +3,7 @@
   "category": "weapons",
   "group": "void_strike",
   "name": {
-    "translate": "vsq.enchantment.void_strike"
+    "translate": "enchantment.vsq.void_strike"
   },
   "description": {
     "translate": "vsq.enchantment.void_strike.description"

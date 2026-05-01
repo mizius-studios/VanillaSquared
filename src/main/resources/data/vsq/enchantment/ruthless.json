@@ -1,0 +1,68 @@
+{
+  "anvil_cost": 2,
+  "profiles": [
+    {
+      "requirement": {
+        "type": "item",
+        "item": "#vsq:enchantable/melee_weapon"
+      },
+      "enchantment_slot": "damage",
+      "max_level": 1,
+      "effects": {
+        "minecraft:damage": [
+          {
+            "effect": {
+              "type": "minecraft:multiply",
+              "factor": {
+                "type": "minecraft:linear",
+                "base": 1.35,
+                "per_level_above_first": 0
+              }
+            },
+            "requirements": {
+              "condition": "minecraft:entity_properties",
+              "entity": "this",
+              "predicate": {
+                "type": "#minecraft:sensitive_to_bane_of_arthropods"
+              }
+            },
+            "id": "vsq_ruthless_damage",
+            "effect_id": "vsq_ruthless_damage"
+          }
+        ],
+        "minecraft:post_attack": [
+          {
+            "affected": "attacker",
+            "effect": {
+              "type": "minecraft:damage_entity",
+              "damage_type": "minecraft:magic",
+              "max_damage": 4,
+              "min_damage": 2.5
+            },
+            "enchanted": "attacker",
+            "id": "vsq_ruthless_self_dmg",
+            "effect_id": "vsq_ruthless_self_dmg"
+          }
+        ]
+      },
+      "slots": [
+        "mainhand",
+        "offhand"
+      ],
+      "max_cost": {
+        "base": 25,
+        "per_level_above_first": 8
+      },
+      "min_cost": {
+        "base": 5,
+        "per_level_above_first": 8
+      }
+    }
+  ],
+  "description": {
+    "translate": "enchantment.vsq.ruthless"
+  },
+  "primary_items": "#vsq:enchantable/melee_weapon",
+  "supported_items": "#vsq:enchantable/melee_weapon",
+  "weight": 5
+}
