@@ -27,7 +27,15 @@ loom {
 			sourceSet sourceSets.client
 		}
 	}
-
+	// this allows you to offline login to my account - PainterFlow11, you can replace PainterFlow11 with your own username
+	runs {
+		client {
+			programArg("--username")
+			programArg("PainterFlow11") // usernameVSQ
+			programArg("--model")
+			programArg("slim") // modelVSQ
+		}
+	}
 }
 
 fabricApi {
@@ -43,7 +51,22 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-	
+}
+
+tasks.named("compileTestJava") {
+	enabled = false
+}
+
+tasks.named("processTestResources") {
+	enabled = false
+}
+
+tasks.named("testClasses") {
+	enabled = false
+}
+
+tasks.named("test") {
+	enabled = false
 }
 
 processResources {

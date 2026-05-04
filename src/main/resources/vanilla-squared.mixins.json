@@ -25,6 +25,7 @@
     "world.item.ItemStackMixin",
     "world.item.ItemPropertiesMixin",
     "world.item.ItemsMixin",
+    "world.item.echanting.ApplyEntityImpulseMixin",
     "world.item.echanting.EnchantmentMixin",
     "world.item.echanting.EnchantmentHelperMixin",
     "world.item.components.ItemAttributeModifiersDisplayDefaultMixin",

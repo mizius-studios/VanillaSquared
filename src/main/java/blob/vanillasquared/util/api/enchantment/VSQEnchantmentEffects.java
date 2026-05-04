@@ -1,6 +1,7 @@
 package blob.vanillasquared.util.api.enchantment;
 
 import blob.vanillasquared.main.world.item.enchantment.effects.VSQChannelingEffect;
+import blob.vanillasquared.main.world.item.enchantment.effects.VSQBeginLungingEffect;
 import blob.vanillasquared.main.world.item.enchantment.effects.VSQSendChatMessageEffect;
 import blob.vanillasquared.util.api.modules.components.ComponentRegistry;
 import com.mojang.serialization.Codec;
@@ -29,10 +30,19 @@ public final class VSQEnchantmentEffects {
             TargetedConditionalEffect.codec(EnchantmentLocationBasedEffect.CODEC),
             LootContextParamSets.ENCHANTED_DAMAGE
     );
+    public static final DataComponentType<List<TargetedConditionalEffect<EnchantmentEntityEffect>>> IN_LUNGING = registerValidatedEffectComponent(
+            Identifier.fromNamespaceAndPath("vsq", "in_lunging"),
+            TargetedConditionalEffect.codec(EnchantmentEntityEffect.CODEC),
+            LootContextParamSets.ENCHANTED_DAMAGE
+    );
 
     public static final MapCodec<? extends EnchantmentEntityEffect> CHANNELING = registerEntityEffect(
             Identifier.fromNamespaceAndPath("vsq", "channeling"),
             VSQChannelingEffect.MAP_CODEC
+    );
+    public static final MapCodec<? extends EnchantmentEntityEffect> BEGIN_LUNGING = registerEntityEffect(
+            Identifier.fromNamespaceAndPath("vsq", "begin_lunging"),
+            VSQBeginLungingEffect.MAP_CODEC
     );
     public static final MapCodec<? extends EnchantmentEntityEffect> SEND_CHAT_MESSAGE = registerEntityEffect(
             Identifier.fromNamespaceAndPath("vsq", "send_chat_msg"),

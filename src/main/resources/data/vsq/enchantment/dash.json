@@ -1,0 +1,101 @@
+{
+  "anvil_cost": 2,
+  "profiles": [
+    {
+      "requirement": {
+        "type": "item",
+        "item": "#vsq:enchantable/melee_weapon"
+      },
+      "enchantment_slot": "special",
+      "max_level": 3,
+      "effects": {
+        "minecraft:hit_block": [
+          {
+            "effect": {
+              "type": "minecraft:all_of",
+              "effects": [
+                {
+                  "type": "minecraft:apply_impulse",
+                  "coordinate_scale": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "direction": [
+                    0,
+                    0,
+                    1
+                  ],
+                  "magnitude": 0.4,
+                  "speed": 6.0
+                },
+                {
+                  "type": "minecraft:play_sound",
+                  "pitch": 1,
+                  "sound": "vsq:dash",
+                  "volume": 1
+                },
+                {
+                  "type": "vsq:begin_lunging",
+                  "range": {
+                    "type": "minecraft:linear",
+                    "base": 4,
+                    "per_level_above_first": 1
+                  }
+                }
+              ]
+            },
+            "effect_id": "vsq_dash_use",
+            "id": "vsq_dash_use",
+            "special": {
+              "limit": 3
+            }
+          }
+        ],
+        "vsq:in_lunging": [
+          {
+            "affected": "victim",
+            "effect": {
+              "type": "minecraft:damage_entity",
+              "damage_type": "minecraft:player_attack",
+              "max_damage": {
+                "type": "minecraft:linear",
+                "base": 3,
+                "per_level_above_first": 1
+              },
+              "min_damage": {
+                "type": "minecraft:linear",
+                "base": 3,
+                "per_level_above_first": 1
+              }
+            },
+            "enchanted": "attacker",
+            "effect_id": "vsq_dash_contact",
+            "id": "vsq_dash_contact"
+          }
+        ]
+      },
+      "slots": [
+        "hand"
+      ],
+      "max_cost": {
+        "base": 25,
+        "per_level_above_first": 8
+      },
+      "min_cost": {
+        "base": 5,
+        "per_level_above_first": 8
+      },
+      "special": {
+        "cooldown": 12,
+        "display_limit": "vsq_dash_use"
+      }
+    }
+  ],
+  "description": {
+    "translate": "enchantment.vsq.dash"
+  },
+  "primary_items": "#vsq:enchantable/melee_weapon",
+  "supported_items": "#vsq:enchantable/melee_weapon",
+  "weight": 5
+}

@@ -1,10 +1,13 @@
 package blob.vanillasquared.mixin.client.world.entities;
 
+import blob.vanillasquared.main.gui.hud.LungingClientState;
 import blob.vanillasquared.main.world.item.components.hitthrough.HitThroughComponent;
 import blob.vanillasquared.util.api.modules.components.VSQItemComponents;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -15,15 +18,29 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.Vec2;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Environment(EnvType.CLIENT)
 @Mixin(LocalPlayer.class)
 public abstract class LocalPlayerMixin {
+    @Shadow
+    public ClientInput input;
+
+    @Inject(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/ClientInput;tick()V", shift = At.Shift.AFTER))
+    private void vsq$suppressLungingInput(CallbackInfo ci) {
+        if (!LungingClientState.active()) {
+            return;
+        }
+        this.input.keyPresses = Input.EMPTY;
+        ((ClientInputAccessor) this.input).vsq$setMoveVector(Vec2.ZERO);
+    }
 
     @Inject(method = "raycastHitResult", at = @At("RETURN"), cancellable = true)
     private void vsq$allowHitThroughGrass(float tickDelta, Entity cameraEntity, CallbackInfoReturnable<HitResult> cir) {

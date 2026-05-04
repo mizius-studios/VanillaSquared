@@ -23,6 +23,7 @@
 		"gui.RecipeBookComponentAccessor",
 		"world.item.ItemStackMixin",
 		"world.particle.ParticleEngineMixin",
+		"world.entities.ClientInputAccessor",
       	"world.entities.LocalPlayerMixin",
 		"world.entities.PlayerMixin"
 	],

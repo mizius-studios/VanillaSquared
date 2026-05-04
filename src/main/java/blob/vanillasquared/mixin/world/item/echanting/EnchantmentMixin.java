@@ -4,17 +4,21 @@ import blob.vanillasquared.main.world.item.enchantment.VSQEnchantmentAccess;
 import blob.vanillasquared.main.world.item.enchantment.VSQEnchantmentProfile;
 import blob.vanillasquared.main.world.item.enchantment.SpecialEffectMetadataIndex;
 import blob.vanillasquared.main.world.item.enchantment.SpecialEnchantmentCooldowns;
+import blob.vanillasquared.main.world.item.enchantment.effects.VSQBeginLungingEffect;
 import blob.vanillasquared.util.api.enchantment.VSQEnchantments;
 import blob.vanillasquared.main.world.item.enchantment.VSQEnchantmentSlotType;
 import blob.vanillasquared.main.world.effect.ChannelingState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -54,6 +58,9 @@ import java.util.Set;
 
 @Mixin(Enchantment.class)
 public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
+    @Unique
+    private static final Identifier VSQ_DASH_ENCHANTMENT_ID = Identifier.fromNamespaceAndPath("vsq", "dash");
+
     @Shadow
     @Final
     @Mutable
@@ -92,6 +99,28 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
             return true;
         }
         return SpecialEnchantmentCooldowns.shouldRunSpecialEffect(level, stack, (Enchantment) (Object) this, componentType, effectIndex, contextEntity);
+    }
+
+    @Unique
+    private Holder<Enchantment> vsq$holderFor(ItemStack stack) {
+        Enchantment self = (Enchantment) (Object) this;
+        for (var entry : VSQEnchantments.aggregate(stack).entrySet()) {
+            if (entry.getKey().value() == self) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    @Unique
+    private static boolean vsq$isDash(Holder<Enchantment> enchantment) {
+        if (enchantment == null) {
+            return false;
+        }
+        return enchantment.unwrapKey()
+                .map(ResourceKey::identifier)
+                .filter(VSQ_DASH_ENCHANTMENT_ID::equals)
+                .isPresent();
     }
 
     @Inject(method = "modifyDamageProtection", at = @At("HEAD"), cancellable = true)
@@ -222,16 +251,40 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
         if (effects.isEmpty()) {
             return;
         }
+        Holder<Enchantment> enchantment = this.vsq$holderFor(weapon.itemStack());
+        if (hitBlock.isAir() && vsq$isDash(enchantment)) {
+            ci.cancel();
+            return;
+        }
 
         var context = Enchantment.blockHitContext(serverLevel, enchantmentLevel, projectile, position, hitBlock);
         List<ConditionalEffect<EnchantmentEntityEffect>> list = effects.get();
         for (int index = 0; index < list.size(); index++) {
             ConditionalEffect<EnchantmentEntityEffect> conditional = list.get(index);
             if (conditional.matches(context) && vsq$allowSpecialEffect(serverLevel, weapon.itemStack(), EnchantmentEffectComponents.HIT_BLOCK, index, weapon.owner())) {
-                conditional.effect().apply(serverLevel, enchantmentLevel, weapon, projectile, position);
+                this.vsq$applyHitBlockEffect(serverLevel, enchantmentLevel, weapon, projectile, position, conditional.effect(), enchantment);
             }
         }
         ci.cancel();
+    }
+
+    @Unique
+    private void vsq$applyHitBlockEffect(
+            ServerLevel serverLevel,
+            int enchantmentLevel,
+            EnchantedItemInUse weapon,
+            Entity projectile,
+            Vec3 position,
+            EnchantmentEntityEffect effect,
+            Holder<Enchantment> enchantment
+    ) {
+        VSQBeginLungingEffect.runWithActiveEnchantment(enchantment, () -> {
+            if (effect instanceof VSQBeginLungingEffect beginLungingEffect) {
+                beginLungingEffect.applyWithEnchantment(serverLevel, enchantmentLevel, weapon, projectile, position, enchantment);
+                return;
+            }
+            effect.apply(serverLevel, enchantmentLevel, weapon, projectile, position);
+        });
     }
 
     @Inject(method = "modifyItemFilteredCount", at = @At("HEAD"), cancellable = true)

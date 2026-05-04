@@ -8,6 +8,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
 
 public final class VSQMobEffects {
+    public static final Holder<MobEffect> LUNGING = register("lunging", new LungingMobEffect());
     public static final Holder<MobEffect> VOIDED = register("voided", new VoidedMobEffect());
 
     private VSQMobEffects() {

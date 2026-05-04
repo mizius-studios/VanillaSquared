@@ -1,6 +1,7 @@
 package blob.vanillasquared.mixin.world;
 
 import blob.vanillasquared.main.world.effect.ChannelingState;
+import blob.vanillasquared.main.world.effect.LungingState;
 import net.minecraft.server.level.ServerLevel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,5 +15,6 @@ public abstract class ServerLevelMixin {
     @Inject(method = "tick", at = @At("TAIL"))
     private void vsq$tickChanneling(BooleanSupplier haveTime, CallbackInfo ci) {
         ChannelingState.tick((ServerLevel) (Object) this);
+        LungingState.tick((ServerLevel) (Object) this);
     }
 }

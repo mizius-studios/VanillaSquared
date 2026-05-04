@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundEvent;
 public final class VSQSoundEvents {
     public static final Holder<SoundEvent> VOIDED_PASSIVE = register("voided_passive");
     public static final Holder<SoundEvent> VOIDED_MULTIPLIER_INCREASE = register("voided_multiplier_increase");
+    public static final Holder<SoundEvent> DASH = register("dash");
 
     private VSQSoundEvents() {
     }

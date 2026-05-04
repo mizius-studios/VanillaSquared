@@ -44,5 +44,18 @@
         "volume": 0.75
       }
     ]
+  },
+  "dash": {
+    "subtitle": "subtitles.vsq.dash",
+    "sounds": [
+      {
+        "name": "vsq:dash/dash1",
+        "volume": 1.0
+      },
+      {
+        "name": "vsq:dash/dash2",
+        "volume": 1.0
+      }
+    ]
   }
 }

@@ -1,0 +1,40 @@
+{
+  "type": "vsq:enchanting",
+  "category": "weapons",
+  "group": "dash",
+  "name": {
+    "translate": "enchantment.vsq.dash"
+  },
+  "description": {
+    "translate": "vsq.enchantment.dash.description"
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": 3
+  },
+  "ingredients": [
+    {
+      "item": "#minecraft:swords"
+    },
+    {
+      "item": "minecraft:wind_charge",
+      "count": 4
+    },
+    {
+      "item": "minecraft:slime_ball",
+      "count": 4
+    },
+    {
+      "item": "minecraft:rabbit_foot",
+      "count": 2
+    }
+  ],
+  "enchantment": "vsq:dash",
+  "blocks": [
+    {
+      "count": 6,
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level_multiplier": 3
+}

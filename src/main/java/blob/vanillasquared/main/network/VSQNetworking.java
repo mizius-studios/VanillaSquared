@@ -4,9 +4,11 @@ import blob.vanillasquared.main.network.payload.EnchantingBookClickPayload;
 import blob.vanillasquared.main.network.payload.EnchantingRecipeBookSyncPayload;
 import blob.vanillasquared.main.network.payload.EnchantingRecipeSelectionPayload;
 import blob.vanillasquared.main.network.payload.EnchantingRecipeStatePayload;
+import blob.vanillasquared.main.network.payload.LungingStatePayload;
 import blob.vanillasquared.main.network.payload.SpecialEnchantmentCooldownPayload;
 import blob.vanillasquared.main.network.payload.SpecialEnchantmentHotkeyPayload;
 import blob.vanillasquared.main.network.payload.VoidedSoundPayload;
+import blob.vanillasquared.main.world.effect.LungingState;
 import blob.vanillasquared.main.world.effect.VoidedEffectState;
 import blob.vanillasquared.main.world.item.enchantment.SpecialEnchantmentCooldowns;
 import blob.vanillasquared.main.world.inventory.VSQEnchantmentMenu;
@@ -33,6 +35,7 @@ public final class VSQNetworking {
         PayloadTypeRegistry.serverboundPlay().register(SpecialEnchantmentHotkeyPayload.TYPE, SpecialEnchantmentHotkeyPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(EnchantingRecipeStatePayload.TYPE, EnchantingRecipeStatePayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(EnchantingRecipeBookSyncPayload.TYPE, EnchantingRecipeBookSyncPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(LungingStatePayload.TYPE, LungingStatePayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(SpecialEnchantmentCooldownPayload.TYPE, SpecialEnchantmentCooldownPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(VoidedSoundPayload.TYPE, VoidedSoundPayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(EnchantingBookClickPayload.TYPE, (payload, context) ->
@@ -55,7 +58,10 @@ public final class VSQNetworking {
                 vsq$sendCurrentVoidedStateToPlayer(livingEntity, player);
             }
         });
-        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> SpecialEnchantmentCooldowns.clear(handler.player));
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+            SpecialEnchantmentCooldowns.clear(handler.player);
+            LungingState.clear(handler.player);
+        });
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 SpecialEnchantmentCooldowns.tickPlayer(player);
@@ -77,6 +83,10 @@ public final class VSQNetworking {
         for (ServerPlayer recipient : recipients) {
             ServerPlayNetworking.send(recipient, payload);
         }
+    }
+
+    public static void sendLungingState(ServerPlayer player, boolean active) {
+        ServerPlayNetworking.send(player, new LungingStatePayload(active));
     }
 
     private static void vsq$sendCurrentVoidedStateToPlayer(LivingEntity entity, ServerPlayer player) {
