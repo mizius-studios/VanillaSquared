@@ -16,5 +16,16 @@
     "keyFile": "blobManager/packages/config/keys/personal.txt",
     "keyName": "ModrinthPATKey",
     "envVar": "MODRINTH_PAT"
+  },
+  "release": {
+    "artifactRoot": "blobManager/packages/data/modrinth/version",
+    "defaultLoaders": [
+      "fabric"
+    ],
+    "dependencyMap": {
+      "fabric-api": "fabric-api"
+    },
+    "status": null,
+    "featured": null
   }
 }

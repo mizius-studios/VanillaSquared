@@ -16,5 +16,15 @@
     "keyFile": "blobManager/packages/config/keys/personal.txt",
     "keyName": "AnytypeApiKey",
     "envVar": "ANYTYPE_API_KEY"
+  },
+  "release": {
+    "channels": {
+      "test": {
+        "spaceId": "YOURSPACEIDHERE"
+      }
+    },
+    "updateTypeName": "Update",
+    "updateMatchStrategy": "exact-name",
+    "changelogChildName": "Changelogs"
   }
 }

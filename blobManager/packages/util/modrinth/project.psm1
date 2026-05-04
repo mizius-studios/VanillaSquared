@@ -75,4 +75,40 @@ function Write-ModrinthProjectSummary {
     }
 }
 
-Export-ModuleMember -Function Get-ModrinthProjectErrorMessage, Write-ModrinthProjectSummary
+function Write-ModrinthProjectList {
+    param(
+        $Projects
+    )
+
+    if ($null -eq $Projects) {
+        Write-Host "No projects returned."
+        return
+    }
+
+    $items = @()
+    if ($Projects -is [System.Collections.IEnumerable] -and $Projects -isnot [string]) {
+        $items = @($Projects)
+    }
+    else {
+        $items = @($Projects)
+    }
+
+    if ($items.Count -eq 0) {
+        Write-Host "No projects returned."
+        return
+    }
+
+    foreach ($project in $items) {
+        Write-Host "- $($project.title)"
+        Write-Host "  slug: $($project.slug)"
+        Write-Host "  id: $($project.id)"
+        if (-not [string]::IsNullOrWhiteSpace([string]$project.status)) {
+            Write-Host "  status: $($project.status)"
+        }
+        if (-not [string]::IsNullOrWhiteSpace([string]$project.project_type)) {
+            Write-Host "  type: $($project.project_type)"
+        }
+    }
+}
+
+Export-ModuleMember -Function Get-ModrinthProjectErrorMessage, Write-ModrinthProjectSummary, Write-ModrinthProjectList

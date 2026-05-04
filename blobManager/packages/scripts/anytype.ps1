@@ -162,6 +162,103 @@ switch ($Command) {
 
         exit 1
     }
+    "getSpaceID" {
+        & $Cmd.AddRequiredConfigError -Value $baseUrl -ConfigKey "network.baseUrl" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\anytype.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $apiVersion -ConfigKey "network.apiVersion" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\anytype.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $authenticatedTestEndpoint -ConfigKey "network.authenticatedTestEndpoint" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\anytype.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $authKeyFile -ConfigKey "auth.keyFile" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\anytype.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $authKeyName -ConfigKey "auth.keyName" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\anytype.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $authEnvVar -ConfigKey "auth.envVar" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\anytype.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.ThrowIfErrors -State $state
+
+        $keyFilePath = & $Cmd.ResolveLocalPath -PathValue $authKeyFile
+        $tokenResolution = & $Cmd.ResolveKeyValue -KeyFilePath $keyFilePath -KeyName $authKeyName -EnvVarName $authEnvVar
+        $requestUri = & $Cmd.JoinApiUri -BaseUrl $baseUrl -ApiVersion $apiVersion -Endpoint $authenticatedTestEndpoint
+        if (-not $tokenResolution.Success) {
+            Write-Host "Missing Anytype API key. No local key or env var was found." -ForegroundColor Red
+            Write-Host "Resolved API route: $requestUri"
+            Write-Host "Expected local file: $keyFilePath" -ForegroundColor Red
+            Write-Host "Expected file format: $authKeyName=<your_api_key>" -ForegroundColor DarkYellow
+            Write-Host "Fallback env var: $authEnvVar" -ForegroundColor DarkYellow
+            exit 1
+        }
+
+        $authHeaders = & $Cmd.MergeAuthorizationHeader -Headers $headers -Token "Bearer $($tokenResolution.Value)"
+        $result = & $Cmd.InvokeNetworkRequest -Uri $requestUri -Method "GET" -Headers $authHeaders -TimeoutSeconds $timeoutSeconds
+        if (-not $result.Success -or $result.StatusCode -ne 200) {
+            Write-Host "Failed to list Anytype spaces." -ForegroundColor Red
+            if ($null -ne $result.StatusCode) {
+                Write-Host "Status: $($result.StatusCode) $($result.StatusDescription)" -ForegroundColor Red
+            }
+
+            $authError = & $Cmd.GetAuthErrorMessage -Result $result -AuthKeyName $authKeyName -AuthEnvVar $authEnvVar
+            if (-not [string]::IsNullOrWhiteSpace([string]$authError)) {
+                Write-Host $authError -ForegroundColor Red
+            }
+
+            if (-not [string]::IsNullOrWhiteSpace([string]$result.RawContent)) {
+                Write-Host "Response: $($result.RawContent)" -ForegroundColor DarkYellow
+            }
+
+            exit 1
+        }
+
+        $spaces = @()
+        if ($result.Data -is [System.Collections.IEnumerable] -and $result.Data -isnot [string]) {
+            $spaces = @($result.Data)
+        }
+        elseif ($null -ne $result.Data) {
+            foreach ($propertyName in @("spaces", "items", "list", "data")) {
+                if ($result.Data.PSObject.Properties.Name -contains $propertyName -and $null -ne $result.Data.$propertyName) {
+                    if ($result.Data.$propertyName -is [System.Collections.IEnumerable] -and $result.Data.$propertyName -isnot [string]) {
+                        $spaces = @($result.Data.$propertyName)
+                        break
+                    }
+                }
+            }
+
+            if ($spaces.Count -eq 0) {
+                $spaces = @($result.Data)
+            }
+        }
+
+        if ($spaces.Count -eq 0) {
+            Write-Host "No Anytype spaces were returned by the API." -ForegroundColor Yellow
+            exit 0
+        }
+
+        Write-Host "Anytype spaces:"
+        foreach ($space in $spaces) {
+            $name = $null
+            foreach ($nameKey in @("name", "spaceName", "title")) {
+                if ($space.PSObject.Properties.Name -contains $nameKey -and -not [string]::IsNullOrWhiteSpace([string]$space.$nameKey)) {
+                    $name = [string]$space.$nameKey
+                    break
+                }
+            }
+
+            $idValues = New-Object System.Collections.ArrayList
+            foreach ($idKey in @("id", "spaceId", "targetSpaceId")) {
+                if ($space.PSObject.Properties.Name -contains $idKey -and -not [string]::IsNullOrWhiteSpace([string]$space.$idKey)) {
+                    $value = "$idKey=$($space.$idKey)"
+                    if (-not ($idValues -contains $value)) {
+                        [void]$idValues.Add($value)
+                    }
+                }
+            }
+
+            if ([string]::IsNullOrWhiteSpace($name)) {
+                $name = "<unnamed>"
+            }
+
+            Write-Host "- $name"
+            foreach ($idValue in $idValues) {
+                Write-Host "  $idValue"
+            }
+        }
+
+        exit 0
+    }
 
     "-v" {
         & $Cmd.CommandVersion -PackageName $PackageName -Version $Version -ConfigVersion $versionStatus.ConfigVersion -WarningMessage $versionStatus.WarningMessage
@@ -170,7 +267,7 @@ switch ($Command) {
 
     "-?" {
         & $Cmd.WriteWarnings -State $state
-        & $Cmd.CommandHelp -PackageName $PackageName -Commands @("anytype -p", "anytype -auth", "anytype -getAuth", "anytype -v", "anytype -?")
+        & $Cmd.CommandHelp -PackageName $PackageName -Commands @("anytype -p", "anytype -auth", "anytype -getAuth", "anytype getSpaceID", "anytype -v", "anytype -?")
         Write-Host "Auth key file: $authKeyFile"
         Write-Host "Auth key format: $authKeyName=<your_api_key>"
         Write-Host "Automation env var: $authEnvVar"
