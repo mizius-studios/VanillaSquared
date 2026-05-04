@@ -157,4 +157,62 @@ function Test-NetworkConnection {
     return Invoke-NetworkRequest -Uri $Uri -Method $Method -Headers $Headers -TimeoutSeconds $TimeoutSeconds
 }
 
-Export-ModuleMember -Function Invoke-NetworkRequest, Test-NetworkConnection
+function Merge-RequestHeaders {
+    param(
+        [hashtable]$Headers = @{},
+        [hashtable]$AdditionalHeaders = @{}
+    )
+
+    $mergedHeaders = @{}
+
+    if ($null -ne $Headers) {
+        foreach ($header in $Headers.GetEnumerator()) {
+            $mergedHeaders[[string]$header.Key] = $header.Value
+        }
+    }
+
+    if ($null -ne $AdditionalHeaders) {
+        foreach ($header in $AdditionalHeaders.GetEnumerator()) {
+            $mergedHeaders[[string]$header.Key] = $header.Value
+        }
+    }
+
+    return $mergedHeaders
+}
+
+function Merge-AuthorizationHeader {
+    param(
+        [hashtable]$Headers = @{},
+        [string]$Token
+    )
+
+    if ([string]::IsNullOrWhiteSpace([string]$Token)) {
+        return Merge-RequestHeaders -Headers $Headers
+    }
+
+    return Merge-RequestHeaders -Headers $Headers -AdditionalHeaders @{
+        Authorization = $Token
+    }
+}
+
+function Join-ApiUri {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$BaseUrl,
+        [string]$ApiVersion,
+        [Parameter(Mandatory = $true)]
+        [string]$Endpoint
+    )
+
+    $normalizedBaseUrl = $BaseUrl.TrimEnd('/')
+    $normalizedEndpoint = if ($Endpoint.StartsWith('/')) { $Endpoint } else { "/$Endpoint" }
+
+    if ([string]::IsNullOrWhiteSpace([string]$ApiVersion)) {
+        return "$normalizedBaseUrl$normalizedEndpoint"
+    }
+
+    $normalizedApiVersion = $ApiVersion.Trim('/')
+    return "$normalizedBaseUrl/$normalizedApiVersion$normalizedEndpoint"
+}
+
+Export-ModuleMember -Function Invoke-NetworkRequest, Test-NetworkConnection, Merge-RequestHeaders, Merge-AuthorizationHeader, Join-ApiUri

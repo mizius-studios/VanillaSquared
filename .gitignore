@@ -57,6 +57,10 @@ mc-source/
 
 .codex/
 
+# blobManager keys
+
+blobManager/config/keys/*.txt
+
 # local skins
 
 src/client/resources/assets/minecraft/textures/entity/player/wide/steve.png

@@ -2,11 +2,19 @@
   "version": "1.0.0",
   "network": {
     "baseUrl": "https://api.modrinth.com",
-    "testEndpoint": "/",
+    "apiVersion": "v2",
+    "connectionTestUrl": "https://api.modrinth.com/",
+    "testEndpoint": "/tag/game_version",
+    "authenticatedTestEndpoint": "/user",
     "timeoutSeconds": 30,
     "headers": {
       "Accept": "application/json",
       "User-Agent": "vanilla-squared-blobManager/1.0.0"
     }
+  },
+  "auth": {
+    "keyFile": "blobManager/packages/config/keys/keys.txt",
+    "keyName": "ModrinthPATKey",
+    "envVar": "MODRINTH_PAT"
   }
 }
