@@ -9,6 +9,8 @@ $keyApiModule = Import-Module (Join-Path $PSScriptRoot "..\util\api\keyAPI.psm1"
 $versionModule = Import-Module (Join-Path $PSScriptRoot "..\util\api\commands\version.psm1") -Force -DisableNameChecking -PassThru
 $helpModule = Import-Module (Join-Path $PSScriptRoot "..\util\api\commands\help.psm1") -Force -DisableNameChecking -PassThru
 $pingModule = Import-Module (Join-Path $PSScriptRoot "..\util\api\commands\ping.psm1") -Force -DisableNameChecking -PassThru
+$commonModule = Import-Module (Join-Path $PSScriptRoot "..\util\anytype\common.psm1") -Force -DisableNameChecking -PassThru
+$authModule = Import-Module (Join-Path $PSScriptRoot "..\util\anytype\auth.psm1") -Force -DisableNameChecking -PassThru
 
 $Cmd = @{
     NewMessageState        = $errorApiModule.ExportedCommands["New-MessageState"]
@@ -26,6 +28,10 @@ $Cmd = @{
     CommandVersion         = $versionModule.ExportedCommands["Command-Version"]
     CommandHelp            = $helpModule.ExportedCommands["Command-Help"]
     CommandPing            = $pingModule.ExportedCommands["Command-Ping"]
+    ResolveLocalPath       = $commonModule.ExportedCommands["Resolve-LocalPath"]
+    AddRequiredConfigError = $commonModule.ExportedCommands["Add-RequiredConfigError"]
+    GetAuthErrorMessage    = $authModule.ExportedCommands["Get-AnytypeAuthErrorMessage"]
+    GetDisplayName         = $authModule.ExportedCommands["Get-AnytypeDisplayName"]
 }
 
 foreach ($entry in $Cmd.GetEnumerator()) {
@@ -51,114 +57,13 @@ $authEnvVar = & $Cmd.GetConfigValue -Config $authConfig -Key "envVar" -DefaultVa
 $state = & $Cmd.NewMessageState
 $versionStatus = & $Cmd.TestConfigVersion -PackageName $PackageName -ScriptVersion $Version -Config $config -State $state
 
-function Resolve-LocalPath {
-    param(
-        [string]$PathValue
-    )
-
-    if ([string]::IsNullOrWhiteSpace([string]$PathValue)) {
-        return $null
-    }
-
-    if ([System.IO.Path]::IsPathRooted($PathValue)) {
-        return $PathValue
-    }
-
-    return [System.IO.Path]::GetFullPath((Join-Path (Get-Location) $PathValue))
-}
-
-function Add-RequiredConfigError {
-    param(
-        [string]$Value,
-        [string]$ConfigKey
-    )
-
-    if ([string]::IsNullOrWhiteSpace([string]$Value)) {
-        & $Cmd.AddErrorMessage -State $state -Message "anytype $ConfigKey is missing in blobManager\\packages\\config\\anytype.json"
-    }
-}
-
-function Get-AnytypeAuthErrorMessage {
-    param(
-        $Result
-    )
-
-    if ($null -eq $Result) {
-        return "Authenticated request failed."
-    }
-
-    if ($null -eq $Result.StatusCode) {
-        if (-not [string]::IsNullOrWhiteSpace([string]$Result.ErrorMessage)) {
-            return "Anytype API/network failure: $($Result.ErrorMessage)"
-        }
-
-        return "Anytype API/network failure."
-    }
-
-    if ($Result.StatusCode -eq 401) {
-        return "Unauthorized. Check that $authKeyName is set in the key file or $authEnvVar and that the key is still valid."
-    }
-
-    $detail = $null
-    if (-not [string]::IsNullOrWhiteSpace([string]$Result.RawContent)) {
-        $detail = [string]$Result.RawContent
-    }
-
-    if (-not [string]::IsNullOrWhiteSpace([string]$detail)) {
-        return "Anytype API failure: $($Result.StatusCode) $($Result.StatusDescription) - $detail"
-    }
-
-    return "Anytype API failure: $($Result.StatusCode) $($Result.StatusDescription)"
-}
-
-function Get-AnytypeDisplayName {
-    param(
-        $Data
-    )
-
-    if ($null -eq $Data) {
-        return $null
-    }
-
-    if ($Data -is [System.Collections.IEnumerable] -and $Data -isnot [string]) {
-        foreach ($item in $Data) {
-            $candidate = Get-AnytypeDisplayName -Data $item
-            if (-not [string]::IsNullOrWhiteSpace([string]$candidate)) {
-                return $candidate
-            }
-        }
-
-        return $null
-    }
-
-    foreach ($propertyName in @("name", "spaceName", "id", "targetSpaceId")) {
-        if ($Data.PSObject.Properties.Name -contains $propertyName) {
-            $value = [string]$Data.$propertyName
-            if (-not [string]::IsNullOrWhiteSpace($value)) {
-                return $value
-            }
-        }
-    }
-
-    foreach ($nestedName in @("spaces", "data", "list")) {
-        if ($Data.PSObject.Properties.Name -contains $nestedName) {
-            $candidate = Get-AnytypeDisplayName -Data $Data.$nestedName
-            if (-not [string]::IsNullOrWhiteSpace([string]$candidate)) {
-                return $candidate
-            }
-        }
-    }
-
-    return $null
-}
-
 $Command = if ($args.Count -gt 0) { $args[0] } else { $null }
 
 switch ($Command) {
     "-p" {
-        Add-RequiredConfigError -Value $baseUrl -ConfigKey "network.baseUrl"
-        Add-RequiredConfigError -Value $apiVersion -ConfigKey "network.apiVersion"
-        Add-RequiredConfigError -Value $connectionTestUrl -ConfigKey "network.connectionTestUrl"
+        & $Cmd.AddRequiredConfigError -Value $baseUrl -ConfigKey "network.baseUrl" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\anytype.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $apiVersion -ConfigKey "network.apiVersion" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\anytype.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $connectionTestUrl -ConfigKey "network.connectionTestUrl" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\anytype.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
         & $Cmd.ThrowIfErrors -State $state
 
         Write-Host "Testing Anytype local API for package '$PackageName'..."
@@ -194,7 +99,7 @@ switch ($Command) {
     }
 
     "-getAuth" {
-        $keyFilePath = Resolve-LocalPath -PathValue $authKeyFile
+        $keyFilePath = & $Cmd.ResolveLocalPath -PathValue $authKeyFile
         $result = & $Cmd.CommandGetKey -PackageName $PackageName -KeyFilePath $keyFilePath -KeyName $authKeyName -EnvVarName $authEnvVar -ExpectedFormatExample "your_api_key"
         if ($result.Success) {
             exit 0
@@ -204,15 +109,15 @@ switch ($Command) {
     }
 
     "-auth" {
-        Add-RequiredConfigError -Value $baseUrl -ConfigKey "network.baseUrl"
-        Add-RequiredConfigError -Value $apiVersion -ConfigKey "network.apiVersion"
-        Add-RequiredConfigError -Value $authenticatedTestEndpoint -ConfigKey "network.authenticatedTestEndpoint"
-        Add-RequiredConfigError -Value $authKeyFile -ConfigKey "auth.keyFile"
-        Add-RequiredConfigError -Value $authKeyName -ConfigKey "auth.keyName"
-        Add-RequiredConfigError -Value $authEnvVar -ConfigKey "auth.envVar"
+        & $Cmd.AddRequiredConfigError -Value $baseUrl -ConfigKey "network.baseUrl" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\anytype.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $apiVersion -ConfigKey "network.apiVersion" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\anytype.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $authenticatedTestEndpoint -ConfigKey "network.authenticatedTestEndpoint" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\anytype.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $authKeyFile -ConfigKey "auth.keyFile" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\anytype.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $authKeyName -ConfigKey "auth.keyName" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\anytype.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $authEnvVar -ConfigKey "auth.envVar" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\anytype.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
         & $Cmd.ThrowIfErrors -State $state
 
-        $keyFilePath = Resolve-LocalPath -PathValue $authKeyFile
+        $keyFilePath = & $Cmd.ResolveLocalPath -PathValue $authKeyFile
         $tokenResolution = & $Cmd.ResolveKeyValue -KeyFilePath $keyFilePath -KeyName $authKeyName -EnvVarName $authEnvVar
         $requestUri = & $Cmd.JoinApiUri -BaseUrl $baseUrl -ApiVersion $apiVersion -Endpoint $authenticatedTestEndpoint
         if (-not $tokenResolution.Success) {
@@ -230,7 +135,7 @@ switch ($Command) {
 
         $result = & $Cmd.InvokeNetworkRequest -Uri $requestUri -Method "GET" -Headers $authHeaders -TimeoutSeconds $timeoutSeconds
         if ($result.Success -and $result.StatusCode -eq 200) {
-            $displayName = Get-AnytypeDisplayName -Data $result.Data
+            $displayName = & $Cmd.GetDisplayName -Data $result.Data
 
             Write-Host "Authenticated request successful." -ForegroundColor Green
             Write-Host "Status: $($result.StatusCode) $($result.StatusDescription)"
@@ -246,7 +151,7 @@ switch ($Command) {
             Write-Host "Status: $($result.StatusCode) $($result.StatusDescription)" -ForegroundColor Red
         }
 
-        $authError = Get-AnytypeAuthErrorMessage -Result $result
+        $authError = & $Cmd.GetAuthErrorMessage -Result $result -AuthKeyName $authKeyName -AuthEnvVar $authEnvVar
         if (-not [string]::IsNullOrWhiteSpace([string]$authError)) {
             Write-Host $authError -ForegroundColor Red
         }

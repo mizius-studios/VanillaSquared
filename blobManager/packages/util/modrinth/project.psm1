@@ -1,0 +1,78 @@
+function Get-ModrinthProjectErrorMessage {
+    param(
+        $Result,
+        [string]$ProjectRef
+    )
+
+    if ($null -eq $Result) {
+        return "Project request failed."
+    }
+
+    if ($Result.StatusCode -eq 404) {
+        return "Modrinth project not found: $ProjectRef"
+    }
+
+    if ($null -eq $Result.StatusCode) {
+        if (-not [string]::IsNullOrWhiteSpace([string]$Result.ErrorMessage)) {
+            return "Modrinth API/network failure: $($Result.ErrorMessage)"
+        }
+
+        return "Modrinth API/network failure."
+    }
+
+    $detail = $null
+    if ($null -ne $Result.Data) {
+        if ($Result.Data.PSObject.Properties.Name -contains "description") {
+            $detail = [string]$Result.Data.description
+        }
+        elseif ($Result.Data.PSObject.Properties.Name -contains "error") {
+            $detail = [string]$Result.Data.error
+        }
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace([string]$detail)) {
+        return "Modrinth API failure: $($Result.StatusCode) $($Result.StatusDescription) - $detail"
+    }
+
+    return "Modrinth API failure: $($Result.StatusCode) $($Result.StatusDescription)"
+}
+
+function Write-ModrinthProjectSummary {
+    param(
+        $Project
+    )
+
+    if ($null -eq $Project) {
+        return
+    }
+
+    Write-Host "Title: $($Project.title)"
+    Write-Host "Slug: $($Project.slug)"
+    Write-Host "ID: $($Project.id)"
+    Write-Host "Type: $($Project.project_type)"
+
+    if (-not [string]::IsNullOrWhiteSpace([string]$Project.description)) {
+        Write-Host "Description: $($Project.description)"
+    }
+
+    Write-Host "Client Side: $($Project.client_side)"
+    Write-Host "Server Side: $($Project.server_side)"
+    Write-Host "Downloads: $($Project.downloads)"
+    Write-Host "Status: $($Project.status)"
+
+    $labels = @{
+        source_url = "Source URL"
+        issues_url = "Issues URL"
+        wiki_url = "Wiki URL"
+        discord_url = "Discord URL"
+    }
+
+    foreach ($field in @("source_url", "issues_url", "wiki_url", "discord_url")) {
+        $value = [string]$Project.$field
+        if (-not [string]::IsNullOrWhiteSpace($value)) {
+            Write-Host "$($labels[$field]): $value"
+        }
+    }
+}
+
+Export-ModuleMember -Function Get-ModrinthProjectErrorMessage, Write-ModrinthProjectSummary

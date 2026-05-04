@@ -9,6 +9,9 @@ $keyApiModule = Import-Module (Join-Path $PSScriptRoot "..\util\api\keyAPI.psm1"
 $versionModule = Import-Module (Join-Path $PSScriptRoot "..\util\api\commands\version.psm1") -Force -DisableNameChecking -PassThru
 $helpModule = Import-Module (Join-Path $PSScriptRoot "..\util\api\commands\help.psm1") -Force -DisableNameChecking -PassThru
 $pingModule = Import-Module (Join-Path $PSScriptRoot "..\util\api\commands\ping.psm1") -Force -DisableNameChecking -PassThru
+$commonModule = Import-Module (Join-Path $PSScriptRoot "..\util\modrinth\common.psm1") -Force -DisableNameChecking -PassThru
+$authModule = Import-Module (Join-Path $PSScriptRoot "..\util\modrinth\auth.psm1") -Force -DisableNameChecking -PassThru
+$projectModule = Import-Module (Join-Path $PSScriptRoot "..\util\modrinth\project.psm1") -Force -DisableNameChecking -PassThru
 
 $Cmd = @{
     NewMessageState    = $errorApiModule.ExportedCommands["New-MessageState"]
@@ -26,6 +29,12 @@ $Cmd = @{
     CommandVersion     = $versionModule.ExportedCommands["Command-Version"]
     CommandHelp        = $helpModule.ExportedCommands["Command-Help"]
     CommandPing        = $pingModule.ExportedCommands["Command-Ping"]
+    ResolveLocalPath   = $commonModule.ExportedCommands["Resolve-LocalPath"]
+    AddRequiredConfigError = $commonModule.ExportedCommands["Add-RequiredConfigError"]
+    GetAuthErrorMessage = $authModule.ExportedCommands["Get-ModrinthAuthErrorMessage"]
+    GetDisplayName     = $authModule.ExportedCommands["Get-ModrinthDisplayName"]
+    GetProjectErrorMessage = $projectModule.ExportedCommands["Get-ModrinthProjectErrorMessage"]
+    WriteProjectSummary = $projectModule.ExportedCommands["Write-ModrinthProjectSummary"]
 }
 
 foreach ($entry in $Cmd.GetEnumerator()) {
@@ -52,83 +61,16 @@ $authEnvVar = & $Cmd.GetConfigValue -Config $authConfig -Key "envVar" -DefaultVa
 $state = & $Cmd.NewMessageState
 $versionStatus = & $Cmd.TestConfigVersion -PackageName $PackageName -ScriptVersion $Version -Config $config -State $state
 
-function Resolve-LocalPath {
-    param(
-        [string]$PathValue
-    )
-
-    if ([string]::IsNullOrWhiteSpace([string]$PathValue)) {
-        return $null
-    }
-
-    if ([System.IO.Path]::IsPathRooted($PathValue)) {
-        return $PathValue
-    }
-
-    return [System.IO.Path]::GetFullPath((Join-Path (Get-Location) $PathValue))
-}
-
-function Add-RequiredConfigError {
-    param(
-        [string]$Value,
-        [string]$ConfigKey
-    )
-
-    if ([string]::IsNullOrWhiteSpace([string]$Value)) {
-        & $Cmd.AddErrorMessage -State $state -Message "modrinth $ConfigKey is missing in blobManager\\packages\\config\\modrinth.json"
-    }
-}
-
-function Get-ModrinthAuthErrorMessage {
-    param(
-        $Result
-    )
-
-    if ($null -eq $Result) {
-        return "Authenticated request failed."
-    }
-
-    if ($null -eq $Result.StatusCode) {
-        if (-not [string]::IsNullOrWhiteSpace([string]$Result.ErrorMessage)) {
-            return "Modrinth API/network failure: $($Result.ErrorMessage)"
-        }
-
-        return "Modrinth API/network failure."
-    }
-
-    if ($Result.StatusCode -eq 401) {
-        return "Invalid Modrinth PAT. Check the token stored in the key file or env var."
-    }
-
-    if ($Result.StatusCode -eq 403) {
-        return "Modrinth PAT was accepted but does not have sufficient scope for /user."
-    }
-
-    $detail = $null
-    if ($null -ne $Result.Data) {
-        if ($Result.Data.PSObject.Properties.Name -contains "description") {
-            $detail = [string]$Result.Data.description
-        }
-        elseif ($Result.Data.PSObject.Properties.Name -contains "error") {
-            $detail = [string]$Result.Data.error
-        }
-    }
-
-    if (-not [string]::IsNullOrWhiteSpace([string]$detail)) {
-        return "Modrinth API failure: $($Result.StatusCode) $($Result.StatusDescription) - $detail"
-    }
-
-    return "Modrinth API failure: $($Result.StatusCode) $($Result.StatusDescription)"
-}
-
 $Command = if ($args.Count -gt 0) { $args[0] } else { $null }
+$Rest = @()
+if ($args.Count -gt 1) { $Rest += $args[1..($args.Count - 1)] }
 
 switch ($Command) {
     "-p" {
-        Add-RequiredConfigError -Value $baseUrl -ConfigKey "network.baseUrl"
-        Add-RequiredConfigError -Value $apiVersion -ConfigKey "network.apiVersion"
-        Add-RequiredConfigError -Value $connectionTestUrl -ConfigKey "network.connectionTestUrl"
-        Add-RequiredConfigError -Value $testEndpoint -ConfigKey "network.testEndpoint"
+        & $Cmd.AddRequiredConfigError -Value $baseUrl -ConfigKey "network.baseUrl" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\modrinth.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $apiVersion -ConfigKey "network.apiVersion" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\modrinth.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $connectionTestUrl -ConfigKey "network.connectionTestUrl" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\modrinth.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $testEndpoint -ConfigKey "network.testEndpoint" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\modrinth.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
 
         & $Cmd.ThrowIfErrors -State $state
 
@@ -144,18 +86,8 @@ switch ($Command) {
         exit 1
     }
 
-    "-gk" {
-        $keyFilePath = Resolve-LocalPath -PathValue $authKeyFile
-        $result = & $Cmd.CommandGetKey -PackageName $PackageName -KeyFilePath $keyFilePath -KeyName $authKeyName -EnvVarName $authEnvVar
-        if ($result.Success) {
-            exit 0
-        }
-
-        exit 1
-    }
-
     "-getAuth" {
-        $keyFilePath = Resolve-LocalPath -PathValue $authKeyFile
+        $keyFilePath = & $Cmd.ResolveLocalPath -PathValue $authKeyFile
         $result = & $Cmd.CommandGetKey -PackageName $PackageName -KeyFilePath $keyFilePath -KeyName $authKeyName -EnvVarName $authEnvVar
         if ($result.Success) {
             exit 0
@@ -165,15 +97,15 @@ switch ($Command) {
     }
 
     "-auth" {
-        Add-RequiredConfigError -Value $baseUrl -ConfigKey "network.baseUrl"
-        Add-RequiredConfigError -Value $apiVersion -ConfigKey "network.apiVersion"
-        Add-RequiredConfigError -Value $authenticatedTestEndpoint -ConfigKey "network.authenticatedTestEndpoint"
-        Add-RequiredConfigError -Value $authKeyFile -ConfigKey "auth.keyFile"
-        Add-RequiredConfigError -Value $authKeyName -ConfigKey "auth.keyName"
-        Add-RequiredConfigError -Value $authEnvVar -ConfigKey "auth.envVar"
+        & $Cmd.AddRequiredConfigError -Value $baseUrl -ConfigKey "network.baseUrl" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\modrinth.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $apiVersion -ConfigKey "network.apiVersion" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\modrinth.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $authenticatedTestEndpoint -ConfigKey "network.authenticatedTestEndpoint" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\modrinth.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $authKeyFile -ConfigKey "auth.keyFile" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\modrinth.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $authKeyName -ConfigKey "auth.keyName" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\modrinth.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $authEnvVar -ConfigKey "auth.envVar" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\modrinth.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
         & $Cmd.ThrowIfErrors -State $state
 
-        $keyFilePath = Resolve-LocalPath -PathValue $authKeyFile
+        $keyFilePath = & $Cmd.ResolveLocalPath -PathValue $authKeyFile
         $tokenResolution = & $Cmd.ResolveKeyValue -KeyFilePath $keyFilePath -KeyName $authKeyName -EnvVarName $authEnvVar
         if (-not $tokenResolution.Success) {
             Write-Host "Missing Modrinth PAT. No local key or env var was found." -ForegroundColor Red
@@ -190,15 +122,7 @@ switch ($Command) {
 
         $result = & $Cmd.InvokeNetworkRequest -Uri $requestUri -Method "GET" -Headers $authHeaders -TimeoutSeconds $timeoutSeconds
         if ($result.Success) {
-            $displayName = $null
-            if ($null -ne $result.Data) {
-                if ($result.Data.PSObject.Properties.Name -contains "username") {
-                    $displayName = [string]$result.Data.username
-                }
-                elseif ($result.Data.PSObject.Properties.Name -contains "id") {
-                    $displayName = [string]$result.Data.id
-                }
-            }
+            $displayName = & $Cmd.GetDisplayName -Data $result.Data
 
             Write-Host "Authenticated request successful." -ForegroundColor Green
             Write-Host "Status: $($result.StatusCode) $($result.StatusDescription)"
@@ -214,10 +138,39 @@ switch ($Command) {
             Write-Host "Status: $($result.StatusCode) $($result.StatusDescription)" -ForegroundColor Red
         }
 
-        $authError = Get-ModrinthAuthErrorMessage -Result $result
+        $authError = & $Cmd.GetAuthErrorMessage -Result $result
         if (-not [string]::IsNullOrWhiteSpace([string]$authError)) {
             Write-Host $authError -ForegroundColor Red
         }
+
+        if (-not [string]::IsNullOrWhiteSpace([string]$result.RawContent)) {
+            Write-Host "Response: $($result.RawContent)" -ForegroundColor DarkYellow
+        }
+
+        exit 1
+    }
+    "getInfo" {
+        & $Cmd.AddRequiredConfigError -Value $baseUrl -ConfigKey "network.baseUrl" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\modrinth.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.AddRequiredConfigError -Value $apiVersion -ConfigKey "network.apiVersion" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\modrinth.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
+        & $Cmd.ThrowIfErrors -State $state
+
+        if ($Rest.Count -lt 1) {
+            Write-Host "Usage: .\blob.ps1 modrinth getInfo <slug-or-id>"
+            exit 1
+        }
+
+        $projectRef = $Rest[0]
+        $requestUri = & $Cmd.JoinApiUri -BaseUrl $baseUrl -ApiVersion $apiVersion -Endpoint "/project/$projectRef"
+        $result = & $Cmd.InvokeNetworkRequest -Uri $requestUri -Method "GET" -Headers $headers -TimeoutSeconds $timeoutSeconds
+
+        if ($result.Success -and $null -ne $result.Data) {
+            & $Cmd.WriteProjectSummary -Project $result.Data
+            & $Cmd.WriteWarnings -State $state
+            exit 0
+        }
+
+        $errorMessage = & $Cmd.GetProjectErrorMessage -Result $result -ProjectRef $projectRef
+        Write-Host $errorMessage -ForegroundColor Red
 
         if (-not [string]::IsNullOrWhiteSpace([string]$result.RawContent)) {
             Write-Host "Response: $($result.RawContent)" -ForegroundColor DarkYellow
@@ -233,7 +186,7 @@ switch ($Command) {
 
     "-?" {
         & $Cmd.WriteWarnings -State $state
-        & $Cmd.CommandHelp -PackageName $PackageName -Commands @("modrinth -p", "modrinth -auth", "modrinth -getAuth", "modrinth -v", "modrinth -?")
+        & $Cmd.CommandHelp -PackageName $PackageName -Commands @("modrinth -p", "modrinth -auth", "modrinth -getAuth", "modrinth getInfo <slug-or-id>", "modrinth -v", "modrinth -?")
         Write-Host "Auth key file: $authKeyFile"
         Write-Host "Auth key format: $authKeyName=mrp_..."
         Write-Host "Automation env var: $authEnvVar"
