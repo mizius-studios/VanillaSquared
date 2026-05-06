@@ -2,7 +2,6 @@ package blob.vanillasquared.main.world.effect;
 
 import blob.vanillasquared.main.network.VSQNetworking;
 import blob.vanillasquared.main.world.item.enchantment.SpecialEnchantmentCooldowns;
-import blob.vanillasquared.util.api.enchantment.VSQEnchantmentEffects;
 import blob.vanillasquared.util.api.enchantment.VSQEnchantments;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
@@ -16,6 +15,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantedItemInUse;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentTarget;
 import net.minecraft.world.item.enchantment.TargetedConditionalEffect;
 import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
@@ -37,8 +37,6 @@ import java.util.WeakHashMap;
 public final class LungingState {
     private static final WeakHashMap<ServerLevel, Map<UUID, Activation>> STATES = new WeakHashMap<>();
     private static final double COLLISION_EPSILON = 0.05D;
-    private static final Identifier DASH_ENCHANTMENT_ID = Identifier.fromNamespaceAndPath("vsq", "dash");
-
     private LungingState() {
     }
 
@@ -158,17 +156,6 @@ public final class LungingState {
         return activations != null && activations.containsKey(entity.getUUID());
     }
 
-    public static float amplifyIncomingDamage(LivingEntity entity, float amount) {
-        if (!(entity.level() instanceof ServerLevel level)) {
-            return amount;
-        }
-        Activation activation = activation(level, entity.getUUID());
-        if (activation == null || amount <= 0.0F || !activation.isDash()) {
-            return amount;
-        }
-        return amount * (1.0F + activation.enchantmentLevel);
-    }
-
     public static void clear(ServerPlayer player) {
         if (!(player.level() instanceof ServerLevel level)) {
             return;
@@ -236,10 +223,6 @@ public final class LungingState {
             return entity instanceof LivingEntity living ? living : null;
         }
 
-        private boolean isDash() {
-            return DASH_ENCHANTMENT_ID.equals(this.enchantmentId);
-        }
-
         private Holder<Enchantment> resolveEnchantment(ServerLevel level) {
             return level.registryAccess()
                     .lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
@@ -258,7 +241,7 @@ public final class LungingState {
             Holder<Enchantment> enchantment = resolveEnchantment(level);
             EnchantedItemInUse itemInUse = new EnchantedItemInUse(this.stackSnapshot.copy(), this.slot, owner, ignored -> {});
             List<TargetedConditionalEffect<EnchantmentEntityEffect>> effects =
-                    VSQEnchantments.profileEffects(this.stackSnapshot, enchantment, VSQEnchantmentEffects.IN_LUNGING);
+                    VSQEnchantments.profileEffects(this.stackSnapshot, enchantment, EnchantmentEffectComponents.POST_ATTACK);
             for (LivingEntity target : touched) {
                 if (!this.impactedEntities.add(target.getUUID())) {
                     continue;
@@ -272,7 +255,7 @@ public final class LungingState {
                     TargetedConditionalEffect<EnchantmentEntityEffect> effect = effects.get(index);
                     if (!shouldApplyToEnchantedTarget(effect.enchanted())
                             || !effect.matches(context)
-                            || !SpecialEnchantmentCooldowns.shouldRunSpecialEffect(level, this.stackSnapshot, enchantment.value(), VSQEnchantmentEffects.IN_LUNGING, index, owner)) {
+                            || !SpecialEnchantmentCooldowns.shouldRunSpecialEffect(level, this.stackSnapshot, enchantment.value(), EnchantmentEffectComponents.POST_ATTACK, index, owner)) {
                         continue;
                     }
 

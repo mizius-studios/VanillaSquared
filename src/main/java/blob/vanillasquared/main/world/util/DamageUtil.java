@@ -1,6 +1,5 @@
 package blob.vanillasquared.main.world.util;
 
-import blob.vanillasquared.main.world.effect.LungingState;
 import blob.vanillasquared.main.VanillaSquared;
 import blob.vanillasquared.main.world.effect.VSQMobEffects;
 import blob.vanillasquared.main.world.effect.VoidedEffectState;
@@ -34,7 +33,6 @@ public final class DamageUtil {
         protectedAmount = applyDripstoneProtection(entity, source, protectedAmount);
         protectedAmount = applySpearProtection(entity, source, protectedAmount);
         protectedAmount = applyVoided(entity, source, protectedAmount);
-        protectedAmount = LungingState.amplifyIncomingDamage(entity, protectedAmount);
         return Math.max(protectedAmount, 0.0F);
     }
 

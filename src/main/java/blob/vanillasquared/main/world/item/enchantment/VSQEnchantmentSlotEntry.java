@@ -49,7 +49,7 @@ public record VSQEnchantmentSlotEntry(Holder<Enchantment> enchantment, int level
         @Override
         public <T> DataResult<T> encode(VSQEnchantmentSlotEntry input, DynamicOps<T> ops, T prefix) {
             if (input == null || input.isEmpty()) {
-                return DataResult.success(ops.createString(EMPTY_MARKER));
+                return DataResult.success(ops.emptyMap());
             }
             return PRESENT_CODEC.encode(input, ops, prefix);
         }

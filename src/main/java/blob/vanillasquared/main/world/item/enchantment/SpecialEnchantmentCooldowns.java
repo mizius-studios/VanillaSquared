@@ -1,6 +1,5 @@
 package blob.vanillasquared.main.world.item.enchantment;
 
-import blob.vanillasquared.util.api.enchantment.VSQEnchantmentEffects;
 import blob.vanillasquared.util.api.enchantment.VSQEnchantments;
 
 import blob.vanillasquared.main.VanillaSquared;
@@ -25,6 +24,8 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -32,7 +33,7 @@ import java.util.UUID;
 
 public final class SpecialEnchantmentCooldowns {
     private static final long HIT_BLOCK_REUSE_DELAY_TICKS = 5L;
-    private static final Map<UUID, Map<Identifier, ActivationState>> STATES = new HashMap<>();
+    private static final Map<UUID, Map<ActivationKey, ActivationState>> STATES = new HashMap<>();
 
     private SpecialEnchantmentCooldowns() {
     }
@@ -48,65 +49,93 @@ public final class SpecialEnchantmentCooldowns {
     }
 
     public static void processHotkey(ServerPlayer player, SpecialEnchantmentUse use) {
-        ActivationState state = state(player, use.enchantmentId()).orElseGet(() -> {
+        ActivationKey key = key(use);
+        ActivationState state = state(player, key).orElseGet(() -> {
             ActivationState created = createState(use);
-            putState(player, use.enchantmentId(), created);
+            putState(player, key, created);
             return created;
         });
 
         state.activated = true;
-        startCooldownIfEligible(player.level().getGameTime(), use.profile(), state);
+        startCooldownIfEligible(player.level().getGameTime(), use, state);
 
         if (shouldClearState(use.profile(), state)) {
-            removeState(player, use.enchantmentId());
+            removeState(player, key(use));
         }
         sync(player, use);
     }
 
     public static void tickPlayer(ServerPlayer player) {
-        Map<Identifier, ActivationState> playerStates = STATES.get(player.getUUID());
+        Map<ActivationKey, ActivationState> playerStates = STATES.get(player.getUUID());
         if (playerStates == null || playerStates.isEmpty()) {
             return;
         }
 
-        Set<Identifier> enchantmentIds = Set.copyOf(playerStates.keySet());
-        for (Identifier enchantmentId : enchantmentIds) {
-            ActivationState state = playerStates.get(enchantmentId);
+        Set<ActivationKey> activationKeys = Set.copyOf(playerStates.keySet());
+        for (ActivationKey activationKey : activationKeys) {
+            ActivationState state = playerStates.get(activationKey);
             if (state == null) {
                 continue;
             }
 
             if (isFinished(player, state)) {
-                playerStates.remove(enchantmentId);
-                continue;
+                playerStates.remove(activationKey);
             }
-
-            Optional<SpecialEnchantmentUse> maybeUse = findUseInHands(player, enchantmentId);
-            if (maybeUse.isEmpty()) {
-                if (!state.displayedNone) {
-                    state.displayedNone = true;
-                    ServerPlayNetworking.send(
-                            player,
-                            new SpecialEnchantmentCooldownPayload(
-                                    enchantmentId,
-                                    0L,
-                                    0L,
-                                    0,
-                                    SpecialEnchantmentCooldownPayload.DISPLAY_NONE,
-                                    false,
-                                    false
-                            )
-                    );
-                }
-                continue;
-            }
-            state.displayedNone = false;
-            SpecialEnchantmentUse use = maybeUse.get();
-            sync(player, use);
         }
 
         if (playerStates.isEmpty()) {
             STATES.remove(player.getUUID());
+            return;
+        }
+
+        List<SpecialEnchantmentUse> heldUses = heldUses(player);
+        Set<Identifier> heldEnchantmentIds = new HashSet<>();
+        Set<Identifier> syncedEnchantmentIds = new HashSet<>();
+
+        for (SpecialEnchantmentUse use : heldUses) {
+            heldEnchantmentIds.add(use.enchantmentId());
+            ActivationState state = state(player, key(use)).orElse(null);
+            if (state != null) {
+                state.displayedNone = false;
+                sync(player, use);
+            } else if (syncedEnchantmentIds.add(use.enchantmentId())) {
+                ServerPlayNetworking.send(
+                        player,
+                        new SpecialEnchantmentCooldownPayload(
+                                use.enchantmentId(),
+                                0L,
+                                0L,
+                                0,
+                                SpecialEnchantmentCooldownPayload.DISPLAY_NONE,
+                                false,
+                                false
+                        )
+                );
+            }
+        }
+
+        Set<Identifier> clearedEnchantmentIds = new HashSet<>();
+        for (Map.Entry<ActivationKey, ActivationState> entry : playerStates.entrySet()) {
+            ActivationKey activationKey = entry.getKey();
+            ActivationState state = entry.getValue();
+            if (heldEnchantmentIds.contains(activationKey.enchantmentId())) {
+                continue;
+            }
+            if (!state.displayedNone && clearedEnchantmentIds.add(activationKey.enchantmentId())) {
+                ServerPlayNetworking.send(
+                        player,
+                        new SpecialEnchantmentCooldownPayload(
+                                activationKey.enchantmentId(),
+                                0L,
+                                0L,
+                                0,
+                                SpecialEnchantmentCooldownPayload.DISPLAY_NONE,
+                                false,
+                                false
+                        )
+                );
+            }
+            state.displayedNone = true;
         }
     }
 
@@ -143,17 +172,12 @@ public final class SpecialEnchantmentCooldowns {
         if (enchantmentId == null) {
             return true;
         }
-        ActivationState state = state(player, enchantmentId).orElse(null);
-        if (componentType == VSQEnchantmentEffects.IN_LUNGING
-                && metadata.map(SpecialEffectMetadata::special).orElse(Optional.empty()).isEmpty()) {
-            return true;
-        }
+        Holder<Enchantment> enchantmentHolder = enchantmentRegistry.getOrThrow(ResourceKey.create(Registries.ENCHANTMENT, enchantmentId));
+        int enchantmentLevel = VSQEnchantments.aggregate(stack).getLevel(enchantmentHolder);
+        ActivationState state = state(player, key(enchantmentId, enchantmentLevel)).orElse(null);
         if (state == null || !isActivationWindowOpen(state, profile.get())) {
             return false;
         }
-
-        Holder<Enchantment> enchantmentHolder = enchantmentRegistry.getOrThrow(ResourceKey.create(Registries.ENCHANTMENT, enchantmentId));
-        int enchantmentLevel = VSQEnchantments.aggregate(stack).getLevel(enchantmentHolder);
         EquipmentSlot slot = player.getOffhandItem() == stack ? EquipmentSlot.OFFHAND : EquipmentSlot.MAINHAND;
         SpecialEnchantmentUse use = new SpecialEnchantmentUse(
                 enchantmentId,
@@ -174,11 +198,11 @@ public final class SpecialEnchantmentCooldowns {
         if (allowed) {
             markHitBlockReuseDelay(level, componentType, state, resolvedMetadata);
         }
-        startCooldownIfEligible(level.getGameTime(), profile.get(), state);
+        startCooldownIfEligible(level.getGameTime(), use, state);
         if (shouldClearState(profile.get(), state)) {
-            removeState(player, enchantmentId);
+            removeState(player, key(use));
         }
-        syncForEnchantment(player, enchantmentId);
+        sync(player, use);
         return allowed;
     }
 
@@ -251,35 +275,35 @@ public final class SpecialEnchantmentCooldowns {
         return Optional.empty();
     }
 
-    private static Optional<ActivationState> state(ServerPlayer player, Identifier enchantmentId) {
-        Map<Identifier, ActivationState> playerStates = STATES.get(player.getUUID());
+    private static Optional<ActivationState> state(ServerPlayer player, ActivationKey activationKey) {
+        Map<ActivationKey, ActivationState> playerStates = STATES.get(player.getUUID());
         if (playerStates == null) {
             return Optional.empty();
         }
-        ActivationState state = playerStates.get(enchantmentId);
+        ActivationState state = playerStates.get(activationKey);
         if (state == null) {
             return Optional.empty();
         }
         return Optional.of(state);
     }
 
-    private static void putState(ServerPlayer player, Identifier enchantmentId, ActivationState state) {
-        STATES.computeIfAbsent(player.getUUID(), uuid -> new HashMap<>()).put(enchantmentId, state);
+    private static void putState(ServerPlayer player, ActivationKey activationKey, ActivationState state) {
+        STATES.computeIfAbsent(player.getUUID(), uuid -> new HashMap<>()).put(activationKey, state);
     }
 
-    private static void removeState(ServerPlayer player, Identifier enchantmentId) {
-        Map<Identifier, ActivationState> playerStates = STATES.get(player.getUUID());
+    private static void removeState(ServerPlayer player, ActivationKey activationKey) {
+        Map<ActivationKey, ActivationState> playerStates = STATES.get(player.getUUID());
         if (playerStates == null) {
             return;
         }
-        playerStates.remove(enchantmentId);
+        playerStates.remove(activationKey);
         if (playerStates.isEmpty()) {
             STATES.remove(player.getUUID());
         }
     }
 
     private static ActivationState createState(SpecialEnchantmentUse use) {
-        ActivationState state = new ActivationState(use.special().cooldownTicks());
+        ActivationState state = new ActivationState(use.special().cooldownTicks(use.level()));
         for (SpecialEffectMetadata metadata : use.profile().specialEffectIndex().all()) {
             metadata.special().ifPresent(settings -> {
                 int limit = resolvedLimit(use, settings);
@@ -292,15 +316,15 @@ public final class SpecialEnchantmentCooldowns {
         return state;
     }
 
-    private static void startCooldownIfEligible(long gameTime, VSQEnchantmentProfile profile, ActivationState state) {
-        if (state.cooldownStarted || isPreCooldownPhaseActive(profile, state)) {
+    private static void startCooldownIfEligible(long gameTime, SpecialEnchantmentUse use, ActivationState state) {
+        if (state.cooldownStarted || isPreCooldownPhaseActive(use.profile(), state)) {
             return;
         }
-        SpecialEnchantmentProfileConfig special = profile.special().orElse(null);
+        SpecialEnchantmentProfileConfig special = use.profile().special().orElse(null);
         if (special == null) {
             return;
         }
-        long totalTicks = special.cooldownTicks();
+        long totalTicks = special.cooldownTicks(use.level());
         if (totalTicks <= 0L) {
             state.cooldownStarted = true;
             state.cooldownEndTick = gameTime;
@@ -346,22 +370,12 @@ public final class SpecialEnchantmentCooldowns {
     }
 
     private static void sync(ServerPlayer player, SpecialEnchantmentUse use) {
-        ActivationState state = state(player, use.enchantmentId()).orElse(null);
+        ActivationState state = state(player, key(use)).orElse(null);
         if (state == null) {
             ServerPlayNetworking.send(player, new SpecialEnchantmentCooldownPayload(use.enchantmentId(), 0L, 0L, 0, SpecialEnchantmentCooldownPayload.DISPLAY_NONE, false, false));
             return;
         }
         ServerPlayNetworking.send(player, snapshot(player, use, state));
-    }
-
-    private static void syncForEnchantment(ServerPlayer player, Identifier enchantmentId) {
-        findUseInHands(player, enchantmentId).ifPresentOrElse(
-                use -> sync(player, use),
-                () -> ServerPlayNetworking.send(
-                        player,
-                        new SpecialEnchantmentCooldownPayload(enchantmentId, 0L, 0L, 0, SpecialEnchantmentCooldownPayload.DISPLAY_NONE, false, false)
-                )
-        );
     }
 
     private static SpecialEnchantmentCooldownPayload snapshot(ServerPlayer player, SpecialEnchantmentUse use, ActivationState state) {
@@ -426,14 +440,24 @@ public final class SpecialEnchantmentCooldowns {
         return Optional.empty();
     }
 
-    private static Optional<SpecialEnchantmentUse> findUseInHands(ServerPlayer player, Identifier enchantmentId) {
-        Optional<SpecialEnchantmentUse> mainhand = findSpecial(player.getMainHandItem(), EquipmentSlot.MAINHAND)
-                .filter(use -> use.enchantmentId().equals(enchantmentId));
-        if (mainhand.isPresent()) {
-            return mainhand;
+    private static List<SpecialEnchantmentUse> heldUses(ServerPlayer player) {
+        Optional<SpecialEnchantmentUse> mainhand = findSpecial(player.getMainHandItem(), EquipmentSlot.MAINHAND);
+        Optional<SpecialEnchantmentUse> offhand = findSpecial(player.getOffhandItem(), EquipmentSlot.OFFHAND);
+        if (mainhand.isPresent() && offhand.isPresent()) {
+            return List.of(mainhand.get(), offhand.get());
         }
-        return findSpecial(player.getOffhandItem(), EquipmentSlot.OFFHAND)
-                .filter(use -> use.enchantmentId().equals(enchantmentId));
+        if (mainhand.isPresent()) {
+            return List.of(mainhand.get());
+        }
+        return offhand.<List<SpecialEnchantmentUse>>map(List::of).orElseGet(List::of);
+    }
+
+    private static ActivationKey key(SpecialEnchantmentUse use) {
+        return key(use.enchantmentId(), use.level());
+    }
+
+    private static ActivationKey key(Identifier enchantmentId, int level) {
+        return new ActivationKey(enchantmentId, level);
     }
 
     private static String componentKey(DataComponentType<?> componentType) {
@@ -510,6 +534,9 @@ public final class SpecialEnchantmentCooldowns {
         private ActivationState(long cooldownTotalTicks) {
             this.cooldownTotalTicks = cooldownTotalTicks;
         }
+    }
+
+    private record ActivationKey(Identifier enchantmentId, int level) {
     }
 
     public record SpecialEnchantmentUse(

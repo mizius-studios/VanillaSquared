@@ -1,10 +1,15 @@
 package blob.vanillasquared.mixin.world.entity.entities;
 
+import blob.vanillasquared.main.VanillaSquared;
 import blob.vanillasquared.main.world.item.enchantment.effects.EnchantmentProjectileTakeoverEffects;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -31,6 +36,11 @@ public abstract class FishingRodHookMixin extends Projectile {
     private static final float BASE_DAMAGE = 0.5F;
     @Unique
     private static final float BASE_KNOCKBACK = 0.4F;
+    @Unique
+    private static final ResourceKey<DamageType> FISHED_DAMAGE_TYPE = ResourceKey.create(
+            Registries.DAMAGE_TYPE,
+            Identifier.fromNamespaceAndPath(VanillaSquared.MOD_ID, "fished")
+    );
 
     public FishingRodHookMixin(EntityType<? extends Projectile> entityType, Level level) {
         super(entityType, level);
@@ -54,7 +64,7 @@ public abstract class FishingRodHookMixin extends Projectile {
             return;
         }
 
-        DamageSource source = serverLevel.damageSources().playerAttack(player);
+        DamageSource source = serverLevel.damageSources().source(FISHED_DAMAGE_TYPE, this, player);
         float damage = BASE_DAMAGE;
         damage = EnchantmentProjectileTakeoverEffects.modifyDamage(serverLevel, player, fishingRod, living, source, damage);
 

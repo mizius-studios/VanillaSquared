@@ -26,7 +26,6 @@
                 "type": "#minecraft:sensitive_to_bane_of_arthropods"
               }
             },
-            "id": "vsq_ruthless_damage",
             "effect_id": "vsq_ruthless_damage"
           }
         ],
@@ -40,7 +39,6 @@
               "min_damage": 2.5
             },
             "enchanted": "attacker",
-            "id": "vsq_ruthless_self_dmg",
             "effect_id": "vsq_ruthless_self_dmg"
           }
         ]

@@ -30,11 +30,6 @@ public final class VSQEnchantmentEffects {
             TargetedConditionalEffect.codec(EnchantmentLocationBasedEffect.CODEC),
             LootContextParamSets.ENCHANTED_DAMAGE
     );
-    public static final DataComponentType<List<TargetedConditionalEffect<EnchantmentEntityEffect>>> IN_LUNGING = registerValidatedEffectComponent(
-            Identifier.fromNamespaceAndPath("vsq", "in_lunging"),
-            TargetedConditionalEffect.codec(EnchantmentEntityEffect.CODEC),
-            LootContextParamSets.ENCHANTED_DAMAGE
-    );
 
     public static final MapCodec<? extends EnchantmentEntityEffect> CHANNELING = registerEntityEffect(
             Identifier.fromNamespaceAndPath("vsq", "channeling"),

@@ -18,7 +18,7 @@
                   "type": "minecraft:apply_impulse",
                   "coordinate_scale": [
                     1,
-                    1,
+                    0.25,
                     1
                   ],
                   "direction": [
@@ -26,7 +26,11 @@
                     0,
                     1
                   ],
-                  "magnitude": 0.4,
+                  "magnitude": {
+                    "type": "minecraft:linear",
+                    "base": 0.4,
+                    "per_level_above_first": 0.15
+                  },
                   "speed": 6.0
                 },
                 {
@@ -39,25 +43,106 @@
                   "type": "vsq:begin_lunging",
                   "range": {
                     "type": "minecraft:linear",
-                    "base": 4,
+                    "base": 3,
                     "per_level_above_first": 1
                   }
                 }
               ]
             },
             "effect_id": "vsq_dash_use",
-            "id": "vsq_dash_use",
             "special": {
-              "limit": 3
+              "limit": {
+                "type": "minecraft:linear",
+                "base": 1,
+                "per_level_above_first": 1
+              }
+            },
+            "requirements": {
+              "condition": "minecraft:all_of",
+              "terms": [
+                {
+                  "condition": "minecraft:inverted",
+                  "term": {
+                    "condition": "minecraft:entity_properties",
+                    "entity": "this",
+                    "predicate": {
+                      "vehicle": {}
+                    }
+                  }
+                },
+                {
+                  "condition": "minecraft:entity_properties",
+                  "entity": "this",
+                  "predicate": {
+                    "flags": {
+                      "is_fall_flying": false
+                    }
+                  }
+                },
+                {
+                  "condition": "minecraft:entity_properties",
+                  "entity": "this",
+                  "predicate": {
+                    "flags": {
+                      "is_in_water": false
+                    }
+                  }
+                },
+                {
+                  "condition": "minecraft:any_of",
+                  "terms": [
+                    {
+                      "condition": "minecraft:inverted",
+                      "term": {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                          "type_specific": {
+                            "type": "minecraft:player"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "condition": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "type_specific": {
+                          "type": "minecraft:player",
+                          "gamemode": [
+                            "creative"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "condition": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "type_specific": {
+                          "type": "minecraft:player",
+                          "food": {
+                            "level": {
+                              "min": 7
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
             }
           }
         ],
-        "vsq:in_lunging": [
+        "minecraft:post_attack": [
           {
             "affected": "victim",
+            "enchanted": "attacker",
+            "effect_id": "vsq_dash_damage",
             "effect": {
               "type": "minecraft:damage_entity",
-              "damage_type": "minecraft:player_attack",
+              "damage_type": "vsq:eviscerate",
               "max_damage": {
                 "type": "minecraft:linear",
                 "base": 3,
@@ -69,9 +154,39 @@
                 "per_level_above_first": 1
               }
             },
+            "requirements": {
+              "condition": "minecraft:entity_properties",
+              "entity": "direct_attacker",
+              "predicate": {
+                "flags": {
+                  "is_lunging": true
+                }
+              }
+            }
+          }
+        ],
+        "minecraft:armor_effectiveness": [
+          {
+            "affected": "attacker",
             "enchanted": "attacker",
-            "effect_id": "vsq_dash_contact",
-            "id": "vsq_dash_contact"
+            "effect_id": "vsq_dash_protection",
+            "effect": {
+              "type": "minecraft:add",
+              "value": {
+                "type": "minecraft:linear",
+                "base": -0.2,
+                "per_level_above_first": -0.2
+              }
+            },
+            "requirements": {
+              "condition": "minecraft:entity_properties",
+              "entity": "direct_attacker",
+              "predicate": {
+                "flags": {
+                  "is_lunging": true
+                }
+              }
+            }
           }
         ]
       },
@@ -87,7 +202,11 @@
         "per_level_above_first": 8
       },
       "special": {
-        "cooldown": 12,
+        "cooldown": {
+          "type": "minecraft:linear",
+          "base": 4,
+          "per_level_above_first": 4
+        },
         "display_limit": "vsq_dash_use"
       }
     }
