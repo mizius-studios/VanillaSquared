@@ -37,10 +37,20 @@ import java.util.WeakHashMap;
 public final class LungingState {
     private static final WeakHashMap<ServerLevel, Map<UUID, Activation>> STATES = new WeakHashMap<>();
     private static final double COLLISION_EPSILON = 0.05D;
+    private static final double MIN_ACTIVE_SPEED = 0.08D;
     private LungingState() {
     }
 
-    public static void start(ServerLevel level, Holder<Enchantment> enchantment, int enchantmentLevel, EnchantedItemInUse item, LivingEntity owner, double range) {
+    public static void start(
+            ServerLevel level,
+            Holder<Enchantment> enchantment,
+            int enchantmentLevel,
+            EnchantedItemInUse item,
+            LivingEntity owner,
+            double range,
+            Vec3 velocity,
+            double incomingDamageMultiplier
+    ) {
         if (!(owner instanceof ServerPlayer player)) {
             return;
         }
@@ -48,13 +58,13 @@ public final class LungingState {
         Identifier enchantmentId = enchantment.unwrapKey()
                 .map(ResourceKey::identifier)
                 .orElseThrow(() -> new IllegalStateException("Cannot start lunge for enchantment holder without a registry key"));
-        double speedPerTick = Math.max(0.25D, owner.getDeltaMovement().length());
+        double speedPerTick = Math.max(0.25D, velocity.length());
         Activation previous = levelState(level).remove(owner.getUUID());
         if (previous != null) {
             previous.deactivate(level);
         }
 
-        Vec3 direction = owner.getLookAngle().normalize();
+        Vec3 direction = velocity.normalize();
         if (direction.lengthSqr() <= 1.0E-6D) {
             direction = Vec3.directionFromRotation(owner.getXRot(), owner.getYRot()).normalize();
         }
@@ -69,13 +79,14 @@ public final class LungingState {
                 owner.position(),
                 Math.max(0.0D, range),
                 speedPerTick,
+                Math.max(0.0D, incomingDamageMultiplier),
                 Math.max(1, (int) Math.ceil(range / speedPerTick) + 5),
                 owner.getYRot(),
                 owner.getXRot()
         );
         owner.addEffect(new MobEffectInstance(VSQMobEffects.LUNGING, activation.ticksRemaining + 1, 0, false, false, false));
         levelState(level).put(owner.getUUID(), activation);
-        owner.setDeltaMovement(direction.scale(speedPerTick));
+        owner.setDeltaMovement(velocity);
         owner.hurtMarked = true;
         owner.needsSync = true;
         VSQNetworking.sendLungingState(player, true);
@@ -127,13 +138,13 @@ public final class LungingState {
 
             activation.ticksRemaining--;
             if (activation.remainingDistance <= 1.0E-3D || activation.ticksRemaining <= 0) {
-                owner.setDeltaMovement(Vec3.ZERO);
                 activation.deactivate(level);
                 expired.add(entry.getKey());
                 continue;
             }
 
-            owner.setDeltaMovement(activation.direction.scale(activation.speedPerTick));
+            double nextSpeed = Math.min(activation.speedPerTick, Math.max(MIN_ACTIVE_SPEED, activation.remainingDistance));
+            owner.setDeltaMovement(activation.direction.scale(nextSpeed));
             owner.resetFallDistance();
             owner.hurtMarked = true;
             owner.needsSync = true;
@@ -154,6 +165,19 @@ public final class LungingState {
         }
         Map<UUID, Activation> activations = STATES.get(level);
         return activations != null && activations.containsKey(entity.getUUID());
+    }
+
+    public static float modifyIncomingDamage(LivingEntity entity, float damage) {
+        if (damage <= 0.0F || !(entity.level() instanceof ServerLevel level)) {
+            return Math.max(damage, 0.0F);
+        }
+
+        Activation activation = activation(level, entity.getUUID());
+        if (activation == null) {
+            return Math.max(damage, 0.0F);
+        }
+
+        return Math.max(damage * (float) activation.incomingDamageMultiplier, 0.0F);
     }
 
     public static void clear(ServerPlayer player) {
@@ -183,6 +207,7 @@ public final class LungingState {
         private final EquipmentSlot slot;
         private final Vec3 direction;
         private final double speedPerTick;
+        private final double incomingDamageMultiplier;
         private int ticksRemaining;
         private final float yRot;
         private final float xRot;
@@ -200,6 +225,7 @@ public final class LungingState {
                 Vec3 lastPosition,
                 double remainingDistance,
                 double speedPerTick,
+                double incomingDamageMultiplier,
                 int ticksRemaining,
                 float yRot,
                 float xRot
@@ -213,6 +239,7 @@ public final class LungingState {
             this.lastPosition = lastPosition;
             this.remainingDistance = remainingDistance;
             this.speedPerTick = speedPerTick;
+            this.incomingDamageMultiplier = incomingDamageMultiplier;
             this.ticksRemaining = ticksRemaining;
             this.yRot = yRot;
             this.xRot = xRot;

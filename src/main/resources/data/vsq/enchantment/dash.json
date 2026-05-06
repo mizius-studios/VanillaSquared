@@ -15,10 +15,16 @@
               "type": "minecraft:all_of",
               "effects": [
                 {
-                  "type": "minecraft:apply_impulse",
+                  "type": "minecraft:play_sound",
+                  "pitch": 1,
+                  "sound": "vsq:dash",
+                  "volume": 1
+                },
+                {
+                  "type": "vsq:begin_lunging",
                   "coordinate_scale": [
                     1,
-                    0.25,
+                    0,
                     1
                   ],
                   "direction": [
@@ -28,24 +34,20 @@
                   ],
                   "magnitude": {
                     "type": "minecraft:linear",
-                    "base": 0.4,
+                    "base": 0.34,
+                    "per_level_above_first": 0.18
+                  },
+                  "damage_taken_multiplier": {
+                    "type": "minecraft:linear",
+                    "base": 1.2,
                     "per_level_above_first": 0.15
                   },
-                  "speed": 6.0
-                },
-                {
-                  "type": "minecraft:play_sound",
-                  "pitch": 1,
-                  "sound": "vsq:dash",
-                  "volume": 1
-                },
-                {
-                  "type": "vsq:begin_lunging",
                   "range": {
                     "type": "minecraft:linear",
-                    "base": 3,
-                    "per_level_above_first": 1
-                  }
+                    "base": 2.5,
+                    "per_level_above_first": 1.35
+                  },
+                  "speed": 6.0
                 }
               ]
             },
@@ -152,30 +154,6 @@
                 "type": "minecraft:linear",
                 "base": 3,
                 "per_level_above_first": 1
-              }
-            },
-            "requirements": {
-              "condition": "minecraft:entity_properties",
-              "entity": "direct_attacker",
-              "predicate": {
-                "flags": {
-                  "is_lunging": true
-                }
-              }
-            }
-          }
-        ],
-        "minecraft:armor_effectiveness": [
-          {
-            "affected": "attacker",
-            "enchanted": "attacker",
-            "effect_id": "vsq_dash_protection",
-            "effect": {
-              "type": "minecraft:add",
-              "value": {
-                "type": "minecraft:linear",
-                "base": -0.2,
-                "per_level_above_first": -0.2
               }
             },
             "requirements": {
