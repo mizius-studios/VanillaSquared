@@ -1,0 +1,43 @@
+{
+  "version": "1.0.0",
+  "network": {
+    "baseUrl": "https://discord.com/api",
+    "apiVersion": "v10",
+    "connectionTestUrl": "https://discord.com/api/v10/gateway",
+    "testEndpoint": "/gateway",
+    "authenticatedTestEndpoint": "/users/@me",
+    "gatewayBotEndpoint": "/gateway/bot",
+    "gatewayUrl": "wss://gateway.discord.gg/?v=10&encoding=json",
+    "timeoutSeconds": 30,
+    "headers": {
+      "Accept": "application/json",
+      "User-Agent": "vanilla-squared-blobManager/1.0.0"
+    }
+  },
+  "auth": {
+    "keyFile": "blobManager/packages/config/keys/personal.txt",
+    "keyName": "DiscordBotToken",
+    "envVar": "DISCORD_BOT_TOKEN"
+  },
+  "runtime": {
+    "statePath": "blobManager/packages/data/dc/memory/state.json",
+    "stopSignalPath": "blobManager/packages/data/dc/memory/stop.signal",
+    "logPath": "blobManager/packages/data/dc/memory/runtime.log",
+    "startTimeoutSeconds": 15,
+    "stopTimeoutSeconds": 15,
+    "reconnectInitialDelaySeconds": 5,
+    "reconnectMaxDelaySeconds": 60,
+    "receivePollMilliseconds": 1000
+  },
+  "messages": {
+    "rootPath": "blobManager/packages/data/dc/msgs"
+  },
+  "servers": {
+    "vsq": "123456789012345678"
+  },
+  "bot": {
+    "intents": 33281,
+    "presenceText": "",
+    "displayName": "blobManager Discord Bot"
+  }
+}
