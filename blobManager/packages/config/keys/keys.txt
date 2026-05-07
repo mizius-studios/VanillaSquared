@@ -3,5 +3,6 @@
 ModrinthPATKey=NONE
 AnytypeAPIKey=NONE
 
+DiscordBotToken=NONE
 
 AnytypeChannelID=YOUR_CHANNEL_ID

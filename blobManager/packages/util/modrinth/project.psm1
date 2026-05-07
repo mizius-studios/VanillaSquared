@@ -42,23 +42,36 @@ function Write-ModrinthProjectSummary {
         $Project
     )
 
+    foreach ($line in (Get-ModrinthProjectSummaryLines -Project $Project)) {
+        if (-not [string]::IsNullOrWhiteSpace([string]$line)) {
+            Write-Host $line
+        }
+    }
+}
+
+function Get-ModrinthProjectSummaryLines {
+    param(
+        $Project
+    )
+
     if ($null -eq $Project) {
-        return
+        return @()
     }
 
-    Write-Host "Title: $($Project.title)"
-    Write-Host "Slug: $($Project.slug)"
-    Write-Host "ID: $($Project.id)"
-    Write-Host "Type: $($Project.project_type)"
+    $lines = New-Object System.Collections.ArrayList
+    [void]$lines.Add("Title: $($Project.title)")
+    [void]$lines.Add("Slug: $($Project.slug)")
+    [void]$lines.Add("ID: $($Project.id)")
+    [void]$lines.Add("Type: $($Project.project_type)")
 
     if (-not [string]::IsNullOrWhiteSpace([string]$Project.description)) {
-        Write-Host "Description: $($Project.description)"
+        [void]$lines.Add("Description: $($Project.description)")
     }
 
-    Write-Host "Client Side: $($Project.client_side)"
-    Write-Host "Server Side: $($Project.server_side)"
-    Write-Host "Downloads: $($Project.downloads)"
-    Write-Host "Status: $($Project.status)"
+    [void]$lines.Add("Client Side: $($Project.client_side)")
+    [void]$lines.Add("Server Side: $($Project.server_side)")
+    [void]$lines.Add("Downloads: $($Project.downloads)")
+    [void]$lines.Add("Status: $($Project.status)")
 
     $labels = @{
         source_url = "Source URL"
@@ -70,9 +83,11 @@ function Write-ModrinthProjectSummary {
     foreach ($field in @("source_url", "issues_url", "wiki_url", "discord_url")) {
         $value = [string]$Project.$field
         if (-not [string]::IsNullOrWhiteSpace($value)) {
-            Write-Host "$($labels[$field]): $value"
+            [void]$lines.Add("$($labels[$field]): $value")
         }
     }
+
+    return ,$lines.ToArray()
 }
 
 function Write-ModrinthProjectList {
@@ -111,4 +126,4 @@ function Write-ModrinthProjectList {
     }
 }
 
-Export-ModuleMember -Function Get-ModrinthProjectErrorMessage, Write-ModrinthProjectSummary, Write-ModrinthProjectList
+Export-ModuleMember -Function Get-ModrinthProjectErrorMessage, Write-ModrinthProjectSummary, Get-ModrinthProjectSummaryLines, Write-ModrinthProjectList

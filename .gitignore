@@ -84,3 +84,6 @@ src/client/resources/assets/minecraft/textures/entity/player/slim/ari.png
 
 # keys
 blobManager/packages/config/keys/keys.txt
+
+# blobManager runtime
+blobManager/packages/data/dc/memory/
