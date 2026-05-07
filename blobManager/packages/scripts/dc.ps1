@@ -31,6 +31,7 @@ $Cmd = @{
     MergeAuthorizationHeader = $networkApiModule.ExportedCommands["Merge-AuthorizationHeader"]
     JoinApiUri = $networkApiModule.ExportedCommands["Join-ApiUri"]
     ResolveKeyValue = $keyApiModule.ExportedCommands["Resolve-KeyValue"]
+    CommandGetKey = $keyApiModule.ExportedCommands["Command-GetKey"]
     CommandVersion = $versionModule.ExportedCommands["Command-Version"]
     CommandHelp = $helpModule.ExportedCommands["Command-Help"]
     CommandPing = $pingModule.ExportedCommands["Command-Ping"]
@@ -348,6 +349,15 @@ switch ($Command) {
 
         & $Cmd.WriteWarnings -State $state
         if ($restResult.Success -and $gatewayResult.Success) {
+            exit 0
+        }
+
+        exit 1
+    }
+
+    "-getAuth" {
+        $result = & $Cmd.CommandGetKey -PackageName $PackageName -KeyFilePath $authKeyFilePath -KeyName $authKeyName -EnvVarName $authEnvVar -ExpectedFormatExample "your_discord_bot_token"
+        if ($result.Success) {
             exit 0
         }
 
@@ -810,7 +820,7 @@ switch ($Command) {
 
     "-?" {
         & $Cmd.WriteWarnings -State $state
-        & $Cmd.CommandHelp -PackageName $PackageName -Commands @("dc -p", "dc -auth", "dc start", "dc status", "dc stop", "dc servers -g", "dc servers -l <alias-or-server-id>", "dc resolveServer <alias-or-server-id>", "dc checkServer <alias-or-server-id>", "dc -v", "dc -?")
+        & $Cmd.CommandHelp -PackageName $PackageName -Commands @("dc -p", "dc -auth", "dc -getAuth", "dc start", "dc status", "dc stop", "dc servers -g", "dc servers -l <alias-or-server-id>", "dc resolveServer <alias-or-server-id>", "dc checkServer <alias-or-server-id>", "dc -v", "dc -?")
         Write-Host "Auth key file: $authKeyFile"
         Write-Host "Auth key format: $authKeyName=<your_discord_bot_token>"
         Write-Host "Automation env var: $authEnvVar"
