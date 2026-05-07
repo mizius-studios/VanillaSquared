@@ -1,0 +1,70 @@
+{
+  "content": "{{request_user_mention}} requested `{{project_ref}}`.",
+  "embed": {
+    "title": "{{title}} | Downloads: {{downloads}}",
+    "url": "{{project_url}}",
+    "description": "{{description}}",
+    "color": 3447003,
+    "fields": [
+      {
+        "name": "**Project Type**",
+        "value": "{{project_type}}",
+        "inline": true
+      },
+      {
+        "name": "**Status**",
+        "value": "{{status}}",
+        "inline": true
+      },
+      {
+        "name": "**Downloads**",
+        "value": "{{downloads}}",
+        "inline": true
+      },
+      {
+        "name": "**Client Side**",
+        "value": "{{client_side}}",
+        "inline": true
+      },
+      {
+        "name": "**Server Side**",
+        "value": "{{server_side}}",
+        "inline": true
+      },
+      {
+        "name": "**Slug**",
+        "value": "{{slug}}",
+        "inline": true
+      },
+      {
+        "name": "**ID**",
+        "value": "{{id}}",
+        "inline": true
+      },
+      {
+        "name": "**Source URL**",
+        "value": "{{source_url}}",
+        "inline": false
+      },
+      {
+        "name": "**Issues URL**",
+        "value": "{{issues_url}}",
+        "inline": false
+      },
+      {
+        "name": "**Wiki URL**",
+        "value": "{{wiki_url}}",
+        "inline": false
+      },
+      {
+        "name": "**Discord URL**",
+        "value": "{{discord_url}}",
+        "inline": false
+      }
+    ],
+    "footer": {
+      "text": "Requested by {{request_user}} ({{request_user_id}})"
+    }
+  },
+  "ephemeral": true
+}

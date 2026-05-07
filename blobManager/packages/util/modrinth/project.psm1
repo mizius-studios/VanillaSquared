@@ -87,7 +87,7 @@ function Get-ModrinthProjectSummaryLines {
         }
     }
 
-    return ,$lines.ToArray()
+    return $lines.ToArray()
 }
 
 function Write-ModrinthProjectList {

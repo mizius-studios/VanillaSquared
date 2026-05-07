@@ -67,6 +67,7 @@ $Cmd = @{
     GetDiscordManagedStatus = $runtimeModule.ExportedCommands["Get-DiscordManagedStatus"]
     ClearDiscordStopSignal = $runtimeModule.ExportedCommands["Clear-DiscordStopSignal"]
     RequestDiscordStopSignal = $runtimeModule.ExportedCommands["Request-DiscordStopSignal"]
+    StopDiscordManagedProcess = $runtimeModule.ExportedCommands["Stop-DiscordManagedProcess"]
     TestDiscordGatewayConnection = $gatewayModule.ExportedCommands["Test-DiscordGatewayConnection"]
     GetDiscordGatewayBotInfo = $gatewayModule.ExportedCommands["Get-DiscordGatewayBotInfo"]
     InvokeDiscordGatewayWorker = $gatewayModule.ExportedCommands["Invoke-DiscordGatewayWorker"]
@@ -400,12 +401,24 @@ switch ($Command) {
         $status = & $Cmd.GetDiscordManagedStatus -StatePath $statePath
         if ($status.ProcessExists) {
             $currentState = if ($status.State.ContainsKey("State")) { [string]$status.State["State"] } else { "unknown" }
-            Write-Host "Discord bot is already running." -ForegroundColor Yellow
+            Write-Host "Discord bot is already running. Restarting it..." -ForegroundColor Yellow
             Write-Host "State: $currentState"
             if ($status.State.ContainsKey("Pid")) {
                 Write-Host "PID: $($status.State["Pid"])"
             }
-            exit 0
+
+            $stopResult = & $Cmd.StopDiscordManagedProcess -StatePath $statePath -StopSignalPath $stopSignalPath -StopTimeoutSeconds $stopTimeoutSeconds
+            if ($stopResult.ContainsKey("Error") -and -not [string]::IsNullOrWhiteSpace([string]$stopResult["Error"])) {
+                Write-Host $stopResult["Error"] -ForegroundColor Red
+                exit 1
+            }
+
+            if ($stopResult["WasForceStopped"]) {
+                Write-Host "Previous Discord bot process did not stop cleanly before timeout and was force-stopped." -ForegroundColor Yellow
+            }
+            else {
+                Write-Host "Previous Discord bot process stopped." -ForegroundColor Green
+            }
         }
 
         & $Cmd.ClearDiscordStopSignal -StopSignalPath $stopSignalPath
@@ -734,48 +747,22 @@ switch ($Command) {
         Test-DcConfiguration
         & $Cmd.WriteWarnings -State $state
 
-        $status = & $Cmd.GetDiscordManagedStatus -StatePath $statePath
-        if (-not $status.ProcessExists) {
-            & $Cmd.UpdateDiscordRuntimeState -StatePath $statePath -Updates @{
-                State = "stopped"
-                LastError = $null
-                StoppedAt = & $Cmd.GetUtcTimestamp
-            } | Out-Null
+        $stopResult = & $Cmd.StopDiscordManagedProcess -StatePath $statePath -StopSignalPath $stopSignalPath -StopTimeoutSeconds $stopTimeoutSeconds
+        if ($stopResult.ContainsKey("Error") -and -not [string]::IsNullOrWhiteSpace([string]$stopResult["Error"])) {
+            Write-Host $stopResult["Error"] -ForegroundColor Red
+            exit 1
+        }
+
+        if (-not $stopResult["WasRunning"]) {
             Write-Host "Discord bot is not running."
             exit 0
         }
 
-        & $Cmd.RequestDiscordStopSignal -StopSignalPath $stopSignalPath
-        $managedProcessId = [int]$status.State["Pid"]
-        $deadline = (Get-Date).ToUniversalTime().AddSeconds($stopTimeoutSeconds)
-        $stoppedGracefully = $false
-
-        do {
-            Start-Sleep -Milliseconds 500
-            if (-not (& $Cmd.TestDiscordManagedProcess -Pid $managedProcessId)) {
-                $stoppedGracefully = $true
-                break
-            }
-        }
-        while ((Get-Date).ToUniversalTime() -lt $deadline)
-
-        if (-not $stoppedGracefully) {
-            Stop-Process -Id $managedProcessId -Force -ErrorAction SilentlyContinue
-            & $Cmd.ClearDiscordStopSignal -StopSignalPath $stopSignalPath
-            & $Cmd.UpdateDiscordRuntimeState -StatePath $statePath -Updates @{
-                State = "stopped"
-                LastError = "Process was force-stopped after timeout."
-                StoppedAt = & $Cmd.GetUtcTimestamp
-            } | Out-Null
+        if ($stopResult["WasForceStopped"]) {
             Write-Host "Discord bot did not stop cleanly before timeout and was force-stopped." -ForegroundColor Yellow
             exit 0
         }
 
-        & $Cmd.UpdateDiscordRuntimeState -StatePath $statePath -Updates @{
-            State = "stopped"
-            LastError = $null
-            StoppedAt = & $Cmd.GetUtcTimestamp
-        } | Out-Null
         Write-Host "Discord bot stopped."
         exit 0
     }

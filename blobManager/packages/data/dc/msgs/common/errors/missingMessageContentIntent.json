@@ -1,0 +1,9 @@
+{
+  "content": "This bot needs the `MESSAGE_CONTENT` intent enabled to read prefix commands in guild channels.",
+  "embed": {
+    "title": "Discord Intent Required",
+    "description": "Enable the `MESSAGE_CONTENT` intent so prefix commands like `{{request_prefix}}modrinth getInfo` can be read in guild channels.",
+    "color": 15844367
+  },
+  "ephemeral": true
+}

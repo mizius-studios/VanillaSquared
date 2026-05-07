@@ -2,6 +2,7 @@ $configApiModule = Import-Module (Join-Path $PSScriptRoot "..\api\configAPI.psm1
 $fileApiModule = Import-Module (Join-Path $PSScriptRoot "..\api\fileAPI.psm1") -Force -DisableNameChecking -PassThru
 $networkApiModule = Import-Module (Join-Path $PSScriptRoot "..\api\networkAPI.psm1") -Force -DisableNameChecking -PassThru
 $projectModule = Import-Module (Join-Path $PSScriptRoot "..\modrinth\project.psm1") -Force -DisableNameChecking -PassThru
+$commonModule = Import-Module (Join-Path $PSScriptRoot "common.psm1") -Force -DisableNameChecking -PassThru
 
 $script:GetJsonConfigCommand = $configApiModule.ExportedCommands["Get-JsonConfig"]
 $script:GetConfigValueCommand = $configApiModule.ExportedCommands["Get-ConfigValue"]
@@ -11,6 +12,7 @@ $script:InvokeNetworkRequestCommand = $networkApiModule.ExportedCommands["Invoke
 $script:JoinApiUriCommand = $networkApiModule.ExportedCommands["Join-ApiUri"]
 $script:GetModrinthProjectErrorMessageCommand = $projectModule.ExportedCommands["Get-ModrinthProjectErrorMessage"]
 $script:GetModrinthProjectSummaryLinesCommand = $projectModule.ExportedCommands["Get-ModrinthProjectSummaryLines"]
+$script:ConvertToDiscordDisplayNameCommand = $commonModule.ExportedCommands["ConvertTo-DiscordDisplayName"]
 
 function Get-DiscordEffectivePrefixes {
     return @{
@@ -28,41 +30,145 @@ function Test-DiscordMessageContentIntentEnabled {
     return (($Intents -band 32768L) -eq 32768L)
 }
 
-function Get-DiscordMessageTemplates {
+function Get-DiscordMessageConfigPath {
     param(
-        [string]$MessagesRootPath
+        [string]$MessagesRootPath,
+        [string]$RelativePath
     )
 
     $resolvedRootPath = & $script:ResolveLocalPathCommand -PathValue $MessagesRootPath
-    $commonPath = Join-Path $resolvedRootPath "common.json"
-    $modrinthProjectPath = Join-Path $resolvedRootPath "modrinth.project.json"
-
-    $commonFallback = @{
-        usage = @{
-            modrinthGetInfo = 'Usage: {{prefix}}modrinth getInfo <slug-or-id>'
-        }
-        errors = @{
-            missingMessageContentIntent = 'This bot needs the MESSAGE_CONTENT intent enabled to read prefix commands in guild channels.'
-            generic = 'Something went wrong.'
-        }
+    if ([string]::IsNullOrWhiteSpace([string]$resolvedRootPath) -or [string]::IsNullOrWhiteSpace([string]$RelativePath)) {
+        return $null
     }
 
-    $modrinthFallback = @{
-        success = @{
-            template = '{{summary}}'
-        }
-        errors = @{
-            usage = 'Usage: {{prefix}}modrinth getInfo <slug-or-id>'
-            notFound = 'Modrinth project not found: `{{project_ref}}`'
-            apiFailure = '{{error_message}}'
-        }
+    return Join-Path $resolvedRootPath $RelativePath
+}
+
+function Get-DiscordMessageConfig {
+    param(
+        [string]$MessagesRootPath,
+        [string]$RelativePath,
+        [hashtable]$Fallback = @{}
+    )
+
+    $configPath = Get-DiscordMessageConfigPath -MessagesRootPath $MessagesRootPath -RelativePath $RelativePath
+    return & $script:ReadJsonFileCommand -Path $configPath -Fallback $Fallback
+}
+
+function ConvertTo-DiscordTemplateValue {
+    param(
+        $Value
+    )
+
+    if ($null -eq $Value) {
+        return ""
     }
 
-    return @{
-        RootPath = $resolvedRootPath
-        Common = & $script:ReadJsonFileCommand -Path $commonPath -Fallback $commonFallback
-        ModrinthProject = & $script:ReadJsonFileCommand -Path $modrinthProjectPath -Fallback $modrinthFallback
+    if ($Value -is [bool]) {
+        return ([string]$Value).ToLowerInvariant()
     }
+
+    if ($Value -is [datetime]) {
+        return $Value.ToString("o")
+    }
+
+    if ($Value -is [string]) {
+        return $Value
+    }
+
+    if ($Value -is [System.Collections.IDictionary]) {
+        return ($Value | ConvertTo-Json -Depth 20 -Compress)
+    }
+
+    if ($Value -is [System.Collections.IEnumerable] -and $Value -isnot [string]) {
+        $items = @($Value)
+        if ($items.Count -eq 0) {
+            return ""
+        }
+
+        $containsComplexItem = $false
+        foreach ($item in $items) {
+            if ($null -eq $item) {
+                continue
+            }
+
+            if ($item -is [System.Collections.IDictionary]) {
+                $containsComplexItem = $true
+                break
+            }
+
+            if ($item -is [System.Collections.IEnumerable] -and $item -isnot [string]) {
+                $containsComplexItem = $true
+                break
+            }
+
+            if ($item -is [psobject] -and $item.PSObject.Properties.Count -gt 0 -and $item -isnot [string]) {
+                $containsComplexItem = $true
+                break
+            }
+        }
+
+        if ($containsComplexItem) {
+            return ($Value | ConvertTo-Json -Depth 20 -Compress)
+        }
+
+        $renderedItems = @()
+        foreach ($item in $items) {
+            $renderedItems += (ConvertTo-DiscordTemplateValue -Value $item)
+        }
+        return ($renderedItems -join ", ")
+    }
+
+    if ($Value -is [psobject] -and $Value.PSObject.Properties.Count -gt 0) {
+        return ($Value | ConvertTo-Json -Depth 20 -Compress)
+    }
+
+    return [string]$Value
+}
+
+function Add-DiscordTemplateValuesFromObject {
+    param(
+        $Object,
+        [hashtable]$Values,
+        [string]$Prefix = "",
+        [bool]$IncludeUnprefixed = $false
+    )
+
+    if ($null -eq $Object -or $null -eq $Values) {
+        return
+    }
+
+    foreach ($property in $Object.PSObject.Properties) {
+        $propertyName = [string]$property.Name
+        $renderedValue = ConvertTo-DiscordTemplateValue -Value $property.Value
+
+        if ($IncludeUnprefixed -and -not $Values.ContainsKey($propertyName)) {
+            $Values[$propertyName] = $renderedValue
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace([string]$Prefix)) {
+            $Values["$Prefix$propertyName"] = $renderedValue
+        }
+    }
+}
+
+function Merge-DiscordTemplateValues {
+    param(
+        [hashtable]$BaseValues = @{},
+        [hashtable]$AdditionalValues = @{}
+    )
+
+    $merged = @{}
+
+    foreach ($entry in $BaseValues.GetEnumerator()) {
+        $merged[[string]$entry.Key] = $entry.Value
+    }
+
+    foreach ($entry in $AdditionalValues.GetEnumerator()) {
+        $merged[[string]$entry.Key] = $entry.Value
+    }
+
+    return $merged
 }
 
 function Format-DiscordTemplate {
@@ -71,17 +177,201 @@ function Format-DiscordTemplate {
         [hashtable]$Values = @{}
     )
 
-    if ([string]::IsNullOrWhiteSpace([string]$Template)) {
-        return $Template
+    if ($null -eq $Template) {
+        return $null
     }
 
-    $formatted = [string]$Template
-    foreach ($entry in $Values.GetEnumerator()) {
-        $replacement = if ($null -eq $entry.Value) { "" } else { [string]$entry.Value }
-        $formatted = $formatted.Replace(('{{{0}}}' -f [string]$entry.Key), $replacement)
+    return ([regex]::Replace([string]$Template, '{{\s*([a-zA-Z0-9_.-]+)\s*}}', {
+        param($match)
+
+        $key = [string]$match.Groups[1].Value
+        if ($Values.ContainsKey($key)) {
+            return [string]$Values[$key]
+        }
+
+        return ""
+    }))
+}
+
+function Resolve-DiscordTemplateObject {
+    param(
+        $InputObject,
+        [hashtable]$Values = @{}
+    )
+
+    if ($null -eq $InputObject) {
+        return $null
     }
 
-    return $formatted
+    if ($InputObject -is [string]) {
+        return (Format-DiscordTemplate -Template $InputObject -Values $Values)
+    }
+
+    if ($InputObject -is [System.Collections.IDictionary]) {
+        $resolved = @{}
+        foreach ($entry in $InputObject.GetEnumerator()) {
+            $resolved[[string]$entry.Key] = Resolve-DiscordTemplateObject -InputObject $entry.Value -Values $Values
+        }
+        return $resolved
+    }
+
+    if ($InputObject -is [System.Collections.IEnumerable] -and $InputObject -isnot [string]) {
+        $items = New-Object System.Collections.ArrayList
+        foreach ($item in $InputObject) {
+            [void]$items.Add((Resolve-DiscordTemplateObject -InputObject $item -Values $Values))
+        }
+        return $items.ToArray()
+    }
+
+    if ($InputObject -is [psobject] -and $InputObject.PSObject.Properties.Count -gt 0) {
+        $resolved = @{}
+        foreach ($property in $InputObject.PSObject.Properties) {
+            $resolved[[string]$property.Name] = Resolve-DiscordTemplateObject -InputObject $property.Value -Values $Values
+        }
+        return $resolved
+    }
+
+    return $InputObject
+}
+
+function Get-DiscordGenericFallbackMessageConfig {
+    return @{
+        content = "Something went wrong."
+        embed = @{
+            title = "Error"
+            description = "The configured Discord response could not be rendered."
+            color = 15158332
+        }
+    }
+}
+
+function ConvertTo-DiscordMessagePayload {
+    param(
+        [hashtable]$MessageConfig
+    )
+
+    if ($null -eq $MessageConfig) {
+        return $null
+    }
+
+    $body = @{
+        allowed_mentions = @{
+            parse = @()
+        }
+    }
+
+    $content = if ($MessageConfig.ContainsKey("content")) { [string]$MessageConfig.content } else { $null }
+    if (-not [string]::IsNullOrWhiteSpace([string]$content)) {
+        if ($content.Length -gt 2000) {
+            $content = $content.Substring(0, 1997) + "..."
+        }
+        $body["content"] = $content
+    }
+
+    if ($MessageConfig.ContainsKey("embed") -and $null -ne $MessageConfig.embed) {
+        $embed = $MessageConfig.embed
+        if ($embed -is [System.Collections.IDictionary] -and $embed.Count -gt 0) {
+            $body["embeds"] = @($embed)
+        }
+    }
+
+    if (-not $body.ContainsKey("content") -and -not $body.ContainsKey("embeds")) {
+        return $null
+    }
+
+    return $body
+}
+
+function Get-DiscordRenderedMessageConfig {
+    param(
+        [string]$MessagesRootPath,
+        [string]$RelativePath,
+        [hashtable]$Fallback,
+        [hashtable]$TemplateValues = @{}
+    )
+
+    $config = Get-DiscordMessageConfig -MessagesRootPath $MessagesRootPath -RelativePath $RelativePath -Fallback $Fallback
+    $rendered = Resolve-DiscordTemplateObject -InputObject $config -Values $TemplateValues
+    if ($rendered -isnot [hashtable]) {
+        return $Fallback
+    }
+
+    return $rendered
+}
+
+function Send-DiscordChannelMessage {
+    param(
+        [string]$BaseUrl,
+        [string]$ApiVersion,
+        [string]$ChannelId,
+        [hashtable]$MessageConfig,
+        [hashtable]$Headers = @{},
+        [string]$ReplyToMessageId = $null,
+        [int]$TimeoutSeconds = 30
+    )
+
+    $requestUri = & $script:JoinApiUriCommand -BaseUrl $BaseUrl -ApiVersion $ApiVersion -Endpoint "/channels/$ChannelId/messages"
+    $body = ConvertTo-DiscordMessagePayload -MessageConfig $MessageConfig
+    if ($null -eq $body) {
+        $body = ConvertTo-DiscordMessagePayload -MessageConfig (Get-DiscordGenericFallbackMessageConfig)
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace([string]$ReplyToMessageId)) {
+        $body["message_reference"] = @{
+            message_id = $ReplyToMessageId
+        }
+    }
+
+    $result = & $script:InvokeNetworkRequestCommand -Uri $requestUri -Method "POST" -Headers $Headers -Body $body -TimeoutSeconds $TimeoutSeconds
+    return @{
+        RequestUri = $requestUri
+        Result = $result
+        Success = $result.Success
+    }
+}
+
+function Send-DiscordInteractionResponse {
+    param(
+        [string]$BaseUrl,
+        [string]$InteractionId,
+        [string]$InteractionToken,
+        [hashtable]$MessageConfig,
+        [hashtable]$Headers = @{},
+        [int]$TimeoutSeconds = 30,
+        [bool]$Ephemeral = $false
+    )
+
+    $requestUri = "$BaseUrl/interactions/$InteractionId/$InteractionToken/callback"
+    $body = ConvertTo-DiscordMessagePayload -MessageConfig $MessageConfig
+    if ($null -eq $body) {
+        $body = ConvertTo-DiscordMessagePayload -MessageConfig (Get-DiscordGenericFallbackMessageConfig)
+    }
+
+    $flags = if ($Ephemeral) { 64 } else { 0 }
+    $body["flags"] = $flags
+
+    $result = & $script:InvokeNetworkRequestCommand -Uri $requestUri -Method "POST" -Headers $Headers -Body @{
+        type = 4
+        data = $body
+    } -TimeoutSeconds $TimeoutSeconds
+
+    return @{
+        RequestUri = $requestUri
+        Result = $result
+        Success = $result.Success
+    }
+}
+
+function Get-DiscordCommandTokenList {
+    param(
+        [string]$Input
+    )
+
+    if ([string]::IsNullOrWhiteSpace([string]$Input)) {
+        return @()
+    }
+
+    return @([regex]::Split($Input.Trim(), '\s+') | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
 }
 
 function Get-DiscordPrefixCommand {
@@ -111,91 +401,61 @@ function Get-DiscordPrefixCommand {
     return $null
 }
 
-function Send-DiscordChannelMessage {
+function Get-DiscordUserFromInteraction {
     param(
-        [string]$BaseUrl,
-        [string]$ApiVersion,
-        [string]$ChannelId,
-        [string]$Content,
-        [hashtable]$Headers = @{},
-        [string]$ReplyToMessageId = $null,
-        [int]$TimeoutSeconds = 30
+        $Interaction
     )
 
-    $requestUri = & $script:JoinApiUriCommand -BaseUrl $BaseUrl -ApiVersion $ApiVersion -Endpoint "/channels/$ChannelId/messages"
-    $trimmedContent = [string]$Content
-    if ($trimmedContent.Length -gt 2000) {
-        $trimmedContent = $trimmedContent.Substring(0, 1997) + "..."
+    if ($null -eq $Interaction) {
+        return $null
     }
 
-    $body = @{
-        content = $trimmedContent
-        allowed_mentions = @{
-            parse = @()
+    if ($Interaction.PSObject.Properties.Name -contains "member" -and $null -ne $Interaction.member) {
+        if ($Interaction.member.PSObject.Properties.Name -contains "user" -and $null -ne $Interaction.member.user) {
+            return $Interaction.member.user
         }
     }
 
-    if (-not [string]::IsNullOrWhiteSpace([string]$ReplyToMessageId)) {
-        $body["message_reference"] = @{
-            message_id = $ReplyToMessageId
-        }
+    if ($Interaction.PSObject.Properties.Name -contains "user" -and $null -ne $Interaction.user) {
+        return $Interaction.user
     }
 
-    $result = & $script:InvokeNetworkRequestCommand -Uri $requestUri -Method "POST" -Headers $Headers -Body $body -TimeoutSeconds $TimeoutSeconds
-    return @{
-        RequestUri = $requestUri
-        Result = $result
-        Success = $result.Success
-    }
+    return $null
 }
 
-function Send-DiscordInteractionResponse {
+function Get-DiscordBaseTemplateValues {
     param(
-        [string]$BaseUrl,
-        [string]$InteractionId,
-        [string]$InteractionToken,
-        [string]$Content,
-        [hashtable]$Headers = @{},
-        [int]$TimeoutSeconds = 30,
-        [bool]$Ephemeral = $false
+        [string]$CommandName,
+        [string]$SubcommandName = $null,
+        [string]$Prefix = $null,
+        [bool]$IsSlashCommand = $false,
+        [string]$ChannelId = $null,
+        [string]$GuildId = $null,
+        [string]$MessageId = $null,
+        [string]$InteractionId = $null,
+        $User = $null
     )
 
-    $requestUri = "$BaseUrl/interactions/$InteractionId/$InteractionToken/callback"
-    $trimmedContent = [string]$Content
-    if ($trimmedContent.Length -gt 2000) {
-        $trimmedContent = $trimmedContent.Substring(0, 1997) + "..."
+    $displayName = & $script:ConvertToDiscordDisplayNameCommand -User $User
+    $userId = if ($null -ne $User -and $User.PSObject.Properties.Name -contains "id") { [string]$User.id } else { $null }
+
+    $values = @{
+        request_command = if ([string]::IsNullOrWhiteSpace([string]$CommandName)) { "" } else { [string]$CommandName }
+        request_subcommand = if ([string]::IsNullOrWhiteSpace([string]$SubcommandName)) { "" } else { [string]$SubcommandName }
+        request_prefix = if ([string]::IsNullOrWhiteSpace([string]$Prefix)) { "" } else { [string]$Prefix }
+        request_is_slash_command = ([string]$IsSlashCommand).ToLowerInvariant()
+        request_channel_id = if ([string]::IsNullOrWhiteSpace([string]$ChannelId)) { "" } else { [string]$ChannelId }
+        request_guild_id = if ([string]::IsNullOrWhiteSpace([string]$GuildId)) { "" } else { [string]$GuildId }
+        request_message_id = if ([string]::IsNullOrWhiteSpace([string]$MessageId)) { "" } else { [string]$MessageId }
+        request_interaction_id = if ([string]::IsNullOrWhiteSpace([string]$InteractionId)) { "" } else { [string]$InteractionId }
+        request_user = if ([string]::IsNullOrWhiteSpace([string]$displayName)) { "" } else { [string]$displayName }
+        request_user_id = if ([string]::IsNullOrWhiteSpace([string]$userId)) { "" } else { [string]$userId }
+        request_user_mention = if ([string]::IsNullOrWhiteSpace([string]$userId)) { "" } else { "<@$userId>" }
+        request_command_path = if ([string]::IsNullOrWhiteSpace([string]$SubcommandName)) { [string]$CommandName } else { "$CommandName $SubcommandName" }
     }
 
-    $flags = if ($Ephemeral) { 64 } else { 0 }
-    $body = @{
-        type = 4
-        data = @{
-            content = $trimmedContent
-            flags = $flags
-            allowed_mentions = @{
-                parse = @()
-            }
-        }
-    }
-
-    $result = & $script:InvokeNetworkRequestCommand -Uri $requestUri -Method "POST" -Headers $Headers -Body $body -TimeoutSeconds $TimeoutSeconds
-    return @{
-        RequestUri = $requestUri
-        Result = $result
-        Success = $result.Success
-    }
-}
-
-function Get-DiscordCommandTokenList {
-    param(
-        [string]$Input
-    )
-
-    if ([string]::IsNullOrWhiteSpace([string]$Input)) {
-        return @()
-    }
-
-    return @([regex]::Split($Input.Trim(), '\s+') | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    Add-DiscordTemplateValuesFromObject -Object $User -Values $values -Prefix "request_user_" -IncludeUnprefixed:$false
+    return $values
 }
 
 function Get-ModrinthProjectForDiscord {
@@ -222,22 +482,45 @@ function Get-ModrinthProjectForDiscord {
     }
 }
 
-function ConvertTo-ModrinthProjectDiscordMessage {
+function Get-ModrinthProjectDiscordTemplateValues {
     param(
         $Project,
-        [hashtable]$Templates
+        [string]$ProjectRef = $null,
+        [string]$ErrorMessage = $null,
+        [hashtable]$BaseValues = @{}
     )
 
+    $values = Merge-DiscordTemplateValues -BaseValues $BaseValues
     $summaryLines = @(& $script:GetModrinthProjectSummaryLinesCommand -Project $Project)
     $summaryText = [string]::Join("`n", $summaryLines)
-    return Format-DiscordTemplate -Template ([string]$Templates.success.template) -Values @{
-        summary = $summaryText
-        title = [string]$Project.title
-        slug = [string]$Project.slug
-        id = [string]$Project.id
-        project_type = [string]$Project.project_type
-        description = [string]$Project.description
+
+    $values["summary"] = $summaryText
+    $values["summary_lines"] = $summaryText
+    $values["project_ref"] = if ([string]::IsNullOrWhiteSpace([string]$ProjectRef)) { "" } else { [string]$ProjectRef }
+    $values["error_message"] = if ([string]::IsNullOrWhiteSpace([string]$ErrorMessage)) { "" } else { [string]$ErrorMessage }
+
+    if ($null -ne $Project) {
+        Add-DiscordTemplateValuesFromObject -Object $Project -Values $values -Prefix "project_" -IncludeUnprefixed:$true
+
+        $projectType = if ($Project.PSObject.Properties.Name -contains "project_type") { [string]$Project.project_type } else { "" }
+        $slug = if ($Project.PSObject.Properties.Name -contains "slug") { [string]$Project.slug } else { "" }
+        $projectId = if ($Project.PSObject.Properties.Name -contains "id") { [string]$Project.id } else { "" }
+
+        if (-not [string]::IsNullOrWhiteSpace($projectType) -and -not [string]::IsNullOrWhiteSpace($slug)) {
+            $values["project_url"] = "https://modrinth.com/$projectType/$slug"
+        }
+        elseif (-not [string]::IsNullOrWhiteSpace($projectId)) {
+            $values["project_url"] = "https://modrinth.com/project/$projectId"
+        }
+        else {
+            $values["project_url"] = ""
+        }
     }
+    else {
+        $values["project_url"] = ""
+    }
+
+    return $values
 }
 
 function Get-DiscordSlashCommandDefinitions {
@@ -432,6 +715,25 @@ function Sync-DiscordGuildCommands {
     }
 }
 
+function Get-DiscordInteractionOptionValue {
+    param(
+        $Options,
+        [string]$Name
+    )
+
+    if ($null -eq $Options) {
+        return $null
+    }
+
+    foreach ($option in @($Options)) {
+        if ($null -ne $option -and [string]$option.name -eq $Name) {
+            return $option.value
+        }
+    }
+
+    return $null
+}
+
 function Invoke-DiscordPrefixCommand {
     param(
         $Message,
@@ -477,14 +779,16 @@ function Invoke-DiscordPrefixCommand {
         }
     }
 
-    $templates = Get-DiscordMessageTemplates -MessagesRootPath $MessagesRootPath
     $primaryCommand = [string]$tokens[0]
     $subCommand = if ($tokens.Count -gt 1) { [string]$tokens[1] } else { $null }
     $channelId = [string]$Message.channel_id
     $messageId = [string]$Message.id
+    $guildId = if ($Message.PSObject.Properties.Name -contains "guild_id") { [string]$Message.guild_id } else { $null }
 
     switch -Regex ($primaryCommand) {
         '^(modrinth|mr)$' {
+            $baseValues = Get-DiscordBaseTemplateValues -CommandName "modrinth" -SubcommandName "getInfo" -Prefix $prefixMatch.Prefix -IsSlashCommand:$false -ChannelId $channelId -GuildId $guildId -MessageId $messageId -User $Message.author
+
             if ($subCommand -notin @("getInfo", "info")) {
                 return @{
                     Handled = $false
@@ -493,11 +797,16 @@ function Invoke-DiscordPrefixCommand {
             }
 
             if ($tokens.Count -lt 3) {
-                $usageMessage = Format-DiscordTemplate -Template ([string]$templates.ModrinthProject.errors.usage) -Values @{
-                    prefix = $prefixMatch.Prefix
-                }
+                $usageMessage = Get-DiscordRenderedMessageConfig -MessagesRootPath $MessagesRootPath -RelativePath "modrinth\project\errors\usage.json" -Fallback @{
+                    content = "Usage: {{request_prefix}}modrinth getInfo <slug-or-id>"
+                    embed = @{
+                        title = "Modrinth Project Lookup"
+                        description = 'Usage: `{{request_prefix}}modrinth getInfo <slug-or-id>`'
+                        color = 15844367
+                    }
+                } -TemplateValues $baseValues
 
-                $sendResult = Send-DiscordChannelMessage -BaseUrl $DiscordBaseUrl -ApiVersion $DiscordApiVersion -ChannelId $channelId -Content $usageMessage -Headers $DiscordHeaders -ReplyToMessageId $messageId -TimeoutSeconds $TimeoutSeconds
+                $sendResult = Send-DiscordChannelMessage -BaseUrl $DiscordBaseUrl -ApiVersion $DiscordApiVersion -ChannelId $channelId -MessageConfig $usageMessage -Headers $DiscordHeaders -ReplyToMessageId $messageId -TimeoutSeconds $TimeoutSeconds
                 return @{
                     Handled = $true
                     Success = $sendResult.Success
@@ -508,9 +817,20 @@ function Invoke-DiscordPrefixCommand {
 
             $projectRef = [string]$tokens[2]
             $projectLookup = Get-ModrinthProjectForDiscord -ProjectRef $projectRef -ModrinthConfigPath $ModrinthConfigPath
+            $templateValues = Get-ModrinthProjectDiscordTemplateValues -Project $projectLookup.Project -ProjectRef $projectRef -ErrorMessage $projectLookup.ErrorMessage -BaseValues $baseValues
+
             if ($projectLookup.Result.Success -and $null -ne $projectLookup.Project) {
-                $successMessage = ConvertTo-ModrinthProjectDiscordMessage -Project $projectLookup.Project -Templates $templates.ModrinthProject
-                $sendResult = Send-DiscordChannelMessage -BaseUrl $DiscordBaseUrl -ApiVersion $DiscordApiVersion -ChannelId $channelId -Content $successMessage -Headers $DiscordHeaders -ReplyToMessageId $messageId -TimeoutSeconds $TimeoutSeconds
+                $successMessage = Get-DiscordRenderedMessageConfig -MessagesRootPath $MessagesRootPath -RelativePath "modrinth\project\success.json" -Fallback @{
+                    content = "{{summary}}"
+                    embed = @{
+                        title = "{{title}}"
+                        url = "{{project_url}}"
+                        description = "{{description}}"
+                        color = 3447003
+                    }
+                } -TemplateValues $templateValues
+
+                $sendResult = Send-DiscordChannelMessage -BaseUrl $DiscordBaseUrl -ApiVersion $DiscordApiVersion -ChannelId $channelId -MessageConfig $successMessage -Headers $DiscordHeaders -ReplyToMessageId $messageId -TimeoutSeconds $TimeoutSeconds
                 return @{
                     Handled = $true
                     Success = $sendResult.Success
@@ -520,19 +840,30 @@ function Invoke-DiscordPrefixCommand {
                 }
             }
 
-            $errorTemplate = if ($projectLookup.Result.StatusCode -eq 404) {
-                [string]$templates.ModrinthProject.errors.notFound
+            $errorPath = if ($projectLookup.Result.StatusCode -eq 404) { "modrinth\project\errors\notFound.json" } else { "modrinth\project\errors\apiFailure.json" }
+            $errorFallback = if ($projectLookup.Result.StatusCode -eq 404) {
+                @{
+                    content = 'Modrinth project not found: `{{project_ref}}`'
+                    embed = @{
+                        title = "Project Not Found"
+                        description = 'No Modrinth project matched `{{project_ref}}`.'
+                        color = 15158332
+                    }
+                }
             }
             else {
-                [string]$templates.ModrinthProject.errors.apiFailure
+                @{
+                    content = "{{error_message}}"
+                    embed = @{
+                        title = "Modrinth Request Failed"
+                        description = "{{error_message}}"
+                        color = 15158332
+                    }
+                }
             }
 
-            $errorMessage = Format-DiscordTemplate -Template $errorTemplate -Values @{
-                project_ref = $projectRef
-                error_message = $projectLookup.ErrorMessage
-            }
-
-            $sendResult = Send-DiscordChannelMessage -BaseUrl $DiscordBaseUrl -ApiVersion $DiscordApiVersion -ChannelId $channelId -Content $errorMessage -Headers $DiscordHeaders -ReplyToMessageId $messageId -TimeoutSeconds $TimeoutSeconds
+            $errorMessage = Get-DiscordRenderedMessageConfig -MessagesRootPath $MessagesRootPath -RelativePath $errorPath -Fallback $errorFallback -TemplateValues $templateValues
+            $sendResult = Send-DiscordChannelMessage -BaseUrl $DiscordBaseUrl -ApiVersion $DiscordApiVersion -ChannelId $channelId -MessageConfig $errorMessage -Headers $DiscordHeaders -ReplyToMessageId $messageId -TimeoutSeconds $TimeoutSeconds
             return @{
                 Handled = $true
                 Success = $sendResult.Success
@@ -547,25 +878,6 @@ function Invoke-DiscordPrefixCommand {
         Handled = $false
         Reason = "No supported Discord prefix command matched."
     }
-}
-
-function Get-DiscordInteractionOptionValue {
-    param(
-        $Options,
-        [string]$Name
-    )
-
-    if ($null -eq $Options) {
-        return $null
-    }
-
-    foreach ($option in @($Options)) {
-        if ($null -ne $option -and [string]$option.name -eq $Name) {
-            return $option.value
-        }
-    }
-
-    return $null
 }
 
 function Invoke-DiscordInteractionCommand {
@@ -601,7 +913,6 @@ function Invoke-DiscordInteractionCommand {
     }
 
     $commandName = [string]$data.name
-    $templates = Get-DiscordMessageTemplates -MessagesRootPath $MessagesRootPath
 
     switch ($commandName) {
         "modrinth" {
@@ -620,9 +931,23 @@ function Invoke-DiscordInteractionCommand {
                 }
             }
 
+            $user = Get-DiscordUserFromInteraction -Interaction $Interaction
+            $channelId = if ($Interaction.PSObject.Properties.Name -contains "channel_id") { [string]$Interaction.channel_id } else { $null }
+            $guildId = if ($Interaction.PSObject.Properties.Name -contains "guild_id") { [string]$Interaction.guild_id } else { $null }
+            $baseValues = Get-DiscordBaseTemplateValues -CommandName "modrinth" -SubcommandName "getInfo" -IsSlashCommand:$true -ChannelId $channelId -GuildId $guildId -InteractionId ([string]$Interaction.id) -User $user
+
             if ($subcommand -ne "getinfo" -or [string]::IsNullOrWhiteSpace($projectRef)) {
-                $usageMessage = [string]$templates.ModrinthProject.errors.usage
-                $sendResult = Send-DiscordInteractionResponse -BaseUrl $DiscordBaseUrl -InteractionId ([string]$Interaction.id) -InteractionToken ([string]$Interaction.token) -Content $usageMessage -Headers $DiscordHeaders -TimeoutSeconds $TimeoutSeconds -Ephemeral $true
+                $usageMessage = Get-DiscordRenderedMessageConfig -MessagesRootPath $MessagesRootPath -RelativePath "modrinth\project\errors\usage.json" -Fallback @{
+                    content = "Usage: /modrinth getinfo project:<slug-or-id>"
+                    embed = @{
+                        title = "Modrinth Project Lookup"
+                        description = "Provide a Modrinth project slug or id."
+                        color = 15844367
+                    }
+                    ephemeral = $true
+                } -TemplateValues $baseValues
+
+                $sendResult = Send-DiscordInteractionResponse -BaseUrl $DiscordBaseUrl -InteractionId ([string]$Interaction.id) -InteractionToken ([string]$Interaction.token) -MessageConfig $usageMessage -Headers $DiscordHeaders -TimeoutSeconds $TimeoutSeconds -Ephemeral ([bool]($usageMessage.ephemeral))
                 return @{
                     Handled = $true
                     Success = $sendResult.Success
@@ -632,9 +957,20 @@ function Invoke-DiscordInteractionCommand {
             }
 
             $projectLookup = Get-ModrinthProjectForDiscord -ProjectRef $projectRef -ModrinthConfigPath $ModrinthConfigPath
+            $templateValues = Get-ModrinthProjectDiscordTemplateValues -Project $projectLookup.Project -ProjectRef $projectRef -ErrorMessage $projectLookup.ErrorMessage -BaseValues $baseValues
+
             if ($projectLookup.Result.Success -and $null -ne $projectLookup.Project) {
-                $successMessage = ConvertTo-ModrinthProjectDiscordMessage -Project $projectLookup.Project -Templates $templates.ModrinthProject
-                $sendResult = Send-DiscordInteractionResponse -BaseUrl $DiscordBaseUrl -InteractionId ([string]$Interaction.id) -InteractionToken ([string]$Interaction.token) -Content $successMessage -Headers $DiscordHeaders -TimeoutSeconds $TimeoutSeconds
+                $successMessage = Get-DiscordRenderedMessageConfig -MessagesRootPath $MessagesRootPath -RelativePath "modrinth\project\success.json" -Fallback @{
+                    content = "{{summary}}"
+                    embed = @{
+                        title = "{{title}}"
+                        url = "{{project_url}}"
+                        description = "{{description}}"
+                        color = 3447003
+                    }
+                } -TemplateValues $templateValues
+
+                $sendResult = Send-DiscordInteractionResponse -BaseUrl $DiscordBaseUrl -InteractionId ([string]$Interaction.id) -InteractionToken ([string]$Interaction.token) -MessageConfig $successMessage -Headers $DiscordHeaders -TimeoutSeconds $TimeoutSeconds -Ephemeral ([bool]($successMessage.ephemeral))
                 return @{
                     Handled = $true
                     Success = $sendResult.Success
@@ -644,19 +980,32 @@ function Invoke-DiscordInteractionCommand {
                 }
             }
 
-            $errorTemplate = if ($projectLookup.Result.StatusCode -eq 404) {
-                [string]$templates.ModrinthProject.errors.notFound
+            $errorPath = if ($projectLookup.Result.StatusCode -eq 404) { "modrinth\project\errors\notFound.json" } else { "modrinth\project\errors\apiFailure.json" }
+            $errorFallback = if ($projectLookup.Result.StatusCode -eq 404) {
+                @{
+                    content = 'Modrinth project not found: `{{project_ref}}`'
+                    embed = @{
+                        title = "Project Not Found"
+                        description = 'No Modrinth project matched `{{project_ref}}`.'
+                        color = 15158332
+                    }
+                    ephemeral = $true
+                }
             }
             else {
-                [string]$templates.ModrinthProject.errors.apiFailure
+                @{
+                    content = "{{error_message}}"
+                    embed = @{
+                        title = "Modrinth Request Failed"
+                        description = "{{error_message}}"
+                        color = 15158332
+                    }
+                    ephemeral = $true
+                }
             }
 
-            $errorMessage = Format-DiscordTemplate -Template $errorTemplate -Values @{
-                project_ref = $projectRef
-                error_message = $projectLookup.ErrorMessage
-            }
-
-            $sendResult = Send-DiscordInteractionResponse -BaseUrl $DiscordBaseUrl -InteractionId ([string]$Interaction.id) -InteractionToken ([string]$Interaction.token) -Content $errorMessage -Headers $DiscordHeaders -TimeoutSeconds $TimeoutSeconds -Ephemeral $true
+            $errorMessage = Get-DiscordRenderedMessageConfig -MessagesRootPath $MessagesRootPath -RelativePath $errorPath -Fallback $errorFallback -TemplateValues $templateValues
+            $sendResult = Send-DiscordInteractionResponse -BaseUrl $DiscordBaseUrl -InteractionId ([string]$Interaction.id) -InteractionToken ([string]$Interaction.token) -MessageConfig $errorMessage -Headers $DiscordHeaders -TimeoutSeconds $TimeoutSeconds -Ephemeral ([bool]($errorMessage.ephemeral))
             return @{
                 Handled = $true
                 Success = $sendResult.Success
@@ -673,4 +1022,4 @@ function Invoke-DiscordInteractionCommand {
     }
 }
 
-Export-ModuleMember -Function Get-DiscordEffectivePrefixes, Test-DiscordMessageContentIntentEnabled, Get-DiscordMessageTemplates, Format-DiscordTemplate, Get-DiscordPrefixCommand, Send-DiscordChannelMessage, Send-DiscordInteractionResponse, Get-ModrinthProjectForDiscord, ConvertTo-ModrinthProjectDiscordMessage, Get-DiscordSlashCommandDefinitions, Sync-DiscordGuildCommands, Invoke-DiscordPrefixCommand, Invoke-DiscordInteractionCommand
+Export-ModuleMember -Function Get-DiscordEffectivePrefixes, Test-DiscordMessageContentIntentEnabled, Get-DiscordMessageConfig, Format-DiscordTemplate, Resolve-DiscordTemplateObject, Get-DiscordPrefixCommand, Send-DiscordChannelMessage, Send-DiscordInteractionResponse, Get-DiscordBaseTemplateValues, Get-ModrinthProjectForDiscord, Get-ModrinthProjectDiscordTemplateValues, Get-DiscordSlashCommandDefinitions, Sync-DiscordGuildCommands, Invoke-DiscordPrefixCommand, Invoke-DiscordInteractionCommand

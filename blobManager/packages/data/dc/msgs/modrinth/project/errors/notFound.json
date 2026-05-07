@@ -1,0 +1,21 @@
+{
+  "content": "Modrinth project not found: `{{project_ref}}`",
+  "embed": {
+    "title": "Project Not Found",
+    "description": "No Modrinth project matched `{{project_ref}}`.",
+    "color": 15158332,
+    "fields": [
+      {
+        "name": "Requested By",
+        "value": "{{request_user}}",
+        "inline": true
+      },
+      {
+        "name": "Lookup Value",
+        "value": "{{project_ref}}",
+        "inline": true
+      }
+    ]
+  },
+  "ephemeral": true
+}

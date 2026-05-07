@@ -154,4 +154,76 @@ function Request-DiscordStopSignal {
     [System.IO.File]::WriteAllText($StopSignalPath, (& $script:GetUtcTimestampCommand), [System.Text.Encoding]::UTF8)
 }
 
-Export-ModuleMember -Function Get-DiscordRuntimeState, Set-DiscordRuntimeState, Update-DiscordRuntimeState, Initialize-DiscordRuntimeFiles, Write-DiscordRuntimeLog, Test-DiscordManagedProcess, Get-DiscordManagedStatus, Clear-DiscordStopSignal, Request-DiscordStopSignal
+function Stop-DiscordManagedProcess {
+    param(
+        [string]$StatePath,
+        [string]$StopSignalPath,
+        [int]$StopTimeoutSeconds = 15
+    )
+
+    if ($null -eq $script:GetUtcTimestampCommand) {
+        throw "Required command handle missing: Get-UtcTimestamp"
+    }
+
+    $status = Get-DiscordManagedStatus -StatePath $StatePath
+    $result = @{
+        WasRunning = [bool]$status.ProcessExists
+        StoppedGracefully = $false
+        WasForceStopped = $false
+        ProcessId = $null
+    }
+
+    if (-not $status.ProcessExists) {
+        Update-DiscordRuntimeState -StatePath $StatePath -Updates @{
+            State = "stopped"
+            LastError = $null
+            StoppedAt = & $script:GetUtcTimestampCommand
+        } | Out-Null
+        return $result
+    }
+
+    $managedProcessId = 0
+    if (-not [int]::TryParse([string]$status.State["Pid"], [ref]$managedProcessId) -or $managedProcessId -le 0) {
+        Update-DiscordRuntimeState -StatePath $StatePath -Updates @{
+            State = "failed"
+            LastError = "Managed process is running, but no valid PID was recorded."
+        } | Out-Null
+
+        $result["Error"] = "Managed process is running, but no valid PID was recorded."
+        return $result
+    }
+
+    $result["ProcessId"] = $managedProcessId
+    Request-DiscordStopSignal -StopSignalPath $StopSignalPath
+    $deadline = (Get-Date).ToUniversalTime().AddSeconds($StopTimeoutSeconds)
+
+    do {
+        Start-Sleep -Milliseconds 500
+        if (-not (Test-DiscordManagedProcess -Pid $managedProcessId)) {
+            $result["StoppedGracefully"] = $true
+            break
+        }
+    }
+    while ((Get-Date).ToUniversalTime() -lt $deadline)
+
+    if (-not $result["StoppedGracefully"]) {
+        Stop-Process -Id $managedProcessId -Force -ErrorAction SilentlyContinue
+        Clear-DiscordStopSignal -StopSignalPath $StopSignalPath
+        Update-DiscordRuntimeState -StatePath $StatePath -Updates @{
+            State = "stopped"
+            LastError = "Process was force-stopped after timeout."
+            StoppedAt = & $script:GetUtcTimestampCommand
+        } | Out-Null
+        $result["WasForceStopped"] = $true
+        return $result
+    }
+
+    Update-DiscordRuntimeState -StatePath $StatePath -Updates @{
+        State = "stopped"
+        LastError = $null
+        StoppedAt = & $script:GetUtcTimestampCommand
+    } | Out-Null
+    return $result
+}
+
+Export-ModuleMember -Function Get-DiscordRuntimeState, Set-DiscordRuntimeState, Update-DiscordRuntimeState, Initialize-DiscordRuntimeFiles, Write-DiscordRuntimeLog, Test-DiscordManagedProcess, Get-DiscordManagedStatus, Clear-DiscordStopSignal, Request-DiscordStopSignal, Stop-DiscordManagedProcess

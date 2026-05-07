@@ -1,9 +1,0 @@
-{
-  "usage": {
-    "modrinthGetInfo": "Usage: {{prefix}}modrinth getInfo <slug-or-id>"
-  },
-  "errors": {
-    "missingMessageContentIntent": "This bot needs the MESSAGE_CONTENT intent enabled to read prefix commands in guild channels.",
-    "generic": "Something went wrong."
-  }
-}

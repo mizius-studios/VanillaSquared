@@ -1,0 +1,21 @@
+{
+  "content": "{{request_user_mention}} usage help for `{{request_command_path}}`.",
+  "embed": {
+    "title": "Modrinth Project Lookup",
+    "description": "Use `{{request_prefix}}modrinth getInfo <slug-or-id>` for prefix commands or `/modrinth getinfo` in slash commands.",
+    "color": 15844367,
+    "fields": [
+      {
+        "name": "Requester",
+        "value": "{{request_user}}",
+        "inline": true
+      },
+      {
+        "name": "Channel ID",
+        "value": "{{request_channel_id}}",
+        "inline": true
+      }
+    ]
+  },
+  "ephemeral": true
+}

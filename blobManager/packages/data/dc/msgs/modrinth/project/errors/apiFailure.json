@@ -1,0 +1,21 @@
+{
+  "content": "{{error_message}}",
+  "embed": {
+    "title": "Modrinth Request Failed",
+    "description": "{{error_message}}",
+    "color": 15158332,
+    "fields": [
+      {
+        "name": "Requester",
+        "value": "{{request_user}}",
+        "inline": true
+      },
+      {
+        "name": "Lookup Value",
+        "value": "{{project_ref}}",
+        "inline": true
+      }
+    ]
+  },
+  "ephemeral": true
+}
