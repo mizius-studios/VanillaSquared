@@ -32,8 +32,15 @@
   "messages": {
     "rootPath": "blobManager/packages/data/dc/msgs"
   },
+  "backups": {
+    "rootPath": "blobManager/packages/data/dc/backups",
+    "restoreDmFailureIsFatal": false,
+    "extraChannelDeleteMode": "skip_protected"
+  },
   "servers": {
-    "vsq": "123456789012345678"
+    "vsq": "1440355298257797132",
+    "test": "1502279667258888252",
+    "test2": "1502284889880526868"
   },
   "bot": {
     "intents": 33281,

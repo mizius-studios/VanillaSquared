@@ -136,6 +136,38 @@ function Write-JsonFile {
     [System.IO.File]::WriteAllText($Path, $jsonContent, [System.Text.Encoding]::UTF8)
 }
 
+function Read-TextFile {
+    param(
+        [string]$Path,
+        [string]$Fallback = $null
+    )
+
+    if ([string]::IsNullOrWhiteSpace([string]$Path) -or -not (Test-Path $Path -PathType Leaf)) {
+        return $Fallback
+    }
+
+    try {
+        return [System.IO.File]::ReadAllText($Path, [System.Text.Encoding]::UTF8)
+    }
+    catch {
+        return $Fallback
+    }
+}
+
+function Write-TextFile {
+    param(
+        [string]$Path,
+        [string]$Content = ""
+    )
+
+    if ([string]::IsNullOrWhiteSpace([string]$Path)) {
+        throw "Write-TextFile requires a path."
+    }
+
+    [void](Ensure-ParentDirectoryForFile -Path $Path)
+    [System.IO.File]::WriteAllText($Path, $Content, [System.Text.Encoding]::UTF8)
+}
+
 function Remove-FileIfExists {
     param(
         [string]$Path
@@ -146,4 +178,14 @@ function Remove-FileIfExists {
     }
 }
 
-Export-ModuleMember -Function Resolve-LocalPath, Ensure-DirectoryPath, Ensure-ParentDirectoryForFile, Read-JsonFile, Write-JsonFile, Remove-FileIfExists
+function Remove-DirectoryIfExists {
+    param(
+        [string]$Path
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace([string]$Path) -and (Test-Path $Path -PathType Container)) {
+        Remove-Item -LiteralPath $Path -Recurse -Force
+    }
+}
+
+Export-ModuleMember -Function Resolve-LocalPath, Ensure-DirectoryPath, Ensure-ParentDirectoryForFile, Read-JsonFile, Write-JsonFile, Read-TextFile, Write-TextFile, Remove-FileIfExists, Remove-DirectoryIfExists

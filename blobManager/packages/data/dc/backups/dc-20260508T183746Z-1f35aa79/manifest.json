@@ -1,0 +1,17 @@
+﻿{
+    "backupId":  "dc-20260508T183746Z-1f35aa79",
+    "createdAtUtc":  "2026-05-08T18:37:46.5155586Z",
+    "creator":  "DESKTOP-ACUUIP9\\adria",
+    "guildId":  "1440355298257797132",
+    "guildAlias":  "vsq",
+    "guildName":  "Vanilla Squared",
+    "description":  "a",
+    "includedSections":  [
+                             "roles",
+                             "members",
+                             "guild",
+                             "channels"
+                         ],
+    "schema":  "discord-guild-backup",
+    "schemaVersion":  1
+}

@@ -1,0 +1,1705 @@
+﻿[
+    {
+        "id":  "1440363185113665738",
+        "name":  "› Connecting to the Server...",
+        "type":  4,
+        "position":  0,
+        "parent_id":  "",
+        "topic":  null,
+        "nsfw":  null,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  null,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1049600"
+                                      },
+                                      {
+                                          "id":  "1440367366025379965",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "8854292043136832",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440362870251716729",
+                                          "type":  0,
+                                          "allow":  "274914672640",
+                                          "deny":  "8854086653246289"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440366103611314216",
+        "name":  "› Lectern",
+        "type":  4,
+        "position":  1,
+        "parent_id":  "",
+        "topic":  null,
+        "nsfw":  null,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  null,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "66560",
+                                          "deny":  "8854365862820688"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440362290602840165",
+        "name":  "› Announcements",
+        "type":  4,
+        "position":  2,
+        "parent_id":  "",
+        "topic":  null,
+        "nsfw":  null,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  null,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440362870251716729",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "274877906944"
+                                      },
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "274877972480",
+                                          "deny":  "103079266368"
+                                      },
+                                      {
+                                          "id":  "1440358296413540382",
+                                          "type":  0,
+                                          "allow":  "274877907968",
+                                          "deny":  "103079217152"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "377957125120",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "7388769678523456",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440359189611417802",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440363834048118967",
+        "name":  "› General",
+        "type":  4,
+        "position":  3,
+        "parent_id":  "",
+        "topic":  null,
+        "nsfw":  null,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  null,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+
+                                  ]
+    },
+    {
+        "id":  "1440363900016001104",
+        "name":  "› Vanilla²",
+        "type":  4,
+        "position":  4,
+        "parent_id":  "",
+        "topic":  null,
+        "nsfw":  null,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  null,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "103079215104",
+                                          "deny":  "1126449662656512"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440359189611417802",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440363952558309497",
+        "name":  "› TESTIFICATE SERVER",
+        "type":  4,
+        "position":  5,
+        "parent_id":  "",
+        "topic":  null,
+        "nsfw":  null,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  null,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "2081347631176256",
+                                          "deny":  "1025"
+                                      },
+                                      {
+                                          "id":  "1468182596348547151",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440363867476721735",
+        "name":  "› Staff",
+        "type":  4,
+        "position":  6,
+        "parent_id":  "",
+        "topic":  null,
+        "nsfw":  null,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  null,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1024"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "6755794607418368",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440358161629446164",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "2081278911831872",
+                                          "deny":  "6773086951055377"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440370449598120008",
+        "name":  "Logs",
+        "type":  4,
+        "position":  7,
+        "parent_id":  "",
+        "topic":  null,
+        "nsfw":  null,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  null,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1024"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "2885565188396096",
+                                          "deny":  "4521287108012049"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1490713801958494289",
+        "name":  "Tickets",
+        "type":  4,
+        "position":  8,
+        "parent_id":  "",
+        "topic":  null,
+        "nsfw":  null,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  null,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1049600"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "1049600",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1490732645859197108",
+        "name":  "Archive",
+        "type":  4,
+        "position":  9,
+        "parent_id":  "",
+        "topic":  null,
+        "nsfw":  null,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  null,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1049600"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "66560",
+                                          "deny":  "8814783410665809"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440363283986255994",
+        "name":  "📖┃accept-code-of-conduct",
+        "type":  0,
+        "position":  0,
+        "parent_id":  "1440363185113665738",
+        "topic":  "Accept it or else...\n|| /jk  - but accept it fr||",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1049600"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "1049600",
+                                          "deny":  "274877906944"
+                                      },
+                                      {
+                                          "id":  "1440362870251716729",
+                                          "type":  0,
+                                          "allow":  "274877973504",
+                                          "deny":  "8854086689946449"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1468184082608422953",
+        "name":  "vc 1",
+        "type":  2,
+        "position":  0,
+        "parent_id":  "1440363952558309497",
+        "topic":  null,
+        "nsfw":  false,
+        "bitrate":  64000,
+        "user_limit":  0,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  "",
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "2081347631176256",
+                                          "deny":  "1025"
+                                      },
+                                      {
+                                          "id":  "1468182596348547151",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440368257159925800",
+        "name":  "❌┃failed-to-connect",
+        "type":  0,
+        "position":  1,
+        "parent_id":  "1440363185113665738",
+        "topic":  "Ah sht, here we go again.",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "274877972480",
+                                          "deny":  "8515428453645393"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "8515702525261888",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440362870251716729",
+                                          "type":  0,
+                                          "allow":  "274877972480",
+                                          "deny":  "8854086689947473"
+                                      },
+                                      {
+                                          "id":  "1476619803870494810",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440370319897657495",
+        "name":  "meeting",
+        "type":  2,
+        "position":  1,
+        "parent_id":  "1440363867476721735",
+        "topic":  null,
+        "nsfw":  false,
+        "bitrate":  64000,
+        "user_limit":  0,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  "",
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1024"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "6755794607418368",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440358161629446164",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "2081278911831872",
+                                          "deny":  "6773086951055377"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440365466580156529",
+        "name":  "✉️┃invite",
+        "type":  0,
+        "position":  2,
+        "parent_id":  "1440366103611314216",
+        "topic":  "Invite Link to the Discord Server!",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "66560",
+                                          "deny":  "8854365862820688"
+                                      },
+                                      {
+                                          "id":  "1468182596348547151",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "2049"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440370091836575794",
+        "name":  "📖┃code-of-conduct",
+        "type":  0,
+        "position":  3,
+        "parent_id":  "1440366103611314216",
+        "topic":  "Rules! **READ THEM!!!!**",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "66560",
+                                          "deny":  "8854365862820688"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440375660261408890",
+        "name":  "👋┃welcome",
+        "type":  0,
+        "position":  4,
+        "parent_id":  "1440366103611314216",
+        "topic":  "Hi~",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "66560",
+                                          "deny":  "8854365862820688"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440366184452329654",
+        "name":  "❓┃faq",
+        "type":  0,
+        "position":  5,
+        "parent_id":  "1440366103611314216",
+        "topic":  "**Read before asking a question!**",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "66560",
+                                          "deny":  "8854365862820688"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440366306082816203",
+        "name":  "📩┃tickets",
+        "type":  0,
+        "position":  6,
+        "parent_id":  "1440366103611314216",
+        "topic":  "Check FAQ and the support channels before sending a ticket!\n**NO TROLL TICKETS!!!**",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "633731014841344",
+                                          "deny":  "8220634848045904"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1465998467783594025",
+        "name":  "📣┃vanilla²-updates",
+        "type":  5,
+        "position":  7,
+        "parent_id":  "1440362290602840165",
+        "topic":  "New Releases of the Vanilla² mod from \u003c@\u00261440357072406315089\u003e",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440362870251716729",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "274877906944"
+                                      },
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "274877972480",
+                                          "deny":  "103079266368"
+                                      },
+                                      {
+                                          "id":  "1440358296413540382",
+                                          "type":  0,
+                                          "allow":  "274877907968",
+                                          "deny":  "103079217152"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "377957125120",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "7388769678523456",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440359189611417802",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1491335825374318653",
+        "name":  "👀┃leaks-¿v¿",
+        "type":  0,
+        "position":  8,
+        "parent_id":  "1440362290602840165",
+        "topic":  "only for ppl with high aura XD",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440362870251716729",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "274877907968"
+                                      },
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "274877972480",
+                                          "deny":  "103079267392"
+                                      },
+                                      {
+                                          "id":  "1440358296413540382",
+                                          "type":  0,
+                                          "allow":  "274877907968",
+                                          "deny":  "103079217152"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "377957125120",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "7388769678523456",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440359189611417802",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1445352371528929382",
+        "name":  "🔔┃discord-updates",
+        "type":  0,
+        "position":  9,
+        "parent_id":  "1440362290602840165",
+        "topic":  "Updates to this discord server!",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440362870251716729",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "274877906944"
+                                      },
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "274877972480",
+                                          "deny":  "103079266368"
+                                      },
+                                      {
+                                          "id":  "1440358296413540382",
+                                          "type":  0,
+                                          "allow":  "274877907968",
+                                          "deny":  "103079217152"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "377957125120",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "7388769678523456",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440359189611417802",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440365214271803392",
+        "name":  "💬┃general",
+        "type":  0,
+        "position":  10,
+        "parent_id":  "1440363834048118967",
+        "topic":  "Yap",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+
+                                  ]
+    },
+    {
+        "id":  "1440365244663988355",
+        "name":  "🤖┃command-block",
+        "type":  0,
+        "position":  11,
+        "parent_id":  "1440363834048118967",
+        "topic":  "It\u0027s just a commands channel.",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+
+                                  ]
+    },
+    {
+        "id":  "1440365323294478447",
+        "name":  "🧩┃creations",
+        "type":  15,
+        "position":  12,
+        "parent_id":  "1440363834048118967",
+        "topic":  "Showcase your community creation.\n**Rules:**\n- No trolling\n- No stealing creations from others\n- Only Minecraft stuff\n- No Advertisements\n- No download links to Viruses or similar\n- Follow the \u003c#1440370091836575794\u003e channel\n- Don\u0027t post things more then once",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  1800,
+        "default_auto_archive_duration":  10080,
+        "default_thread_rate_limit_per_user":  0,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+
+                                  ]
+    },
+    {
+        "id":  "1445352838078136453",
+        "name":  "🎲┃random",
+        "type":  0,
+        "position":  13,
+        "parent_id":  "1440363834048118967",
+        "topic":  "off topic stuff",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+
+                                  ]
+    },
+    {
+        "id":  "1440365952301531208",
+        "name":  "❔┃help",
+        "type":  0,
+        "position":  14,
+        "parent_id":  "1440363900016001104",
+        "topic":  "Community support for Vanilla², for direct support with staff use #tickets",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "103079215104",
+                                          "deny":  "1126449662656512"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440359189611417802",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440365817274564850",
+        "name":  "💭┃suggestions",
+        "type":  15,
+        "position":  15,
+        "parent_id":  "1440363900016001104",
+        "topic":  "Give suggestions for my Mods!\n**Rules:**\n- No trolling\n- No stealing creations from others\n- Only Related Stuff\n- No Advertisements\n- No download links to Viruses or similar if you decide to reference another mod\n- Follow the #code-of-conduct channel\n- Please check if others have already suggested the suggestion you want to suggest before suggesting a suggestion (*XD*)",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  1800,
+        "default_auto_archive_duration":  10080,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "103079215104",
+                                          "deny":  "1126449662656512"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440359189611417802",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440365917547532359",
+        "name":  "🐞┃bug-report",
+        "type":  15,
+        "position":  16,
+        "parent_id":  "1440363900016001104",
+        "topic":  "Report bugs from my Mods!\n**Rules:**\n- No trolling\n- No stealing creations from others\n- Only Related Stuff\n- No Advertisements\n- Follow the #code-of-conduct channel\n- Check if the bug has already been reported before posting!",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  1800,
+        "default_auto_archive_duration":  10080,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "103079215104",
+                                          "deny":  "1126449662656512"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440359189611417802",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1474761344493555753",
+        "name":  "testificate-rules-usw",
+        "type":  0,
+        "position":  17,
+        "parent_id":  "1440363952558309497",
+        "topic":  "",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "2080969674052160",
+                                          "deny":  "377957125121"
+                                      },
+                                      {
+                                          "id":  "1468182596348547151",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1474705459280875530",
+        "name":  "dev-releases",
+        "type":  15,
+        "position":  18,
+        "parent_id":  "1440363952558309497",
+        "topic":  "DO NOT DISTRIBUTE THESE VERSIONS ANYWHERE",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "2081347631174208",
+                                          "deny":  "3073"
+                                      },
+                                      {
+                                          "id":  "1468182596348547151",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "274877906944",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1476612470146859050",
+        "name":  "testificate-announcements",
+        "type":  0,
+        "position":  19,
+        "parent_id":  "1440363952558309497",
+        "topic":  "",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "2081278911697472",
+                                          "deny":  "2251885713042433"
+                                      },
+                                      {
+                                          "id":  "1468182596348547151",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1476981385880141975",
+        "name":  "testificate-chat",
+        "type":  0,
+        "position":  20,
+        "parent_id":  "1440363952558309497",
+        "topic":  "TESTIFICATE",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "2081347631176256",
+                                          "deny":  "1025"
+                                      },
+                                      {
+                                          "id":  "1468182596348547151",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1476981859463463048",
+        "name":  "testificate-img",
+        "type":  0,
+        "position":  21,
+        "parent_id":  "1440363952558309497",
+        "topic":  "",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "2081347631176256",
+                                          "deny":  "1025"
+                                      },
+                                      {
+                                          "id":  "1468182596348547151",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1445353036435165226",
+        "name":  "mc-bridge",
+        "type":  0,
+        "position":  22,
+        "parent_id":  "1440363952558309497",
+        "topic":  "this channel is linked to the ingame chat of the server!",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "2081347631176256",
+                                          "deny":  "1025"
+                                      },
+                                      {
+                                          "id":  "1468182596348547151",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1445353117481697412",
+        "name":  "mc-console",
+        "type":  0,
+        "position":  23,
+        "parent_id":  "1440363952558309497",
+        "topic":  "I SEE U VENCORD USERS HAHAHHHAHHAHAHAHHAHAHAHAAHAAHAHA",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "2081347631176256",
+                                          "deny":  "1025"
+                                      },
+                                      {
+                                          "id":  "1468182596348547151",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440370384913567804",
+        "name":  "staff-rules",
+        "type":  0,
+        "position":  24,
+        "parent_id":  "1440363867476721735",
+        "topic":  "",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1024"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "6755691528201216",
+                                          "deny":  "103079217152"
+                                      },
+                                      {
+                                          "id":  "1440358161629446164",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "2081244552091456",
+                                          "deny":  "6773121310795793"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440370219833884762",
+        "name":  "staff-announcements",
+        "type":  0,
+        "position":  25,
+        "parent_id":  "1440363867476721735",
+        "topic":  "",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1024"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "6755794607418368",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440358161629446164",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "2081278911829824",
+                                          "deny":  "6773086951057425"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440370243041235066",
+        "name":  "staff-de",
+        "type":  0,
+        "position":  26,
+        "parent_id":  "1440363867476721735",
+        "topic":  "german",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1024"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "6755794607418368",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "2081278911831872",
+                                          "deny":  "6773086951055377"
+                                      },
+                                      {
+                                          "id":  "1440358161629446164",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440370286494224504",
+        "name":  "higher-staff",
+        "type":  0,
+        "position":  27,
+        "parent_id":  "1440363867476721735",
+        "topic":  "",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1024"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "6755794607418368",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "2081278911830848",
+                                          "deny":  "6773086951056401"
+                                      },
+                                      {
+                                          "id":  "1440358161629446164",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1490803264298553544",
+        "name":  "off-topic-¿v¿",
+        "type":  0,
+        "position":  28,
+        "parent_id":  "1440363867476721735",
+        "topic":  "",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1024"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "6755794607418368",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "2081278911831872",
+                                          "deny":  "6773086951055377"
+                                      },
+                                      {
+                                          "id":  "1440358161629446164",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1491482368697962649",
+        "name":  "staff-en",
+        "type":  0,
+        "position":  29,
+        "parent_id":  "1440363867476721735",
+        "topic":  "english",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1024"
+                                      },
+                                      {
+                                          "id":  "1440358209553698887",
+                                          "type":  0,
+                                          "allow":  "6755794607418368",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "2081278911831872",
+                                          "deny":  "6773086951055377"
+                                      },
+                                      {
+                                          "id":  "1440358161629446164",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440370735989133443",
+        "name":  "discord",
+        "type":  0,
+        "position":  30,
+        "parent_id":  "1440370449598120008",
+        "topic":  "Discord Related Stuff",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1024"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "2885565188396096",
+                                          "deny":  "4521287108012049"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440371196838412492",
+        "name":  "minecraft",
+        "type":  0,
+        "position":  31,
+        "parent_id":  "1440370449598120008",
+        "topic":  "minecraft stuff",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1024"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "2885565188396096",
+                                          "deny":  "4521287108012049"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440370762581278851",
+        "name":  "moderation",
+        "type":  0,
+        "position":  32,
+        "parent_id":  "1440370449598120008",
+        "topic":  "Powered by Sapphire, logs moderation stuff",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1024"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "2885565188396096",
+                                          "deny":  "4521287108012049"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1440370855136985269",
+        "name":  "_dc",
+        "type":  0,
+        "position":  33,
+        "parent_id":  "1440370449598120008",
+        "topic":  "stuff from discord directly",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1024"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "2885565188396096",
+                                          "deny":  "4521287108012049"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1490712606363881672",
+        "name":  "ticket-logs",
+        "type":  0,
+        "position":  34,
+        "parent_id":  "1440370449598120008",
+        "topic":  "",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1024"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "2885565188396096",
+                                          "deny":  "4521287108012049"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1490721455913042114",
+        "name":  "ticket-junk",
+        "type":  0,
+        "position":  35,
+        "parent_id":  "1440370449598120008",
+        "topic":  "",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1024"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "2885565188396096",
+                                          "deny":  "4521287108012049"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1471128877135827087",
+        "name":  "vanilla-squared-plans",
+        "type":  0,
+        "position":  36,
+        "parent_id":  "1490732645859197108",
+        "topic":  "",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1049600"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "65536",
+                                          "deny":  "8814783410666833"
+                                      },
+                                      {
+                                          "id":  "1440358161629446164",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "0"
+                                      }
+                                  ]
+    },
+    {
+        "id":  "1478282704226226317",
+        "name":  "vsq-plans-new",
+        "type":  15,
+        "position":  37,
+        "parent_id":  "1490732645859197108",
+        "topic":  "",
+        "nsfw":  false,
+        "bitrate":  null,
+        "user_limit":  null,
+        "rate_limit_per_user":  0,
+        "default_auto_archive_duration":  null,
+        "default_thread_rate_limit_per_user":  null,
+        "rtc_region":  null,
+        "video_quality_mode":  null,
+        "permission_overwrites":  [
+                                      {
+                                          "id":  "1440355298257797132",
+                                          "type":  0,
+                                          "allow":  "0",
+                                          "deny":  "1049600"
+                                      },
+                                      {
+                                          "id":  "1440358161629446164",
+                                          "type":  0,
+                                          "allow":  "1024",
+                                          "deny":  "0"
+                                      },
+                                      {
+                                          "id":  "1440357968234152070",
+                                          "type":  0,
+                                          "allow":  "65536",
+                                          "deny":  "8814783410666833"
+                                      }
+                                  ]
+    }
+]

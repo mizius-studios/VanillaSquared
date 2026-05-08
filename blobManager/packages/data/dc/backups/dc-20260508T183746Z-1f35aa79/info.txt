@@ -1,0 +1,10 @@
+﻿Backup Id: dc-20260508T183746Z-1f35aa79
+Created At (UTC): 2026-05-08T18:37:46.5155586Z
+Creator: DESKTOP-ACUUIP9\adria
+Guild Id: 1440355298257797132
+Guild Alias: vsq
+Guild Name: Vanilla Squared
+Description: a
+Included Sections: roles, members, guild, channels
+Schema: discord-guild-backup
+Schema Version: 1

@@ -1,0 +1,25 @@
+{
+  "content": "You were removed from **{{guildName}}** because the server was restored from backup `{{backupId}}` and your membership was not part of that snapshot.",
+  "embed": {
+    "title": "Server Restore Removal",
+    "description": "This removal was part of a guild restore operation.",
+    "color": 15158332,
+    "fields": [
+      {
+        "name": "Guild",
+        "value": "{{guildName}}",
+        "inline": true
+      },
+      {
+        "name": "Backup ID",
+        "value": "{{backupId}}",
+        "inline": true
+      },
+      {
+        "name": "User ID",
+        "value": "{{userId}}",
+        "inline": true
+      }
+    ]
+  }
+}

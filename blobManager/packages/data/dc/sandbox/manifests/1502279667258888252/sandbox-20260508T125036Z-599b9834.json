@@ -1,0 +1,51 @@
+﻿{
+    "runId":  "sandbox-20260508T125036Z-599b9834",
+    "createdAtUtc":  "2026-05-08T12:50:38.6518994Z",
+    "guildId":  "1502279667258888252",
+    "guildName":  "VSQ Test for blobManager",
+    "guildAlias":  "test",
+    "resources":  {
+                      "roles":  [
+                                    {
+                                        "id":  "1502291631448129638",
+                                        "name":  "sandbox-admin-core"
+                                    },
+                                    {
+                                        "id":  "1502291632404561981",
+                                        "name":  "sandbox-admin-overseer"
+                                    }
+                                ],
+                      "channels":  [
+                                       {
+                                           "id":  "1502291633415262300",
+                                           "name":  "sandbox-chaos-hub",
+                                           "type":  4,
+                                           "parentId":  ""
+                                       },
+                                       {
+                                           "id":  "1502291635466145795",
+                                           "name":  "alarm-feed",
+                                           "type":  0,
+                                           "parentId":  "1502291633415262300"
+                                       },
+                                       {
+                                           "id":  "1502291637601308722",
+                                           "name":  "voice-siren",
+                                           "type":  2,
+                                           "parentId":  "1502291633415262300"
+                                       },
+                                       {
+                                           "id":  "1502291639194882177",
+                                           "name":  "stage-broadcast",
+                                           "type":  13,
+                                           "parentId":  "1502291633415262300"
+                                       },
+                                       {
+                                           "id":  "1502291640596037793",
+                                           "name":  "ops-archive",
+                                           "type":  0,
+                                           "parentId":  ""
+                                       }
+                                   ]
+                  }
+}

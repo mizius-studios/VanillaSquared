@@ -16,6 +16,7 @@ $runtimeModule = Import-Module (Join-Path $PSScriptRoot "..\util\dc\runtime.psm1
 $gatewayModule = Import-Module (Join-Path $PSScriptRoot "..\util\dc\gateway.psm1") -Force -DisableNameChecking -PassThru
 $serverModule = Import-Module (Join-Path $PSScriptRoot "..\util\dc\server.psm1") -Force -DisableNameChecking -PassThru
 $guildModule = Import-Module (Join-Path $PSScriptRoot "..\util\dc\guild.psm1") -Force -DisableNameChecking -PassThru
+$backupModule = Import-Module (Join-Path $PSScriptRoot "..\util\dc\backup.psm1") -Force -DisableNameChecking -PassThru
 $commandsModule = Import-Module (Join-Path $PSScriptRoot "..\util\dc\commands.psm1") -Force -DisableNameChecking -PassThru
 
 $Cmd = @{
@@ -56,6 +57,13 @@ $Cmd = @{
     GetDiscordCurrentGuildsErrorMessage = $guildModule.ExportedCommands["Get-DiscordCurrentGuildsErrorMessage"]
     LeaveDiscordGuild = $guildModule.ExportedCommands["Leave-DiscordGuild"]
     GetDiscordLeaveGuildErrorMessage = $guildModule.ExportedCommands["Get-DiscordLeaveGuildErrorMessage"]
+    ParseDiscordBackupArguments = $backupModule.ExportedCommands["Parse-DiscordBackupArguments"]
+    GetDiscordBackupList = $backupModule.ExportedCommands["Get-DiscordBackupList"]
+    GetDiscordBackupInfo = $backupModule.ExportedCommands["Get-DiscordBackupInfo"]
+    TestDiscordBackup = $backupModule.ExportedCommands["Test-DiscordBackup"]
+    RemoveDiscordBackup = $backupModule.ExportedCommands["Remove-DiscordBackup"]
+    InvokeDiscordBackupCreate = $backupModule.ExportedCommands["Invoke-DiscordBackupCreate"]
+    InvokeDiscordBackupRestore = $backupModule.ExportedCommands["Invoke-DiscordBackupRestore"]
     GetDiscordEffectivePrefixes = $commandsModule.ExportedCommands["Get-DiscordEffectivePrefixes"]
     TestDiscordMessageContentIntentEnabled = $commandsModule.ExportedCommands["Test-DiscordMessageContentIntentEnabled"]
     SyncDiscordGuildCommands = $commandsModule.ExportedCommands["Sync-DiscordGuildCommands"]
@@ -107,6 +115,8 @@ $reconnectMaxDelaySeconds = [int](& $Cmd.GetConfigValue -Config $runtimeConfig -
 $receivePollMilliseconds = [int](& $Cmd.GetConfigValue -Config $runtimeConfig -Key "receivePollMilliseconds" -DefaultValue 1000)
 $messagesConfig = & $Cmd.GetConfigValue -Config $config -Key "messages" -DefaultValue @{}
 $messagesRootPathValue = & $Cmd.GetConfigValue -Config $messagesConfig -Key "rootPath" -DefaultValue "blobManager/packages/data/dc/msgs"
+$backupConfig = & $Cmd.GetConfigValue -Config $config -Key "backups" -DefaultValue @{}
+$backupRootPathValue = & $Cmd.GetConfigValue -Config $backupConfig -Key "rootPath" -DefaultValue "blobManager/packages/data/dc/backups"
 $serversConfig = & $Cmd.GetConfigValue -Config $config -Key "servers" -DefaultValue @{}
 $serverMap = & $Cmd.ConvertToDiscordServerMap -ServersConfig $serversConfig
 $botConfig = & $Cmd.GetConfigValue -Config $config -Key "bot" -DefaultValue @{}
@@ -148,7 +158,7 @@ function Test-DcConfiguration {
     & $Cmd.AddRequiredConfigError -Value $stopSignalPathValue -ConfigKey "runtime.stopSignalPath" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\dc.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
     & $Cmd.AddRequiredConfigError -Value $logPathValue -ConfigKey "runtime.logPath" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\dc.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
     & $Cmd.AddRequiredConfigError -Value $messagesRootPathValue -ConfigKey "messages.rootPath" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\dc.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
-
+    & $Cmd.AddRequiredConfigError -Value $backupRootPathValue -ConfigKey "backups.rootPath" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\dc.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
     if ($RequireAuth) {
         & $Cmd.AddRequiredConfigError -Value $authKeyFile -ConfigKey "auth.keyFile" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\dc.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
         & $Cmd.AddRequiredConfigError -Value $authKeyName -ConfigKey "auth.keyName" -PackageName $PackageName -ConfigPath "blobManager\\packages\\config\\dc.json" -AddErrorMessage $Cmd.AddErrorMessage -State $state
@@ -263,6 +273,269 @@ function Resolve-DcServerReference {
     }
 
     return $resolution
+}
+
+function Write-DcBackupUsage {
+    Write-Host "Usage: .\blob.ps1 dc backup create <alias-or-server-id> [--description ""...""] [--include <categories...>] [--exclude <categories...>]" -ForegroundColor Red
+    Write-Host "Usage: .\blob.ps1 dc backup restore <alias-or-server-id> <backupId> [--include <categories...>] [--exclude <categories...>] [--force-members]" -ForegroundColor Red
+    Write-Host "Usage: .\blob.ps1 dc backup list [<alias-or-server-id>]" -ForegroundColor Red
+    Write-Host "Usage: .\blob.ps1 dc backup info <backupId>" -ForegroundColor Red
+    Write-Host "Usage: .\blob.ps1 dc backup validate <backupId>" -ForegroundColor Red
+    Write-Host "Usage: .\blob.ps1 dc backup delete <backupId>" -ForegroundColor Red
+    Write-Host "Valid categories: roles, members, guild, channels, all" -ForegroundColor DarkYellow
+    Write-Host "Default create selection: roles, guild, channels" -ForegroundColor DarkYellow
+    Write-Host "Member restore requires both '--include members' and '--force-members'." -ForegroundColor DarkYellow
+    Write-Host "Backup deletion requires typing the exact backup id before any files are removed." -ForegroundColor DarkYellow
+}
+
+function Invoke-DcBackupCommand {
+    param(
+        [string[]]$Arguments
+    )
+
+    if ($Arguments.Count -lt 1) {
+        Write-DcBackupUsage
+        exit 1
+    }
+
+    $backupCommand = [string]$Arguments[0]
+    $backupArgs = @()
+    if ($Arguments.Count -gt 1) {
+        $backupArgs = @($Arguments[1..($Arguments.Count - 1)])
+    }
+
+    try {
+        $parsed = & $Cmd.ParseDiscordBackupArguments -Arguments $backupArgs
+    }
+    catch {
+        Write-Host $_.Exception.Message -ForegroundColor Red
+        Write-DcBackupUsage
+        exit 1
+    }
+
+    switch ($backupCommand) {
+        "create" {
+            Test-DcConfiguration -RequireAuth
+            & $Cmd.WriteWarnings -State $state
+
+            if ($parsed.Positionals.Count -ne 1) {
+                Write-DcBackupUsage
+                exit 1
+            }
+
+            $authContext = Get-DcAuthContext
+            try {
+                $result = & $Cmd.InvokeDiscordBackupCreate -Config $config -BaseUrl $baseUrl -ApiVersion $apiVersion -Headers $authContext.Headers -TimeoutSeconds $timeoutSeconds -ServerReference ([string]$parsed.Positionals[0]) -Description ([string]$parsed.Description) -IncludeValues $parsed.Include -ExcludeValues $parsed.Exclude -ServerMap $serverMap -JoinApiUri $Cmd.JoinApiUri -InvokeNetworkRequest $Cmd.InvokeNetworkRequest
+            }
+            catch {
+                Write-Host $_.Exception.Message -ForegroundColor Red
+                exit 1
+            }
+
+            Write-Host "Discord backup created." -ForegroundColor Green
+            Write-Host "BackupId: $($result.BackupId)"
+            Write-Host "Path: $($result.BackupPath)"
+            Write-Host "Server: $($result.Manifest.guildName) | $($result.Manifest.guildId)"
+            if (-not [string]::IsNullOrWhiteSpace([string]$result.Manifest.guildAlias)) {
+                Write-Host "Alias: $($result.Manifest.guildAlias)"
+            }
+            Write-Host "Sections: $([string]::Join(', ', @($result.Manifest.includedSections)))"
+            foreach ($entry in $result.Counts.GetEnumerator() | Sort-Object Key) {
+                Write-Host ("{0}: {1}" -f $entry.Key, $entry.Value)
+            }
+            exit 0
+        }
+
+        "restore" {
+            Test-DcConfiguration -RequireAuth
+            & $Cmd.WriteWarnings -State $state
+
+            if ($parsed.Positionals.Count -ne 2) {
+                Write-DcBackupUsage
+                exit 1
+            }
+
+            $authContext = Get-DcAuthContext
+            try {
+                $result = & $Cmd.InvokeDiscordBackupRestore -Config $config -BaseUrl $baseUrl -ApiVersion $apiVersion -Headers $authContext.Headers -TimeoutSeconds $timeoutSeconds -MessagesRootPath $messagesRootPath -ServerReference ([string]$parsed.Positionals[0]) -BackupId ([string]$parsed.Positionals[1]) -IncludeValues $parsed.Include -ExcludeValues $parsed.Exclude -ForceMembers:([bool]$parsed.ForceMembers) -ServerMap $serverMap -JoinApiUri $Cmd.JoinApiUri -InvokeNetworkRequest $Cmd.InvokeNetworkRequest
+            }
+            catch {
+                Write-Host $_.Exception.Message -ForegroundColor Red
+                exit 1
+            }
+
+            Write-Host "Discord backup restore completed." -ForegroundColor Green
+            Write-Host "BackupId: $($result.backupId)"
+            Write-Host "Target: $($result.targetGuildName) | $($result.targetGuildId)"
+            Write-Host "Sections: $([string]::Join(', ', @($result.selectedSections)))"
+            foreach ($step in @($result.steps)) {
+                Write-Host ("Section '{0}' restored." -f [string]$step.section)
+                $stepResult = $step.result
+                $hasKey = {
+                    param($obj, [string]$key)
+                    if ($null -eq $obj -or [string]::IsNullOrWhiteSpace($key)) {
+                        return $false
+                    }
+                    if ($obj -is [System.Collections.IDictionary]) {
+                        return $obj.Contains($key)
+                    }
+                    return ($obj.PSObject.Properties.Name -contains $key)
+                }
+
+                if ((& $hasKey $stepResult "Skipped") -and [bool]$stepResult.Skipped) {
+                    Write-Host "  Skipped due to insufficient permissions." -ForegroundColor DarkYellow
+                }
+                if (& $hasKey $stepResult "Actions") {
+                    foreach ($action in @($stepResult.Actions)) {
+                        Write-Host ("- {0}" -f [string]$action)
+                    }
+                }
+                if (& $hasKey $stepResult "Warnings") {
+                    foreach ($warning in @($stepResult.Warnings)) {
+                        if (-not [string]::IsNullOrWhiteSpace([string]$warning)) {
+                            Write-Host ("! {0}" -f [string]$warning) -ForegroundColor DarkYellow
+                        }
+                    }
+                }
+                if (& $hasKey $stepResult "Enforcement") {
+                    foreach ($entry in @($stepResult.Enforcement)) {
+                        Write-Host ("- Removed out-of-scope member {0}; DM success={1}" -f [string]$entry.userId, [bool]$entry.dmSucceeded)
+                    }
+                }
+            }
+            exit 0
+        }
+
+        "list" {
+            Test-DcConfiguration
+            & $Cmd.WriteWarnings -State $state
+
+            if ($parsed.Positionals.Count -gt 1) {
+                Write-DcBackupUsage
+                exit 1
+            }
+
+            try {
+                $backups = & $Cmd.GetDiscordBackupList -Config $config -ServerReference $(if ($parsed.Positionals.Count -eq 1) { [string]$parsed.Positionals[0] } else { $null }) -ServerMap $serverMap
+            }
+            catch {
+                Write-Host $_.Exception.Message -ForegroundColor Red
+                exit 1
+            }
+
+            if ($backups.Count -eq 0) {
+                Write-Host "No Discord backups found."
+                exit 0
+            }
+
+            Write-Host "Discord backups:"
+            foreach ($backup in $backups) {
+                $sectionText = [string]::Join(", ", @($backup.includedSections))
+                if (-not [string]::IsNullOrWhiteSpace([string]$backup.guildAlias)) {
+                    Write-Host ("- {0} | {1} | {2} | alias={3} | sections={4}" -f $backup.backupId, $backup.createdAtUtc, $backup.guildName, $backup.guildAlias, $sectionText)
+                }
+                else {
+                    Write-Host ("- {0} | {1} | {2} | sections={3}" -f $backup.backupId, $backup.createdAtUtc, $backup.guildName, $sectionText)
+                }
+            }
+            exit 0
+        }
+
+        "info" {
+            Test-DcConfiguration
+            & $Cmd.WriteWarnings -State $state
+
+            if ($parsed.Positionals.Count -ne 1) {
+                Write-DcBackupUsage
+                exit 1
+            }
+
+            try {
+                $info = & $Cmd.GetDiscordBackupInfo -Config $config -BackupId ([string]$parsed.Positionals[0])
+            }
+            catch {
+                Write-Host $_.Exception.Message -ForegroundColor Red
+                exit 1
+            }
+
+            Write-Host $info.InfoText
+            Write-Host "Path: $($info.Paths.BackupPath)"
+            exit 0
+        }
+
+        "validate" {
+            Test-DcConfiguration
+            & $Cmd.WriteWarnings -State $state
+
+            if ($parsed.Positionals.Count -ne 1) {
+                Write-DcBackupUsage
+                exit 1
+            }
+
+            $validation = & $Cmd.TestDiscordBackup -Config $config -BackupId ([string]$parsed.Positionals[0])
+            if ($validation.IsValid) {
+                Write-Host "Backup is valid." -ForegroundColor Green
+                Write-Host "BackupId: $($validation.Manifest.backupId)"
+                Write-Host "Sections: $([string]::Join(', ', @($validation.Manifest.includedSections)))"
+                exit 0
+            }
+
+            Write-Host "Backup validation failed." -ForegroundColor Red
+            foreach ($error in @($validation.Errors)) {
+                Write-Host ("- {0}" -f [string]$error) -ForegroundColor Red
+            }
+            exit 1
+        }
+
+        "delete" {
+            Test-DcConfiguration
+            & $Cmd.WriteWarnings -State $state
+
+            if ($parsed.Positionals.Count -ne 1) {
+                Write-DcBackupUsage
+                exit 1
+            }
+
+            $backupId = [string]$parsed.Positionals[0]
+
+            try {
+                $info = & $Cmd.GetDiscordBackupInfo -Config $config -BackupId $backupId
+            }
+            catch {
+                Write-Host $_.Exception.Message -ForegroundColor Red
+                exit 1
+            }
+
+            Write-Host "Backup deletion confirmation required." -ForegroundColor Yellow
+            Write-Host $info.InfoText
+            Write-Host "Path: $($info.Paths.BackupPath)"
+
+            $confirmation = Read-Host "Type the exact backup id to continue"
+            if ([string]$confirmation -ne $backupId) {
+                Write-Host "Backup deletion confirmation failed. No changes were made." -ForegroundColor Red
+                exit 1
+            }
+
+            try {
+                $result = & $Cmd.RemoveDiscordBackup -Config $config -BackupId $backupId
+            }
+            catch {
+                Write-Host $_.Exception.Message -ForegroundColor Red
+                exit 1
+            }
+
+            Write-Host "Discord backup deleted." -ForegroundColor Green
+            Write-Host "BackupId: $($result.BackupId)"
+            Write-Host "Path: $($result.BackupPath)"
+            exit 0
+        }
+
+        default {
+            Write-Host "Unknown dc backup command: $backupCommand" -ForegroundColor Red
+            Write-DcBackupUsage
+            exit 1
+        }
+    }
 }
 
 function Test-DcServerMembership {
@@ -753,6 +1026,10 @@ switch ($Command) {
         exit 1
     }
 
+    "backup" {
+        Invoke-DcBackupCommand -Arguments $Rest
+    }
+
     "stop" {
         Test-DcConfiguration
         & $Cmd.WriteWarnings -State $state
@@ -820,15 +1097,18 @@ switch ($Command) {
 
     "-?" {
         & $Cmd.WriteWarnings -State $state
-        & $Cmd.CommandHelp -PackageName $PackageName -Commands @("dc -p", "dc -auth", "dc -getAuth", "dc start", "dc status", "dc stop", "dc servers -g", "dc servers -l <alias-or-server-id>", "dc resolveServer <alias-or-server-id>", "dc checkServer <alias-or-server-id>", "dc -v", "dc -?")
+        & $Cmd.CommandHelp -PackageName $PackageName -Commands @("dc -p", "dc -auth", "dc -getAuth", "dc start", "dc status", "dc stop", "dc servers -g", "dc servers -l <alias-or-server-id>", "dc resolveServer <alias-or-server-id>", "dc checkServer <alias-or-server-id>", "dc backup create <alias-or-server-id> [--description ""...""] [--include <categories...>] [--exclude <categories...>]", "dc backup restore <alias-or-server-id> <backupId> [--include <categories...>] [--exclude <categories...>] [--force-members]", "dc backup list [<alias-or-server-id>]", "dc backup info <backupId>", "dc backup validate <backupId>", "dc backup delete <backupId>", "dc -v", "dc -?")
         Write-Host "Auth key file: $authKeyFile"
         Write-Host "Auth key format: $authKeyName=<your_discord_bot_token>"
         Write-Host "Automation env var: $authEnvVar"
         Write-Host "Runtime state path: $statePathValue"
         Write-Host "Runtime log path: $logPathValue"
         Write-Host "Message templates path: $messagesRootPathValue"
+        Write-Host "Backup root path: $backupRootPathValue"
         Write-Host ("Effective prefixes: {0}" -f ([string]::Join(", ", $effectivePrefixes)))
         Write-Host "Server aliases live under: servers"
+        Write-Host "Backup categories: roles, members, guild, channels, all"
+        Write-Host "Backup delete safety: type the exact backup id to confirm deletion"
         exit 0
     }
 
