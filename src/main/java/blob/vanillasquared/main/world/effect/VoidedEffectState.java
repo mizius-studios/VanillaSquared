@@ -64,7 +64,7 @@ public final class VoidedEffectState {
 
         state.multiplier = Math.min(state.multiplier + 0.1F, state.maxMultiplier);
         state.ticksUntilNextIncrement = state.incrementInterval;
-        VSQNetworking.sendVoidedSoundState(entity, true, true);
+        VSQNetworking.sendVoidedSoundState(entity, true, true, false);
         if (effect.isVisible()) {
             spawnBurst(serverLevel, entity);
         }
@@ -86,14 +86,7 @@ public final class VoidedEffectState {
 
         STATES.put(entity, new State(multiplier, incrementInterval, ticksUntilNextIncrement, maxMultiplier));
 
-        VSQNetworking.sendVoidedSoundState(entity, true, multiplier > previousMultiplier && LOADING_FROM_NBT.get(entity) == null);
-
-        if (entity.level() instanceof ServerLevel serverLevel
-                && multiplier > previousMultiplier
-                && effect.isVisible()
-                && LOADING_FROM_NBT.get(entity) == null) {
-            spawnBurst(serverLevel, entity);
-        }
+        VSQNetworking.sendVoidedSoundState(entity, true, false, false);
     }
 
     public static float consume(LivingEntity entity) {
@@ -101,13 +94,13 @@ public final class VoidedEffectState {
         if (state == null) {
             return 1.0F;
         }
-        VSQNetworking.sendVoidedSoundState(entity, false, false);
+        VSQNetworking.sendVoidedSoundState(entity, false, false, true);
         return state.multiplier;
     }
 
     public static void clear(LivingEntity entity) {
         if (STATES.containsKey(entity)) {
-            VSQNetworking.sendVoidedSoundState(entity, false, false);
+            VSQNetworking.sendVoidedSoundState(entity, false, false, false);
         }
         STATES.remove(entity);
         PENDING_REMOVALS.remove(entity);

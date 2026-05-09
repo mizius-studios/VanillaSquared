@@ -11,7 +11,8 @@ import org.jspecify.annotations.NonNull;
 public record VoidedSoundPayload(
         int entityId,
         boolean active,
-        boolean playIncrease
+        boolean playIncrease,
+        boolean playConsume
 ) implements CustomPacketPayload {
     public static final Type<VoidedSoundPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath(VanillaSquared.MOD_ID, "voided_sound"));
 
@@ -22,6 +23,8 @@ public record VoidedSoundPayload(
             VoidedSoundPayload::active,
             ByteBufCodecs.BOOL.mapStream(buf -> buf),
             VoidedSoundPayload::playIncrease,
+            ByteBufCodecs.BOOL.mapStream(buf -> buf),
+            VoidedSoundPayload::playConsume,
             VoidedSoundPayload::new
     );
 

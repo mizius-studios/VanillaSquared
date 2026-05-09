@@ -28,10 +28,11 @@ public final class VoidedSoundController {
         ClientTickEvents.END_CLIENT_TICK.register(client -> tick());
     }
 
-    public static void apply(int entityId, boolean active, boolean playIncrease) {
+    public static void apply(int entityId, boolean active, boolean playIncrease, boolean playConsume) {
         State state = STATES.computeIfAbsent(entityId, State::new);
         state.active = active;
         state.pendingMultiplierIncrease |= playIncrease;
+        state.pendingConsume |= playConsume;
     }
 
     public static void tick() {
@@ -47,16 +48,23 @@ public final class VoidedSoundController {
             LivingEntity entity = minecraft.level.getEntity(entry.getKey()) instanceof LivingEntity living ? living : null;
             State state = entry.getValue();
 
+            if (entity != null && !entity.isRemoved()) {
+                if (state.pendingMultiplierIncrease) {
+                    playMultiplierIncrease(entity, soundManager);
+                    state.pendingMultiplierIncrease = false;
+                }
+
+                if (state.pendingConsume) {
+                    playConsume(entity, soundManager);
+                    state.pendingConsume = false;
+                }
+            }
+
             if (!state.active || entity == null || entity.isRemoved()) {
                 if (state.fadeOut(soundManager)) {
                     iterator.remove();
                 }
                 continue;
-            }
-
-            if (state.pendingMultiplierIncrease) {
-                playMultiplierIncrease(entity, soundManager);
-                state.pendingMultiplierIncrease = false;
             }
 
             state.ensurePassive(entity, soundManager);
@@ -90,9 +98,27 @@ public final class VoidedSoundController {
         ));
     }
 
+    private static void playConsume(LivingEntity entity, SoundManager soundManager) {
+        if (entity.isSilent()) {
+            return;
+        }
+        RandomSource random = entity.getRandom();
+        soundManager.play(new SimpleSoundInstance(
+                VSQSoundEvents.VOIDED_CONSUME.value(),
+                entity.getSoundSource(),
+                1.0F,
+                1.0F,
+                random,
+                entity.getX(),
+                entity.getY(),
+                entity.getZ()
+        ));
+    }
+
     private static final class State {
         private boolean active;
         private boolean pendingMultiplierIncrease;
+        private boolean pendingConsume;
         private int passiveFadeTicks;
         private VoidedPassiveSoundInstance passiveSound;
 

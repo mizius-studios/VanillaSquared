@@ -69,12 +69,12 @@ public final class VSQNetworking {
         });
     }
 
-    public static void sendVoidedSoundState(LivingEntity entity, boolean active, boolean playIncrease) {
+    public static void sendVoidedSoundState(LivingEntity entity, boolean active, boolean playIncrease, boolean playConsume) {
         if (!(entity.level() instanceof ServerLevel)) {
             return;
         }
 
-        VoidedSoundPayload payload = new VoidedSoundPayload(entity.getId(), active, playIncrease);
+        VoidedSoundPayload payload = new VoidedSoundPayload(entity.getId(), active, playIncrease, playConsume);
         Set<ServerPlayer> recipients = new LinkedHashSet<>(PlayerLookup.tracking(entity));
         if (entity instanceof ServerPlayer player) {
             recipients.add(player);
@@ -93,7 +93,7 @@ public final class VSQNetworking {
         if (!VoidedEffectState.isActive(entity)) {
             return;
         }
-        ServerPlayNetworking.send(player, new VoidedSoundPayload(entity.getId(), true, false));
+        ServerPlayNetworking.send(player, new VoidedSoundPayload(entity.getId(), true, false, false));
     }
 
     private static void vsq$handleEnchantingBookClick(EnchantingBookClickPayload payload, ServerPlayer player) {

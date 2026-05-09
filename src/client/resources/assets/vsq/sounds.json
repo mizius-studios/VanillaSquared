@@ -45,6 +45,27 @@
       }
     ]
   },
+  "voided_consume": {
+    "subtitle": "subtitles.vsq.voided_consume",
+    "sounds": [
+      {
+        "name": "vsq:voided/voided_enchantment1",
+        "volume": 0.85
+      },
+      {
+        "name": "vsq:voided/voided_enchantment2",
+        "volume": 0.85
+      },
+      {
+        "name": "vsq:voided/voided_enchantment3",
+        "volume": 0.85
+      },
+      {
+        "name": "vsq:voided/voided_enchantment4",
+        "volume": 0.85
+      }
+    ]
+  },
   "dash": {
     "subtitle": "subtitles.vsq.dash",
     "sounds": [

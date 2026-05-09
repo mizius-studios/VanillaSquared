@@ -10,7 +10,7 @@ public final class VoidedSoundPayloadHandler {
 
     public static void register() {
         ClientPlayNetworking.registerGlobalReceiver(VoidedSoundPayload.TYPE, (payload, context) ->
-                context.client().execute(() -> VoidedSoundController.apply(payload.entityId(), payload.active(), payload.playIncrease()))
+                context.client().execute(() -> VoidedSoundController.apply(payload.entityId(), payload.active(), payload.playIncrease(), payload.playConsume()))
         );
     }
 }
