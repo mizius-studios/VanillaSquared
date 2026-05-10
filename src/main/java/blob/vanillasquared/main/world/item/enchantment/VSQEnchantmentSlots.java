@@ -4,6 +4,7 @@ import blob.vanillasquared.util.api.modules.components.VSQDataComponents;
 import blob.vanillasquared.util.api.modules.components.VSQItemComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.TypedDataComponent;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -382,6 +383,7 @@ public final class VSQEnchantmentSlots {
         boolean pickaxe = itemPath.endsWith("_pickaxe");
         boolean elytra = itemPath.equals("elytra");
         boolean spear = itemPath.endsWith("_spear");
+        boolean book = itemPath.equals("book");
 
         if (armor) {
             capacities.put(VSQEnchantmentSlotType.DEFENSE, 3);
@@ -411,8 +413,10 @@ public final class VSQEnchantmentSlots {
             capacities.put(VSQEnchantmentSlotType.SECONDARY, 4);
             capacities.put(VSQEnchantmentSlotType.UTIL, 3);
             capacities.put(VSQEnchantmentSlotType.CURSE, 1);
-        } else if (stack.has(net.minecraft.core.component.DataComponents.ENCHANTABLE)) {
-            Enchantable enchantable = stack.get(net.minecraft.core.component.DataComponents.ENCHANTABLE);
+        } else if (book) {
+            return capacities;
+        } else if (stack.has(DataComponents.ENCHANTABLE)) {
+            Enchantable enchantable = stack.get(DataComponents.ENCHANTABLE);
             if (enchantable != null) {
                 capacities.put(VSQEnchantmentSlotType.UTIL, Math.max(1, Math.min(2, enchantable.value() / 12)));
                 capacities.put(VSQEnchantmentSlotType.CURSE, 1);
@@ -424,7 +428,7 @@ public final class VSQEnchantmentSlots {
 
     private static boolean supportsSlotComponent(ItemStack stack) {
         Item item = stack.getItem();
-        return stack.has(net.minecraft.core.component.DataComponents.ENCHANTABLE) || item instanceof ShieldItem || BuiltInRegistries.ITEM.getKey(item).getPath().equals("shield");
+        return stack.has(DataComponents.ENCHANTABLE) || item instanceof ShieldItem || BuiltInRegistries.ITEM.getKey(item).getPath().equals("shield");
     }
 
     public static VSQEnchantmentComponent createSeededComponent(ItemStack stack) {
