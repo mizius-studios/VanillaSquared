@@ -2,6 +2,7 @@ package blob.vanillasquared.main.world.item.enchantment;
 
 import blob.vanillasquared.util.api.modules.components.VSQDataComponents;
 import blob.vanillasquared.util.api.modules.components.VSQItemComponents;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -11,22 +12,10 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.item.BowItem;
-import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantable;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
-import net.minecraft.world.item.FishingRodItem;
-import net.minecraft.world.item.FlintAndSteelItem;
-import net.minecraft.world.item.HoeItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.MaceItem;
-import net.minecraft.world.item.ShearsItem;
-import net.minecraft.world.item.ShieldItem;
-import net.minecraft.world.item.ShovelItem;
-import net.minecraft.world.item.TridentItem;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -455,7 +444,7 @@ public final class VSQEnchantmentSlots {
 
     public static Optional<VSQEnchantmentComponent> tryPopulateFromVanilla(VSQEnchantmentComponent base, ItemStack stack, ItemEnchantments enchantments) {
         VSQEnchantmentComponent working = base;
-        for (it.unimi.dsi.fastutil.objects.Object2IntMap.Entry<Holder<Enchantment>> entry : enchantments.entrySet()) {
+        for (Object2IntMap.Entry<Holder<Enchantment>> entry : enchantments.entrySet()) {
             Holder<Enchantment> enchantment = entry.getKey();
             int level = entry.getIntValue();
             VSQEnchantmentSlotType slotType = slotType(stack, enchantment);
@@ -546,11 +535,11 @@ public final class VSQEnchantmentSlots {
         return List.copyOf(lines);
     }
 
-    private static net.minecraft.core.component.DataComponentType<ItemEnchantments> vanillaTargetComponent(ItemStack stack) {
-        ItemEnchantments stored = stack.getOrDefault(net.minecraft.core.component.DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
-        if (stack.is(net.minecraft.world.item.Items.ENCHANTED_BOOK) || !stored.isEmpty()) {
-            return net.minecraft.core.component.DataComponents.STORED_ENCHANTMENTS;
+    private static DataComponentType<ItemEnchantments> vanillaTargetComponent(ItemStack stack) {
+        ItemEnchantments stored = stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
+        if (stack.is(Items.ENCHANTED_BOOK) || !stored.isEmpty()) {
+            return DataComponents.STORED_ENCHANTMENTS;
         }
-        return net.minecraft.core.component.DataComponents.ENCHANTMENTS;
+        return DataComponents.ENCHANTMENTS;
     }
 }
