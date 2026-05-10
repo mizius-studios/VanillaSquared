@@ -1,7 +1,6 @@
 package blob.vanillasquared.mixin.client.gui;
 
 import blob.vanillasquared.main.gui.hud.SpecialEnchantmentCooldownClientState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.contextualbar.ContextualBarRenderer;
