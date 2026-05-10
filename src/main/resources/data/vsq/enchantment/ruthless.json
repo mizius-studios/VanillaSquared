@@ -18,14 +18,7 @@
                 "base": 1.25,
                 "per_level_above_first": 0
               }
-            },
-            "requirements": {
-              "condition": "minecraft:entity_properties",
-              "entity": "this",
-              "predicate": {
-                "type": "#minecraft:sensitive_to_bane_of_arthropods"
-              }
-            },
+            }
             "effect_id": "vsq_ruthless_damage"
           }
         ],
