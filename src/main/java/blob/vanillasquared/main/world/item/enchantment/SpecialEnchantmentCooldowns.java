@@ -4,6 +4,8 @@ import blob.vanillasquared.util.api.enchantment.VSQEnchantments;
 
 import blob.vanillasquared.main.VanillaSquared;
 import blob.vanillasquared.main.network.payload.SpecialEnchantmentCooldownPayload;
+import blob.vanillasquared.main.world.item.enchantment.effects.VSQBeginSwirlingEffect;
+import blob.vanillasquared.util.api.enchantment.VSQEnchantmentEffects;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
@@ -18,9 +20,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.equine.AbstractHorse;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.ConditionalEffect;
+import net.minecraft.world.item.enchantment.EnchantedItemInUse;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
+import net.minecraft.world.item.enchantment.EnchantmentTarget;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.world.item.enchantment.TargetedConditionalEffect;
+import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
@@ -58,11 +65,55 @@ public final class SpecialEnchantmentCooldowns {
 
         state.activated = true;
         startCooldownIfEligible(player.level().getGameTime(), use, state);
+        runSwirlingEffects(player, use);
 
         if (shouldClearState(use.profile(), state)) {
             removeState(player, key(use));
         }
         sync(player, use);
+    }
+
+    private static void runSwirlingEffects(ServerPlayer player, SpecialEnchantmentUse use) {
+        if (!(player.level() instanceof ServerLevel level)) {
+            return;
+        }
+
+        List<TargetedConditionalEffect<EnchantmentEntityEffect>> effects =
+                VSQEnchantments.profileEffects(use.stack(), use.enchantment(), VSQEnchantmentEffects.SWIRLING);
+        if (effects.isEmpty()) {
+            return;
+        }
+
+        EnchantedItemInUse itemInUse = new EnchantedItemInUse(use.stack(), use.slot(), player, ignored -> {});
+        var damageSource = player.damageSources().playerAttack(player);
+        var context = Enchantment.damageContext(level, use.level(), player, damageSource);
+        for (int index = 0; index < effects.size(); index++) {
+            TargetedConditionalEffect<EnchantmentEntityEffect> effect = effects.get(index);
+            Entity affected = resolveSpecialAffectedEntity(effect, player);
+            if (!isSpecialEnchantedEntity(effect.enchanted())
+                    || affected == null
+                    || !effect.matches(context)
+                    || !shouldRunSpecialEffect(level, use.stack(), use.enchantment().value(), VSQEnchantmentEffects.SWIRLING, index, player)) {
+                continue;
+            }
+            VSQBeginSwirlingEffect.runWithActiveEnchantment(use.enchantment(), () ->
+                    effect.effect().apply(level, use.level(), itemInUse, affected, affected.position()));
+        }
+    }
+
+    private static boolean isSpecialEnchantedEntity(EnchantmentTarget target) {
+        return switch (target) {
+            case ATTACKER, DAMAGING_ENTITY -> true;
+            case VICTIM -> false;
+        };
+    }
+
+    @Nullable
+    private static Entity resolveSpecialAffectedEntity(TargetedConditionalEffect<EnchantmentEntityEffect> effect, ServerPlayer player) {
+        return switch (effect.affected()) {
+            case ATTACKER, DAMAGING_ENTITY -> player;
+            case VICTIM -> null;
+        };
     }
 
     public static void tickPlayer(ServerPlayer player) {

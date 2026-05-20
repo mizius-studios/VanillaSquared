@@ -7,8 +7,10 @@ import blob.vanillasquared.main.network.payload.EnchantingRecipeStatePayload;
 import blob.vanillasquared.main.network.payload.LungingStatePayload;
 import blob.vanillasquared.main.network.payload.SpecialEnchantmentCooldownPayload;
 import blob.vanillasquared.main.network.payload.SpecialEnchantmentHotkeyPayload;
+import blob.vanillasquared.main.network.payload.SwirlingStatePayload;
 import blob.vanillasquared.main.network.payload.VoidedSoundPayload;
 import blob.vanillasquared.main.world.effect.LungingState;
+import blob.vanillasquared.main.world.effect.SwirlingState;
 import blob.vanillasquared.main.world.effect.VoidedEffectState;
 import blob.vanillasquared.main.world.item.enchantment.SpecialEnchantmentCooldowns;
 import blob.vanillasquared.main.world.inventory.VSQEnchantmentMenu;
@@ -20,6 +22,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
 import java.util.LinkedHashSet;
@@ -36,6 +39,7 @@ public final class VSQNetworking {
         PayloadTypeRegistry.clientboundPlay().register(EnchantingRecipeStatePayload.TYPE, EnchantingRecipeStatePayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(EnchantingRecipeBookSyncPayload.TYPE, EnchantingRecipeBookSyncPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(LungingStatePayload.TYPE, LungingStatePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(SwirlingStatePayload.TYPE, SwirlingStatePayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(SpecialEnchantmentCooldownPayload.TYPE, SpecialEnchantmentCooldownPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(VoidedSoundPayload.TYPE, VoidedSoundPayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(EnchantingBookClickPayload.TYPE, (payload, context) ->
@@ -50,6 +54,7 @@ public final class VSQNetworking {
         EntityTrackingEvents.START_TRACKING.register((trackedEntity, player) -> {
             if (trackedEntity instanceof LivingEntity livingEntity) {
                 vsq$sendCurrentVoidedStateToPlayer(livingEntity, player);
+                SwirlingState.syncToTrackingPlayer(livingEntity, player);
             }
         });
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
@@ -61,6 +66,7 @@ public final class VSQNetworking {
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             SpecialEnchantmentCooldowns.clear(handler.player);
             LungingState.clear(handler.player);
+            SwirlingState.clear(handler.player);
         });
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
@@ -87,6 +93,24 @@ public final class VSQNetworking {
 
     public static void sendLungingState(ServerPlayer player, boolean active) {
         ServerPlayNetworking.send(player, new LungingStatePayload(active));
+    }
+
+    public static void sendSwirlingState(ServerPlayer player, boolean active, int remainingTicks, int totalTicks, int warmupTicks, boolean paused) {
+        sendSwirlingState(player, player.getId(), active, remainingTicks, totalTicks, warmupTicks, paused);
+    }
+
+    public static void sendSwirlingState(ServerPlayer player, int entityId, boolean active, int remainingTicks, int totalTicks, int warmupTicks, boolean paused) {
+        SwirlingStatePayload payload = new SwirlingStatePayload(entityId, active, remainingTicks, totalTicks, warmupTicks, paused);
+        if (entityId == player.getId()) {
+            ServerPlayNetworking.send(player, payload);
+        }
+        Entity entity = player.level().getEntity(entityId);
+        if (entity == null) {
+            return;
+        }
+        for (ServerPlayer recipient : PlayerLookup.tracking(entity)) {
+            ServerPlayNetworking.send(recipient, payload);
+        }
     }
 
     private static void vsq$sendCurrentVoidedStateToPlayer(LivingEntity entity, ServerPlayer player) {

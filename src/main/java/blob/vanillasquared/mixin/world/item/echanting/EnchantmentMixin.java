@@ -5,6 +5,7 @@ import blob.vanillasquared.main.world.item.enchantment.VSQEnchantmentProfile;
 import blob.vanillasquared.main.world.item.enchantment.SpecialEffectMetadataIndex;
 import blob.vanillasquared.main.world.item.enchantment.SpecialEnchantmentCooldowns;
 import blob.vanillasquared.main.world.item.enchantment.effects.VSQBeginLungingEffect;
+import blob.vanillasquared.main.world.item.enchantment.effects.VSQBeginSwirlingEffect;
 import blob.vanillasquared.util.api.enchantment.VSQEnchantments;
 import blob.vanillasquared.main.world.item.enchantment.VSQEnchantmentSlotType;
 import blob.vanillasquared.main.world.effect.ChannelingState;
@@ -163,6 +164,7 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
         }
 
         var context = Enchantment.damageContext(serverLevel, enchantmentLevel, victim, damageSource);
+        Holder<Enchantment> enchantment = this.vsq$holderFor(item.itemStack());
         List<TargetedConditionalEffect<EnchantmentEntityEffect>> list = effects.get();
         for (int index = 0; index < list.size(); index++) {
             TargetedConditionalEffect<EnchantmentEntityEffect> effect = list.get(index);
@@ -173,7 +175,7 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
                 if (affected != null) {
                     ChannelingState.pushExecutionDamageSource(damageSource);
                     try {
-                        effect.effect().apply(serverLevel, enchantmentLevel, item, affected, affected.position());
+                        this.vsq$applyEntityEffect(serverLevel, enchantmentLevel, item, affected, affected.position(), effect.effect(), enchantment);
                     } finally {
                         ChannelingState.popExecutionDamageSource();
                     }
@@ -191,11 +193,12 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
         }
 
         var context = Enchantment.entityContext(serverLevel, enchantmentLevel, user, user.position());
+        Holder<Enchantment> enchantment = this.vsq$holderFor(item.itemStack());
         List<ConditionalEffect<EnchantmentEntityEffect>> list = effects.get();
         for (int index = 0; index < list.size(); index++) {
             ConditionalEffect<EnchantmentEntityEffect> conditional = list.get(index);
             if (conditional.matches(context) && vsq$allowSpecialEffect(serverLevel, item.itemStack(), EnchantmentEffectComponents.POST_PIERCING_ATTACK, index, item.owner())) {
-                conditional.effect().apply(serverLevel, enchantmentLevel, item, user, user.position());
+                this.vsq$applyEntityEffect(serverLevel, enchantmentLevel, item, user, user.position(), conditional.effect(), enchantment);
             }
         }
         ci.cancel();
@@ -209,11 +212,12 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
         }
 
         var context = Enchantment.entityContext(serverLevel, enchantmentLevel, entity, entity.position());
+        Holder<Enchantment> enchantment = this.vsq$holderFor(item.itemStack());
         List<ConditionalEffect<EnchantmentEntityEffect>> list = effects.get();
         for (int index = 0; index < list.size(); index++) {
             ConditionalEffect<EnchantmentEntityEffect> conditional = list.get(index);
             if (conditional.matches(context) && vsq$allowSpecialEffect(serverLevel, item.itemStack(), EnchantmentEffectComponents.TICK, index, item.owner())) {
-                conditional.effect().apply(serverLevel, enchantmentLevel, item, entity, entity.position());
+                this.vsq$applyEntityEffect(serverLevel, enchantmentLevel, item, entity, entity.position(), conditional.effect(), enchantment);
             }
         }
         ci.cancel();
@@ -227,11 +231,12 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
         }
 
         var context = Enchantment.entityContext(serverLevel, enchantmentLevel, projectile, projectile.position());
+        Holder<Enchantment> enchantment = this.vsq$holderFor(weapon.itemStack());
         List<ConditionalEffect<EnchantmentEntityEffect>> list = effects.get();
         for (int index = 0; index < list.size(); index++) {
             ConditionalEffect<EnchantmentEntityEffect> conditional = list.get(index);
             if (conditional.matches(context) && vsq$allowSpecialEffect(serverLevel, weapon.itemStack(), EnchantmentEffectComponents.PROJECTILE_SPAWNED, index, weapon.owner())) {
-                conditional.effect().apply(serverLevel, enchantmentLevel, weapon, projectile, projectile.position());
+                this.vsq$applyEntityEffect(serverLevel, enchantmentLevel, weapon, projectile, projectile.position(), conditional.effect(), enchantment);
             }
         }
         ci.cancel();
@@ -269,6 +274,30 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
     }
 
     @Unique
+    private void vsq$applyEntityEffect(
+            ServerLevel serverLevel,
+            int enchantmentLevel,
+            EnchantedItemInUse item,
+            Entity entity,
+            Vec3 position,
+            EnchantmentEntityEffect effect,
+            Holder<Enchantment> enchantment
+    ) {
+        VSQBeginLungingEffect.runWithActiveEnchantment(enchantment, () ->
+                VSQBeginSwirlingEffect.runWithActiveEnchantment(enchantment, () -> {
+                    if (effect instanceof VSQBeginLungingEffect beginLungingEffect) {
+                        beginLungingEffect.applyWithEnchantment(serverLevel, enchantmentLevel, item, entity, position, enchantment);
+                        return;
+                    }
+                    if (effect instanceof VSQBeginSwirlingEffect beginSwirlingEffect) {
+                        beginSwirlingEffect.applyWithEnchantment(serverLevel, enchantmentLevel, item, entity, position, enchantment);
+                        return;
+                    }
+                    effect.apply(serverLevel, enchantmentLevel, item, entity, position);
+                }));
+    }
+
+    @Unique
     private void vsq$applyHitBlockEffect(
             ServerLevel serverLevel,
             int enchantmentLevel,
@@ -278,13 +307,7 @@ public abstract class EnchantmentMixin implements VSQEnchantmentAccess {
             EnchantmentEntityEffect effect,
             Holder<Enchantment> enchantment
     ) {
-        VSQBeginLungingEffect.runWithActiveEnchantment(enchantment, () -> {
-            if (effect instanceof VSQBeginLungingEffect beginLungingEffect) {
-                beginLungingEffect.applyWithEnchantment(serverLevel, enchantmentLevel, weapon, projectile, position, enchantment);
-                return;
-            }
-            effect.apply(serverLevel, enchantmentLevel, weapon, projectile, position);
-        });
+        this.vsq$applyEntityEffect(serverLevel, enchantmentLevel, weapon, projectile, position, effect, enchantment);
     }
 
     @Inject(method = "modifyItemFilteredCount", at = @At("HEAD"), cancellable = true)

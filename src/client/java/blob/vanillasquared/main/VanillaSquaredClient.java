@@ -3,11 +3,13 @@ package blob.vanillasquared.main;
 import blob.vanillasquared.main.gui.enchantment.VSQEnchantmentScreen;
 import blob.vanillasquared.main.gui.hud.LungingClientState;
 import blob.vanillasquared.main.gui.hud.SpecialEnchantmentCooldownClientState;
+import blob.vanillasquared.main.gui.hud.SwirlingClientState;
 import blob.vanillasquared.main.gui.controls.VSQKeyMappings;
 import blob.vanillasquared.main.network.handlers.EnchantingRecipeBookSyncPayloadHandler;
 import blob.vanillasquared.main.network.handlers.EnchantingRecipeStatePayloadHandler;
 import blob.vanillasquared.main.network.handlers.LungingStatePayloadHandler;
 import blob.vanillasquared.main.network.handlers.SpecialEnchantmentCooldownPayloadHandler;
+import blob.vanillasquared.main.network.handlers.SwirlingStatePayloadHandler;
 import blob.vanillasquared.main.network.handlers.VoidedSoundPayloadHandler;
 import blob.vanillasquared.main.sound.VoidedSoundController;
 import blob.vanillasquared.main.world.inventory.VSQMenuTypes;
@@ -29,6 +31,7 @@ public class VanillaSquaredClient implements ClientModInitializer {
         EnchantingRecipeStatePayloadHandler.register();
         EnchantingRecipeBookSyncPayloadHandler.register();
         LungingStatePayloadHandler.register();
+        SwirlingStatePayloadHandler.register();
         SpecialEnchantmentCooldownPayloadHandler.register();
         VoidedSoundPayloadHandler.register();
         SpecialEnchantmentCooldownClientState.initialize();
@@ -41,6 +44,7 @@ public class VanillaSquaredClient implements ClientModInitializer {
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             EnchantingRecipeStatePayloadHandler.clearAll();
             LungingClientState.clear();
+            SwirlingClientState.clear();
             SpecialEnchantmentCooldownClientState.clear();
             VoidedSoundController.clear();
             EnchantingIngredient.clearTagCache();

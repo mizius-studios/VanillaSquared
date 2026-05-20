@@ -1,0 +1,41 @@
+{
+  "type": "vsq:enchanting",
+  "category": "weapons",
+  "group": "swirling",
+  "name": {
+    "translate": "enchantment.vsq.swirling"
+  },
+  "description": {
+    "translate": "vsq.enchantment.swirling.description"
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": 3
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:book",
+      "count": 2
+    },
+    {
+      "item": "minecraft:breeze_rod",
+      "count": 2
+    },
+    {
+      "item": "minecraft:wind_charge",
+      "count": 4
+    },
+    {
+      "item": "minecraft:feather",
+      "count": 2
+    }
+  ],
+  "enchantment": "vsq:swirling",
+  "blocks": [
+    {
+      "count": 12,
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level_multiplier": 2
+}

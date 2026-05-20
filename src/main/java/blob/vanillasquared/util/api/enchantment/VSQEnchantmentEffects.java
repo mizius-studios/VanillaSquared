@@ -2,6 +2,7 @@ package blob.vanillasquared.util.api.enchantment;
 
 import blob.vanillasquared.main.world.item.enchantment.effects.VSQChannelingEffect;
 import blob.vanillasquared.main.world.item.enchantment.effects.VSQBeginLungingEffect;
+import blob.vanillasquared.main.world.item.enchantment.effects.VSQBeginSwirlingEffect;
 import blob.vanillasquared.main.world.item.enchantment.effects.VSQSendChatMessageEffect;
 import blob.vanillasquared.util.api.modules.components.ComponentRegistry;
 import com.mojang.serialization.Codec;
@@ -11,6 +12,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.context.ContextKeySet;
+import net.minecraft.world.item.enchantment.ConditionalEffect;
 import net.minecraft.world.item.enchantment.TargetedConditionalEffect;
 import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
 import net.minecraft.world.item.enchantment.effects.EnchantmentLocationBasedEffect;
@@ -30,6 +32,11 @@ public final class VSQEnchantmentEffects {
             TargetedConditionalEffect.codec(EnchantmentLocationBasedEffect.CODEC),
             LootContextParamSets.ENCHANTED_DAMAGE
     );
+    public static final DataComponentType<List<TargetedConditionalEffect<EnchantmentEntityEffect>>> SWIRLING = registerValidatedEffectComponent(
+            Identifier.fromNamespaceAndPath("vsq", "swirling"),
+            TargetedConditionalEffect.codec(EnchantmentEntityEffect.CODEC),
+            LootContextParamSets.ENCHANTED_DAMAGE
+    );
 
     public static final MapCodec<? extends EnchantmentEntityEffect> CHANNELING = registerEntityEffect(
             Identifier.fromNamespaceAndPath("vsq", "channeling"),
@@ -38,6 +45,10 @@ public final class VSQEnchantmentEffects {
     public static final MapCodec<? extends EnchantmentEntityEffect> BEGIN_LUNGING = registerEntityEffect(
             Identifier.fromNamespaceAndPath("vsq", "begin_lunging"),
             VSQBeginLungingEffect.MAP_CODEC
+    );
+    public static final MapCodec<? extends EnchantmentEntityEffect> BEGIN_SWIRLING = registerEntityEffect(
+            Identifier.fromNamespaceAndPath("vsq", "begin_swirling"),
+            VSQBeginSwirlingEffect.MAP_CODEC
     );
     public static final MapCodec<? extends EnchantmentEntityEffect> SEND_CHAT_MESSAGE = registerEntityEffect(
             Identifier.fromNamespaceAndPath("vsq", "send_chat_msg"),

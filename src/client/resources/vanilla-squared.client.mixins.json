@@ -23,9 +23,12 @@
 		"gui.RecipeBookComponentAccessor",
 		"world.item.ItemStackMixin",
 		"world.particle.ParticleEngineMixin",
+		"world.entities.AvatarRendererMixin",
 		"world.entities.ClientInputAccessor",
+		"world.entities.ItemInHandLayerMixin",
       	"world.entities.LocalPlayerMixin",
-		"world.entities.PlayerMixin"
+		"world.entities.PlayerMixin",
+		"world.entities.PlayerModelMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
