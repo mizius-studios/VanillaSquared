@@ -2,6 +2,7 @@ package blob.vanillasquared.main.world.item.enchantment;
 
 import blob.vanillasquared.main.VanillaSquared;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
 import com.google.gson.JsonElement;
@@ -44,14 +45,14 @@ public record SpecialEffectMetadataIndex(Map<String, List<SpecialEffectMetadata>
         return List.copyOf(combined);
     }
 
-    public static SpecialEffectMetadataIndex fromDynamic(Optional<Dynamic<?>> dynamic) {
+    public static DataResult<SpecialEffectMetadataIndex> fromDynamic(Optional<Dynamic<?>> dynamic) {
         if (dynamic.isEmpty()) {
-            return EMPTY;
+            return DataResult.success(EMPTY);
         }
 
         JsonElement effectsJson = dynamic.get().convert(JsonOps.INSTANCE).getValue();
         if (!(effectsJson instanceof JsonObject effectsObject)) {
-            return EMPTY;
+            return DataResult.success(EMPTY);
         }
 
         Map<String, List<SpecialEffectMetadata>> byComponent = new LinkedHashMap<>();
@@ -60,7 +61,11 @@ public record SpecialEffectMetadataIndex(Map<String, List<SpecialEffectMetadata>
             if (componentKey.isEmpty()) {
                 continue;
             }
-            List<SpecialEffectMetadata> list = parseEntries(componentKey, entry.getValue());
+            DataResult<List<SpecialEffectMetadata>> parsedEntries = parseEntries(componentKey, entry.getValue());
+            if (parsedEntries.isError()) {
+                return parsedEntries.map(list -> EMPTY);
+            }
+            List<SpecialEffectMetadata> list = parsedEntries.result().orElseThrow();
             if (!list.isEmpty()) {
                 byComponent.merge(componentKey, List.copyOf(list), (existing, added) -> {
                     ArrayList<SpecialEffectMetadata> merged = new ArrayList<>(existing.size() + added.size());
@@ -70,35 +75,42 @@ public record SpecialEffectMetadataIndex(Map<String, List<SpecialEffectMetadata>
                 });
             }
         }
-        return new SpecialEffectMetadataIndex(Collections.unmodifiableMap(byComponent));
+        return DataResult.success(new SpecialEffectMetadataIndex(Collections.unmodifiableMap(byComponent)));
     }
 
-    private static List<SpecialEffectMetadata> parseEntries(String componentKey, JsonElement arrayElement) {
+    private static DataResult<List<SpecialEffectMetadata>> parseEntries(String componentKey, JsonElement arrayElement) {
         if (!(arrayElement instanceof JsonArray entries)) {
-            return List.of();
+            return DataResult.success(List.of());
         }
 
         List<SpecialEffectMetadata> parsed = new ArrayList<>(entries.size());
-        for (JsonElement entryElement : entries) {
+        for (int entryIndex = 0; entryIndex < entries.size(); entryIndex++) {
+            JsonElement entryElement = entries.get(entryIndex);
             if (!(entryElement instanceof JsonObject entry)) {
                 parsed.add(new SpecialEffectMetadata("", Optional.empty()));
                 continue;
             }
 
             JsonElement effectIdElement = entry.get("effect_id");
+            if (effectIdElement == null) {
+                return invalidEffectId(componentKey, entryIndex, "missing effect_id");
+            }
             if (!(effectIdElement instanceof JsonPrimitive primitive) || !primitive.isString()) {
-                parsed.add(new SpecialEffectMetadata("", Optional.empty()));
-                continue;
+                return invalidEffectId(componentKey, entryIndex, "non-string effect_id");
             }
             String effectId = primitive.getAsString().trim();
             if (effectId.isEmpty()) {
-                parsed.add(new SpecialEffectMetadata("", Optional.empty()));
-                continue;
+                return invalidEffectId(componentKey, entryIndex, "blank effect_id");
             }
             Optional<SpecialEffectSettings> special = parseSpecial(componentKey, effectId, entry);
             parsed.add(new SpecialEffectMetadata(effectId, special));
         }
-        return parsed.isEmpty() ? List.of() : List.copyOf(parsed);
+        return DataResult.success(parsed.isEmpty() ? List.of() : List.copyOf(parsed));
+    }
+
+    private static DataResult<List<SpecialEffectMetadata>> invalidEffectId(String componentKey, int entryIndex, String reason) {
+        return DataResult.error(() -> "Invalid special effect metadata entry for component=" + componentKey
+                + ", index=" + entryIndex + ": " + reason);
     }
 
     private static Optional<SpecialEffectSettings> parseSpecial(String componentKey, String effectId, JsonObject entry) {

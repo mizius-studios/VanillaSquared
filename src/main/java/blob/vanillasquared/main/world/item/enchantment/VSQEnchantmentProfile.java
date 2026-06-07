@@ -45,24 +45,13 @@ public record VSQEnchantmentProfile(
         }
     };
 
-    private static final Codec<VSQEnchantmentProfile> BASE_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            VSQEnchantmentProfileRequirement.CODEC.optionalFieldOf("requirement").forGetter(VSQEnchantmentProfile::requirement),
-            VSQEnchantmentSlotType.CODEC.fieldOf("enchantment_slot").forGetter(VSQEnchantmentProfile::enchantmentSlot),
-            RegistryCodecs.homogeneousList(Registries.ENCHANTMENT).optionalFieldOf("exclusive_set", HolderSet.empty()).forGetter(VSQEnchantmentProfile::exclusiveSet),
-            Codec.intRange(1, Enchantment.MAX_LEVEL).fieldOf("max_level").forGetter(VSQEnchantmentProfile::maxLevel),
-            EFFECTS_CODEC.optionalFieldOf("effects", DataComponentMap.EMPTY).forGetter(VSQEnchantmentProfile::effects),
-            SpecialEnchantmentProfileConfig.CODEC.optionalFieldOf("special").forGetter(VSQEnchantmentProfile::special),
-            SpecialEffectMetadataIndex.CODEC.optionalFieldOf("special_effect_index").forGetter(profile -> Optional.of(profile.specialEffectIndex())),
-            EquipmentSlotGroup.CODEC.listOf().fieldOf("slots").forGetter(VSQEnchantmentProfile::slots),
-            Enchantment.Cost.CODEC.fieldOf("max_cost").forGetter(VSQEnchantmentProfile::maxCost),
-            Enchantment.Cost.CODEC.fieldOf("min_cost").forGetter(VSQEnchantmentProfile::minCost)
-    ).apply(instance, VSQEnchantmentProfile::create));
-
     public static final Codec<VSQEnchantmentProfile> CODEC = new Codec<>() {
         @Override
         public <T> DataResult<Pair<VSQEnchantmentProfile, T>> decode(DynamicOps<T> ops, T input) {
             try {
-                return BASE_CODEC.decode(ops, input);
+                return Raw.CODEC.decode(ops, input).flatMap(pair ->
+                        pair.getFirst().decode().map(profile -> Pair.of(profile, pair.getSecond()))
+                );
             } finally {
                 RAW_EFFECTS.remove();
             }
@@ -70,11 +59,20 @@ public record VSQEnchantmentProfile(
 
         @Override
         public <T> DataResult<T> encode(VSQEnchantmentProfile input, DynamicOps<T> ops, T prefix) {
-            return BASE_CODEC.encode(input, ops, prefix);
+            return Raw.CODEC.encode(Raw.encode(input), ops, prefix);
         }
     };
 
-    private static VSQEnchantmentProfile create(
+    private static DataResult<SpecialEffectMetadataIndex> decodeSpecialEffectIndex(
+            Optional<Dynamic<?>> rawEffects,
+            Optional<SpecialEffectMetadataIndex> encodedSpecialEffectIndex
+    ) {
+        return encodedSpecialEffectIndex
+                .map(DataResult::success)
+                .orElseGet(() -> SpecialEffectMetadataIndex.fromDynamic(rawEffects));
+    }
+
+    private record Raw(
             Optional<VSQEnchantmentProfileRequirement> requirement,
             VSQEnchantmentSlotType enchantmentSlot,
             HolderSet<Enchantment> exclusiveSet,
@@ -86,27 +84,52 @@ public record VSQEnchantmentProfile(
             Enchantment.Cost maxCost,
             Enchantment.Cost minCost
     ) {
-        Optional<Dynamic<?>> rawEffects = RAW_EFFECTS.get();
-        RAW_EFFECTS.remove();
-        return new VSQEnchantmentProfile(
-                requirement,
-                enchantmentSlot,
-                exclusiveSet,
-                maxLevel,
-                effects,
-                special,
-                decodeSpecialEffectIndex(rawEffects, encodedSpecialEffectIndex),
-                slots,
-                maxCost,
-                minCost
-        );
-    }
+        private static final Codec<Raw> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                VSQEnchantmentProfileRequirement.CODEC.optionalFieldOf("requirement").forGetter(Raw::requirement),
+                VSQEnchantmentSlotType.CODEC.fieldOf("enchantment_slot").forGetter(Raw::enchantmentSlot),
+                RegistryCodecs.homogeneousList(Registries.ENCHANTMENT).optionalFieldOf("exclusive_set", HolderSet.empty()).forGetter(Raw::exclusiveSet),
+                Codec.intRange(1, Enchantment.MAX_LEVEL).fieldOf("max_level").forGetter(Raw::maxLevel),
+                EFFECTS_CODEC.optionalFieldOf("effects", DataComponentMap.EMPTY).forGetter(Raw::effects),
+                SpecialEnchantmentProfileConfig.CODEC.optionalFieldOf("special").forGetter(Raw::special),
+                SpecialEffectMetadataIndex.CODEC.optionalFieldOf("special_effect_index").forGetter(Raw::encodedSpecialEffectIndex),
+                EquipmentSlotGroup.CODEC.listOf().fieldOf("slots").forGetter(Raw::slots),
+                Enchantment.Cost.CODEC.fieldOf("max_cost").forGetter(Raw::maxCost),
+                Enchantment.Cost.CODEC.fieldOf("min_cost").forGetter(Raw::minCost)
+        ).apply(instance, Raw::new));
 
-    private static SpecialEffectMetadataIndex decodeSpecialEffectIndex(
-            Optional<Dynamic<?>> rawEffects,
-            Optional<SpecialEffectMetadataIndex> encodedSpecialEffectIndex
-    ) {
-        return encodedSpecialEffectIndex.orElseGet(() -> SpecialEffectMetadataIndex.fromDynamic(rawEffects));
+        private DataResult<VSQEnchantmentProfile> decode() {
+            Optional<Dynamic<?>> rawEffects = RAW_EFFECTS.get();
+            RAW_EFFECTS.remove();
+            return decodeSpecialEffectIndex(rawEffects, this.encodedSpecialEffectIndex).map(specialEffectIndex ->
+                    new VSQEnchantmentProfile(
+                            this.requirement,
+                            this.enchantmentSlot,
+                            this.exclusiveSet,
+                            this.maxLevel,
+                            this.effects,
+                            this.special,
+                            specialEffectIndex,
+                            this.slots,
+                            this.maxCost,
+                            this.minCost
+                    )
+            );
+        }
+
+        private static Raw encode(VSQEnchantmentProfile profile) {
+            return new Raw(
+                    profile.requirement(),
+                    profile.enchantmentSlot(),
+                    profile.exclusiveSet(),
+                    profile.maxLevel(),
+                    profile.effects(),
+                    profile.special(),
+                    Optional.of(profile.specialEffectIndex()),
+                    profile.slots(),
+                    profile.maxCost(),
+                    profile.minCost()
+            );
+        }
     }
 
     public boolean matches(ItemStack stack) {
