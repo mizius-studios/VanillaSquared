@@ -88,7 +88,7 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
                 ? ContainerLevelAccess.create(playerInventory.player.level(), blockPos)
                 : ContainerLevelAccess.NULL;
         this.player = playerInventory.player;
-        this.vsq$rebuildRecipeBookIndex();
+        this.vsq$clearRecipeBookIndex();
         this.addSlot(new Slot(this.enchantSlots, EnchantingSlotLayout.INPUT_SLOT, 26, 23));
         this.addSlot(new Slot(this.enchantSlots, EnchantingSlotLayout.MATERIAL_SLOT, 80, 36));
         this.addSlot(new Slot(this.enchantSlots, EnchantingSlotLayout.FIRST_CROSS_SLOT, 80, 18));
@@ -397,7 +397,7 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
     private void vsq$refresh(ServerPlayer player) {
         this.playerLevel = player.experienceLevel;
         int previousSelectedId = this.selectedDisplayId;
-        this.vsq$rebuildRecipeBookIndex(player);
+        this.vsq$rebuildUnlockedRecipeBookIndex(player);
         Map<Identifier, Integer> detectedBlocks = this.vsq$collectDetectedBlocks();
         this.vsq$sendRecipeBookSync(player, true, detectedBlocks);
         EnchantingRecipeInput input = this.vsq$createRecipeInput();
@@ -508,15 +508,13 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
         return EnchantingMenuSharedLogic.createRecipeInput(this.enchantSlots::getItem);
     }
 
-    private void vsq$rebuildRecipeBookIndex() {
+    private void vsq$clearRecipeBookIndex() {
         this.displayRecipes.clear();
-        int displayId = 0;
-        for (RecipeHolder<EnchantingRecipe> holder : EnchantingRecipeRegistry.recipes()) {
-            this.displayRecipes.put(displayId++, holder);
-        }
+        this.selectedDisplayId = -1;
+        this.selectedRecipeId = null;
     }
 
-    private void vsq$rebuildRecipeBookIndex(ServerPlayer player) {
+    private void vsq$rebuildUnlockedRecipeBookIndex(ServerPlayer player) {
         this.displayRecipes.clear();
         int displayId = 0;
         for (RecipeHolder<EnchantingRecipe> holder : EnchantingRecipeRegistry.recipes()) {
