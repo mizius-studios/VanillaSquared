@@ -1,0 +1,17 @@
+{
+  "features": {
+    "enabled": [
+      "vsq:combat_rebalance_v2"
+    ]
+  },
+  "pack": {
+    "description": {
+      "translate": "vsq.gui.experiments.combat_rebalance_v2.description"
+    },
+    "max_format": 101,
+    "min_format": [
+      101,
+      1
+    ]
+  }
+}

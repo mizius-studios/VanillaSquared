@@ -34,11 +34,11 @@ public abstract class ServerConfigurationPacketListenerImplMixin extends ServerC
                     shift = At.Shift.AFTER
             )
     )
-    private void vsq$sendPreviewRegistriesOverNetwork(CallbackInfo ci) {
+    private void vsq$sendExperimentRegistriesOverNetwork(CallbackInfo ci) {
         SynchronizeRegistriesTaskAccessor accessor = (SynchronizeRegistriesTaskAccessor) this.synchronizeRegistriesTask;
         List<KnownPack> requestedPacks = accessor.vsq$getRequestedPacks();
         List<KnownPack> filteredPacks = requestedPacks.stream()
-                .filter(knownPack -> !VSQExperiments.BUILTIN_PACK_ID.toString().equals(knownPack.id()))
+                .filter(knownPack -> !VSQExperiments.isBuiltinPackId(knownPack.id()))
                 .toList();
 
         if (filteredPacks.size() != requestedPacks.size()) {

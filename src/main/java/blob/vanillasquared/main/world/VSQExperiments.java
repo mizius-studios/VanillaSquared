@@ -12,11 +12,33 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.flag.FeatureFlag;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 public final class VSQExperiments {
     public static final Identifier PREVIEW_FEATURE_ID = Identifier.fromNamespaceAndPath(VanillaSquared.MOD_ID, "preview");
-    public static final Identifier BUILTIN_PACK_ID = Identifier.fromNamespaceAndPath(VanillaSquared.MOD_ID, "vsq_preview");
+    public static final Identifier PREVIEW_BUILTIN_PACK_ID = Identifier.fromNamespaceAndPath(VanillaSquared.MOD_ID, "vsq_preview");
+    public static final Identifier COMBAT_REBALANCE_V2_FEATURE_ID = Identifier.fromNamespaceAndPath(VanillaSquared.MOD_ID, "combat_rebalance_v2");
+    public static final Identifier COMBAT_REBALANCE_V2_BUILTIN_PACK_ID = Identifier.fromNamespaceAndPath(VanillaSquared.MOD_ID, "combat_rebalance_v2");
 
-    private static FeatureFlag previewFlag;
+    private static final List<BuiltinExperiment> BUILTIN_EXPERIMENTS = List.of(
+            new BuiltinExperiment(
+                    PREVIEW_FEATURE_ID,
+                    PREVIEW_BUILTIN_PACK_ID,
+                    "vsq.gui.experiments.vsq",
+                    "vsq.gui.experiments.vsq.description"
+            ),
+            new BuiltinExperiment(
+                    COMBAT_REBALANCE_V2_FEATURE_ID,
+                    COMBAT_REBALANCE_V2_BUILTIN_PACK_ID,
+                    "vsq.gui.experiments.combat_rebalance_v2",
+                    "vsq.gui.experiments.combat_rebalance_v2.description"
+            )
+    );
+
+    private static final Map<Identifier, FeatureFlag> FEATURE_FLAGS = new ConcurrentHashMap<>();
 
     private VSQExperiments() {
     }
@@ -26,13 +48,15 @@ public final class VSQExperiments {
                 .getModContainer("vanilla-squared")
                 .orElseThrow(() -> new IllegalStateException("Missing mod container for vanilla-squared"));
 
-        if (!ResourceLoader.registerBuiltinPack(
-                BUILTIN_PACK_ID,
-                modContainer,
-                Component.translatable("vsq.gui.experiments.vsq"),
-                PackActivationType.NORMAL
-        )) {
-            VanillaSquared.LOGGER.warn("Failed to register VSQ Preview builtin datapack {}", BUILTIN_PACK_ID);
+        for (BuiltinExperiment experiment : BUILTIN_EXPERIMENTS) {
+            if (!ResourceLoader.registerBuiltinPack(
+                    experiment.packId(),
+                    modContainer,
+                    Component.translatable(experiment.titleKey()),
+                    PackActivationType.NORMAL
+            )) {
+                VanillaSquared.LOGGER.warn("Failed to register VSQ builtin datapack {}", experiment.packId());
+            }
         }
 
         ServerPlayerEvents.JOIN.register(VSQExperiments::grantPreviewRecipes);
@@ -40,7 +64,12 @@ public final class VSQExperiments {
     }
 
     public static boolean isPreviewEnabled(ServerLevel level) {
-        return previewFlag != null && level.enabledFeatures().contains(previewFlag);
+        return isEnabled(level, PREVIEW_FEATURE_ID);
+    }
+
+    public static boolean isEnabled(ServerLevel level, Identifier featureId) {
+        FeatureFlag featureFlag = FEATURE_FLAGS.get(featureId);
+        return featureFlag != null && level.enabledFeatures().contains(featureFlag);
     }
 
     public static void grantPreviewRecipes(ServerPlayer player) {
@@ -49,7 +78,27 @@ public final class VSQExperiments {
         }
     }
 
-    public static void vsq$setPreviewFlag(FeatureFlag flag) {
-        previewFlag = flag;
+    public static List<Identifier> builtinFeatureIds() {
+        return BUILTIN_EXPERIMENTS.stream()
+                .map(BuiltinExperiment::featureId)
+                .toList();
+    }
+
+    public static Set<String> builtinPackIds() {
+        return BUILTIN_EXPERIMENTS.stream()
+                .map(BuiltinExperiment::packId)
+                .map(Identifier::toString)
+                .collect(java.util.stream.Collectors.toUnmodifiableSet());
+    }
+
+    public static boolean isBuiltinPackId(String packId) {
+        return builtinPackIds().contains(packId);
+    }
+
+    public static void vsq$setFeatureFlag(Identifier featureId, FeatureFlag flag) {
+        FEATURE_FLAGS.put(featureId, flag);
+    }
+
+    private record BuiltinExperiment(Identifier featureId, Identifier packId, String titleKey, String descriptionKey) {
     }
 }

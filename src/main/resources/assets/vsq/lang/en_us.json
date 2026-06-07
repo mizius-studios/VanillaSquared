@@ -1,6 +1,8 @@
 {
   "vsq.gui.experiments.vsq": "VSQ Preview",
   "vsq.gui.experiments.vsq.description": "Test out experimental features.",
+  "vsq.gui.experiments.combat_rebalance_v2": "Combat Rebalance V2",
+  "vsq.gui.experiments.combat_rebalance_v2.description": "Rebalances the Combat to align more with Vanilla",
   "vsq.gui.container.enchantment_table.xp": "%s",
   "vsq.gui.container.enchantment_table.blocks": "%s",
   "vsq.gui.container.enchantment_table.xp.tooltip": "%s/%s Levels",
