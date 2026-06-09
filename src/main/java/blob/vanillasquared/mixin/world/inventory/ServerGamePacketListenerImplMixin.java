@@ -26,6 +26,7 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class ServerGamePacketListenerImplMixin {
+    @Unique
     private static final TagKey<Item> VSQ_SPEARS = TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("minecraft", "spears"));
 
     @Shadow
