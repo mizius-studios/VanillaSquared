@@ -14,6 +14,7 @@
     "world.attributes.RangedAttributeMixin",
     "world.dmgsources.CombatRulesMixin",
     "world.entity.EntityFlagsPredicateMixin",
+    "world.entity.LivingEntityAccessor",
     "world.entity.LivingEntityAttributesMixin",
     "world.entity.LivingEntityMixin",
     "commands.EnchantCommandMixin",
