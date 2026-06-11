@@ -147,13 +147,13 @@
               "damage_type": "vsq:eviscerate",
               "max_damage": {
                 "type": "minecraft:linear",
-                "base": 6,
-                "per_level_above_first": 3
+                "base": 10,
+                "per_level_above_first": 10
               },
               "min_damage": {
                 "type": "minecraft:linear",
-                "base": 6,
-                "per_level_above_first": 3
+                "base": 10,
+                "per_level_above_first": 10
               }
             },
             "requirements": {

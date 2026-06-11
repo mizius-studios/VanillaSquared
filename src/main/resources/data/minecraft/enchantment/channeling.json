@@ -22,13 +22,13 @@
                   "target_limit": 3,
                   "block_limit": 8,
                   "duration": 10,
-                  "pass_through": "#vsq:hit_through"
+                  "pass_through": "#vsq:channeling"
                 },
                 {
                   "type": "minecraft:damage_entity",
                   "damage_type": "minecraft:lightning_bolt",
-                  "max_damage": 7,
-                  "min_damage": 5
+                  "max_damage": 8,
+                  "min_damage": 6
                 }
               ]
             },
@@ -43,8 +43,8 @@
             "effect": {
               "type": "minecraft:damage_entity",
               "damage_type": "minecraft:lightning_bolt",
-              "max_damage": 5,
-              "min_damage": 4
+              "max_damage": 6,
+              "min_damage": 5
             },
             "enchanted": "attacker",
             "id": "vsq_channeling_path_0",
