@@ -31,10 +31,8 @@ loom {
 	// this allows you to offline login to my account - PainterFlow11, you can replace PainterFlow11 with your own username
 	runs {
 		client {
-			programArg("--username")
-			programArg("PainterFlow11") // usernameVSQ
-			programArg("--model")
-			programArg("slim") // modelVSQ
+			programArgs("--username", "PainterFlow11") // usernameVSQ
+			programArgs("--model", "slim") // modelVSQ
 		}
 	}
 }
