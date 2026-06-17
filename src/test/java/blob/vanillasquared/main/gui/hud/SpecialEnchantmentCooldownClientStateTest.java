@@ -39,14 +39,14 @@ class SpecialEnchantmentCooldownClientStateTest {
         applyCooldown(SPECIAL_A, 40L);
 
         assertTrue(SpecialEnchantmentCooldownClientState.visibleCooldown(Optional.of(SPECIAL_A), Optional.empty()).isPresent());
-        assertTrue(SpecialEnchantmentCooldownClientState.visibleCooldown(Optional.empty(), Optional.empty()).isPresent());
+        assertFalse(SpecialEnchantmentCooldownClientState.visibleCooldown(Optional.empty(), true, Optional.empty(), false).isPresent());
 
         SpecialEnchantmentCooldownClientState.advanceTickForTest(true);
         SpecialEnchantmentCooldownClientState.advanceTickForTest(true);
 
-        assertFalse(SpecialEnchantmentCooldownClientState.visibleCooldown(Optional.empty(), Optional.empty()).isPresent());
+        assertFalse(SpecialEnchantmentCooldownClientState.visibleCooldown(Optional.empty(), true, Optional.empty(), false).isPresent());
         SpecialEnchantmentCooldownClientState.apply(SPECIAL_A, 0L, 0L, 0, SpecialEnchantmentCooldownPayload.DISPLAY_NONE, false, true);
-        assertFalse(SpecialEnchantmentCooldownClientState.shouldReserveContextualBar(Optional.empty(), Optional.empty()));
+        assertFalse(SpecialEnchantmentCooldownClientState.visibleCooldown(Optional.empty(), true, Optional.empty(), false).isPresent());
     }
 
     @Test
@@ -54,6 +54,12 @@ class SpecialEnchantmentCooldownClientStateTest {
         applyCooldown(SPECIAL_A, 40L);
 
         assertTrue(SpecialEnchantmentCooldownClientState.visibleCooldown(Optional.of(SPECIAL_A), Optional.empty()).isPresent());
+        assertTrue(SpecialEnchantmentCooldownClientState.visibleCooldown(Optional.of(SPECIAL_B), Optional.empty()).isPresent());
+
+        SpecialEnchantmentCooldownClientState.advanceTickForTest(true);
+        assertTrue(SpecialEnchantmentCooldownClientState.visibleCooldown(Optional.of(SPECIAL_B), Optional.empty()).isPresent());
+
+        SpecialEnchantmentCooldownClientState.advanceTickForTest(true);
         assertTrue(SpecialEnchantmentCooldownClientState.visibleCooldown(Optional.of(SPECIAL_B), Optional.empty()).isPresent());
 
         SpecialEnchantmentCooldownClientState.advanceTickForTest(true);
