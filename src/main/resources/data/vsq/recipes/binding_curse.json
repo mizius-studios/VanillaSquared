@@ -33,9 +33,9 @@
   "enchantment": "minecraft:binding_curse",
   "blocks": [
     {
-      "count": 2,
+      "count": 3,
       "block": "#vsq:enchantment_blocks"
     }
   ],
-  "level_multiplier": 5
+  "level": 4
 }

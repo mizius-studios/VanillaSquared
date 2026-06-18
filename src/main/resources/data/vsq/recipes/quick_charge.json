@@ -10,7 +10,11 @@
   },
   "material": {
     "item": "minecraft:lapis_lazuli",
-    "count": 6
+    "count": {
+      "type": "minecraft:linear",
+      "base": 3,
+      "per_level_above_first": 3
+    }
   },
   "ingredients": [
     {
@@ -19,11 +23,19 @@
     },
     {
       "item": "minecraft:book",
-      "count": 2
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
     },
     {
       "item": "minecraft:arrow",
-      "count": 16
+      "count": {
+        "type": "minecraft:linear",
+        "base": 4,
+        "per_level_above_first": 4
+      }
     },
     {
       "item": "minecraft:crossbow",
@@ -33,9 +45,17 @@
   "enchantment": "minecraft:quick_charge",
   "blocks": [
     {
-      "count": 3,
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      },
       "block": "#vsq:enchantment_blocks"
     }
   ],
-  "level_multiplier": 2
+  "level": {
+    "type": "minecraft:linear",
+    "base": 3,
+    "per_level_above_first": 3
+  }
 }

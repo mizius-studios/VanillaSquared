@@ -10,7 +10,11 @@
   },
   "material": {
     "item": "minecraft:lapis_lazuli",
-    "count": 4
+    "count": {
+      "type": "minecraft:linear",
+      "base": 4,
+      "per_level_above_first": 4
+    }
   },
   "ingredients": [
     {
@@ -19,11 +23,19 @@
     },
     {
       "item": "minecraft:fire_charge",
-      "count": 2
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 3
+      }
     },
     {
       "item": "minecraft:magma_block",
-      "count": 2
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 2
+      }
     },
     {
       "item": "minecraft:lava_bucket",
@@ -33,9 +45,17 @@
   "enchantment": "minecraft:fire_aspect",
   "blocks": [
     {
-      "count": 3,
+      "count": {
+        "type": "minecraft:linear",
+        "base": 6,
+        "per_level_above_first": 3
+      },
       "block": "#vsq:enchantment_blocks"
     }
   ],
-  "level_multiplier": 2
+  "level": {
+    "type": "minecraft:linear",
+    "base": 3,
+    "per_level_above_first": 4
+  }
 }

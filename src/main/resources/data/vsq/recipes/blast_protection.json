@@ -10,12 +10,20 @@
   },
   "material": {
     "item": "minecraft:lapis_lazuli",
-    "count": 4
+    "count": {
+      "type": "minecraft:linear",
+      "base": 2,
+      "per_level_above_first": 3
+    }
   },
   "ingredients": [
     {
       "item": "minecraft:tnt",
-      "count": 2
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 1
+      }
     },
     {
       "item": "minecraft:tnt_minecart",
@@ -23,11 +31,19 @@
     },
     {
       "item": "minecraft:gunpowder",
-      "count": 3
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 1
+      }
     },
     {
       "item": "minecraft:firework_star",
-      "count": 2
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
     }
   ],
   "enchantment": "minecraft:blast_protection",
@@ -37,5 +53,9 @@
       "block": "#vsq:enchantment_blocks"
     }
   ],
-  "level_multiplier": 2
+  "level": {
+    "type": "minecraft:linear",
+    "base": 4,
+    "per_level_above_first": 1
+  }
 }

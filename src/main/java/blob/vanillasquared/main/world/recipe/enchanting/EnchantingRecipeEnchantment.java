@@ -122,13 +122,6 @@ public record EnchantingRecipeEnchantment(Identifier enchantment) {
         return Math.max(VSQEnchantments.maxLevel(originalStack, this.vsq$enchantmentHolder(registries)), 1);
     }
 
-    public int xpCost(ItemStack originalStack, HolderLookup.Provider registries) {
-        if (!this.canApplyNextLevel(originalStack, registries)) {
-            return 0;
-        }
-        return this.nextLevel(originalStack, registries) * 3;
-    }
-
     public Component displayName(ItemStack originalStack, HolderLookup.Provider registries) {
         MutableComponent name = this.vsq$enchantmentHolder(registries).value().description().copy();
         if (this.maxLevel(originalStack, registries) == 1) {

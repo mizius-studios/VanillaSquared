@@ -10,20 +10,36 @@
   },
   "material": {
     "item": "minecraft:lapis_lazuli",
-    "count": 3
+    "count": {
+      "type": "minecraft:linear",
+      "base": 2,
+      "per_level_above_first": 2
+    }
   },
   "ingredients": [
     {
-      "count": 3,
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 2
+      },
       "item": "#minecraft:fishes"
     },
     {
       "item": "minecraft:prismarine_crystals",
-      "count": 4
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 2
+      }
     },
     {
       "item": "minecraft:prismarine_shard",
-      "count": 4
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 2
+      }
     },
     {
       "item": "minecraft:water_bucket",
@@ -33,9 +49,17 @@
   "enchantment": "minecraft:impaling",
   "blocks": [
     {
-      "count": 6,
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      },
       "block": "#vsq:enchantment_blocks"
     }
   ],
-  "level_multiplier": 2
+  "level": {
+    "type": "minecraft:linear",
+    "base": 3,
+    "per_level_above_first": 3
+  }
 }

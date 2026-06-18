@@ -297,10 +297,10 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
             return false;
         }
 
-        this.getSlot(EnchantingSlotLayout.MATERIAL_SLOT).remove(recipe.material().count());
+        this.getSlot(EnchantingSlotLayout.MATERIAL_SLOT).remove(recipe.materialCount(input, player.registryAccess()));
         for (int ingredientIndex = 0; ingredientIndex < recipe.ingredients().size(); ingredientIndex++) {
             int matchedSlotIndex = match.get().matchedCrossSlots().get(ingredientIndex);
-            this.getSlot(EnchantingSlotLayout.FIRST_CROSS_SLOT + matchedSlotIndex).remove(recipe.ingredients().get(ingredientIndex).count());
+            this.getSlot(EnchantingSlotLayout.FIRST_CROSS_SLOT + matchedSlotIndex).remove(recipe.ingredientCount(recipe.ingredients().get(ingredientIndex), input, player.registryAccess()));
         }
         int xpCost = recipe.xpCost(input, player.registryAccess());
         if (xpCost > 0) {
@@ -412,9 +412,9 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
         }
 
         EnchantingRecipe recipe = recipeHolder.get().value();
-        List<EnchantingRecipe.BlockRequirementDisplay> blockDisplay = recipe.blockRequirementDisplay(detectedBlocks);
+        List<EnchantingRecipe.BlockRequirementDisplay> blockDisplay = recipe.blockRequirementDisplay(input, detectedBlocks, player.registryAccess());
         this.levelRequirement = recipe.xpCost(input, player.registryAccess());
-        this.blockRequirement = recipe.blocks().stream().mapToInt(EnchantingBlockRequirement::count).sum();
+        this.blockRequirement = recipe.blocks().stream().mapToInt(requirement -> recipe.blockRequirementCount(requirement, input, player.registryAccess())).sum();
         this.nearbyBlockCount = this.blockRequirement == -1 ? -1 : blockDisplay.stream().mapToInt(EnchantingRecipe.BlockRequirementDisplay::placedCount).sum();
         Component recipeName = recipe.displayName(input, player.registryAccess());
         Component recipeDescription = recipe.description();
@@ -447,7 +447,7 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
                         && selected.value().wouldModifyInput(input, registries)
                         && selected.value().respectsVanillaEnchantmentIncompatibilities(input, registries)
                         && selected.value().canPlayerCraft(input, playerLevel, registries)
-                        && selected.value().hasRequiredBlocks(detectedBlocks)) {
+                        && selected.value().hasRequiredBlocks(input, detectedBlocks, registries)) {
                     return Optional.of(selected);
                 } else {
                     return Optional.empty();
@@ -464,7 +464,7 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
                 .filter(holder -> holder.value().wouldModifyInput(input, registries))
                 .filter(holder -> holder.value().respectsVanillaEnchantmentIncompatibilities(input, registries))
                 .filter(holder -> holder.value().canPlayerCraft(input, playerLevel, registries))
-                .filter(holder -> holder.value().hasRequiredBlocks(detectedBlocks))
+                .filter(holder -> holder.value().hasRequiredBlocks(input, detectedBlocks, registries))
                 .findFirst();
     }
 
@@ -545,7 +545,7 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
             PlannedRecipePlacement plannedPlacement = this.vsq$planRecipePlacement(holder.value(), player.registryAccess());
             boolean craftable = plannedPlacement.fullyPlaced()
                     && holder.value().canPlayerCraft(plannedPlacement.input(), player.experienceLevel, player.registryAccess())
-                    && holder.value().hasRequiredBlocks(detectedBlocks);
+                    && holder.value().hasRequiredBlocks(plannedPlacement.input(), detectedBlocks, player.registryAccess());
             recipeViews.add(new EnchantingRecipeBookSyncPayload.RecipeView(holder, Optional.of(plannedPlacement.input()), craftable));
         }
         ServerPlayNetworking.send(player, EnchantingRecipeBookSyncPayload.create(this.containerId, replace, recipeViews, player.registryAccess()));
@@ -596,7 +596,7 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
                 continue;
             }
 
-            int placedCount = Math.min(availableStack.count(), requirement.ingredient().count());
+            int placedCount = Math.min(availableStack.count(), requirement.count(recipe, registries, plannedSlots));
             ItemStack candidate = availableStack.prototype().copyWithCount(placedCount);
             if (!requirement.ingredient().matchesIgnoringCount(candidate)) {
                 continue;
@@ -729,6 +729,17 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
     }
 
     private record SlotRequirement(int slotIndex, EnchantingIngredient ingredient) {
+        private int count(EnchantingRecipe recipe, HolderLookup.Provider registries, PlannedSlotPlacement[] plannedSlots) {
+            if (this.slotIndex == EnchantingSlotLayout.INPUT_SLOT) {
+                return this.ingredient.count(1);
+            }
+            EnchantingRecipeInput partialInput = new EnchantingRecipeInput(
+                    plannedSlots[EnchantingSlotLayout.INPUT_SLOT].stack(),
+                    ItemStack.EMPTY,
+                    List.of(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY)
+            );
+            return this.ingredient.count(recipe.nextLevel(partialInput, registries));
+        }
     }
 
     private enum PlayerItemSourceKind {
@@ -804,14 +815,15 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
                             plannedSlots[EnchantingSlotLayout.FIRST_CROSS_SLOT + 3].stack().copy()
                     )
             );
+            int nextLevel = recipe.nextLevel(placedInput, registries);
             EnchantingRecipeInput missingInput = new EnchantingRecipeInput(
-                    vsq$missingInputStack(recipe, inputIngredient, registries, placedInput.input()),
-                    vsq$missingStack(recipe.material(), placedInput.material()),
+                    vsq$missingInputStack(recipe, inputIngredient, registries, nextLevel, placedInput.input()),
+                    vsq$missingStack(recipe.material(), nextLevel, placedInput.material()),
                     List.of(
-                            vsq$missingStack(recipe.ingredients().get(0), placedInput.ingredients().get(0)),
-                            vsq$missingStack(recipe.ingredients().get(1), placedInput.ingredients().get(1)),
-                            vsq$missingStack(recipe.ingredients().get(2), placedInput.ingredients().get(2)),
-                            vsq$missingStack(recipe.ingredients().get(3), placedInput.ingredients().get(3))
+                            vsq$missingStack(recipe.ingredients().get(0), nextLevel, placedInput.ingredients().get(0)),
+                            vsq$missingStack(recipe.ingredients().get(1), nextLevel, placedInput.ingredients().get(1)),
+                            vsq$missingStack(recipe.ingredients().get(2), nextLevel, placedInput.ingredients().get(2)),
+                            vsq$missingStack(recipe.ingredients().get(3), nextLevel, placedInput.ingredients().get(3))
                     )
             );
             return new PlannedRecipePlacement(
@@ -847,8 +859,8 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
         }
     }
 
-    private static ItemStack vsq$missingStack(EnchantingIngredient ingredient, ItemStack placedStack) {
-        int missingCount = ingredient.count() - placedStack.getCount();
+    private static ItemStack vsq$missingStack(EnchantingIngredient ingredient, int nextLevel, ItemStack placedStack) {
+        int missingCount = ingredient.count(nextLevel) - placedStack.getCount();
         if (missingCount <= 0) {
             return ItemStack.EMPTY;
         }
@@ -867,8 +879,8 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
         return preview;
     }
 
-    private static ItemStack vsq$missingInputStack(EnchantingRecipe recipe, EnchantingIngredient ingredient, HolderLookup.Provider registries, ItemStack placedStack) {
-        int missingCount = ingredient.count() - placedStack.getCount();
+    private static ItemStack vsq$missingInputStack(EnchantingRecipe recipe, EnchantingIngredient ingredient, HolderLookup.Provider registries, int nextLevel, ItemStack placedStack) {
+        int missingCount = ingredient.count(nextLevel) - placedStack.getCount();
         if (missingCount <= 0) {
             return ItemStack.EMPTY;
         }
@@ -879,6 +891,6 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
             return preview;
         }
 
-        return vsq$missingStack(ingredient, placedStack);
+        return vsq$missingStack(ingredient, nextLevel, placedStack);
     }
 }

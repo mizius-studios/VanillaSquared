@@ -37,5 +37,9 @@
       "block": "#vsq:enchantment_blocks"
     }
   ],
-  "level_multiplier": 10
+  "level": {
+    "type": "minecraft:linear",
+    "base": 30,
+    "per_level_above_first": 30
+  }
 }

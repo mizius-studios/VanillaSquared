@@ -10,32 +10,60 @@
   },
   "material": {
     "item": "minecraft:lapis_lazuli",
-    "count": 3
+    "count": {
+      "type": "minecraft:linear",
+      "base": 3,
+      "per_level_above_first": 3
+    }
   },
   "ingredients": [
     {
       "item": "minecraft:soul_sand",
-      "count": 4
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
     },
     {
       "item": "minecraft:soul_soil",
-      "count": 4
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
     },
     {
       "item": "minecraft:ghast_tear",
-      "count": 1
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 1
+      }
     },
     {
       "item": "minecraft:dried_ghast",
-      "count": 1
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 1
+      }
     }
   ],
   "enchantment": "minecraft:soul_speed",
   "blocks": [
     {
-      "count": 3,
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      },
       "block": "#vsq:enchantment_blocks"
     }
   ],
-  "level_multiplier": 2
+  "level": {
+    "type": "minecraft:linear",
+    "base": 3,
+    "per_level_above_first": 3
+  }
 }

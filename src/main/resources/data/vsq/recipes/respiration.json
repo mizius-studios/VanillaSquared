@@ -10,12 +10,20 @@
   },
   "material": {
     "item": "minecraft:lapis_lazuli",
-    "count": 4
+    "count": {
+      "type": "minecraft:linear",
+      "base": 3,
+      "per_level_above_first": 3
+    }
   },
   "ingredients": [
     {
       "item": "minecraft:sponge",
-      "count": 4
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
     },
     {
       "item": "minecraft:water_bucket",
@@ -23,19 +31,35 @@
     },
     {
       "item": "minecraft:prismarine_shard",
-      "count": 4
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
     },
     {
       "item": "minecraft:prismarine_crystals",
-      "count": 4
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
     }
   ],
   "enchantment": "minecraft:respiration",
   "blocks": [
     {
-      "count": 3,
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      },
       "block": "#vsq:enchantment_blocks"
     }
   ],
-  "level_multiplier": 3
+  "level": {
+    "type": "minecraft:linear",
+    "base": 6,
+    "per_level_above_first": 2
+  }
 }

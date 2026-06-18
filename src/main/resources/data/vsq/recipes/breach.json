@@ -10,7 +10,11 @@
   },
   "material": {
     "item": "minecraft:lapis_lazuli",
-    "count": 3
+    "count": {
+      "type": "minecraft:linear",
+      "base": 2,
+      "per_level_above_first": 2
+    }
   },
   "ingredients": [
     {
@@ -19,11 +23,19 @@
     },
     {
       "item": "minecraft:firework_rocket",
-      "count": 4
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
     },
     {
       "item": "minecraft:firework_star",
-      "count": 4
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 1
+      }
     },
     {
       "item": "minecraft:shield",
@@ -33,9 +45,17 @@
   "enchantment": "minecraft:breach",
   "blocks": [
     {
-      "count": 16,
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      },
       "block": "#vsq:enchantment_blocks"
     }
   ],
-  "level_multiplier": 3
+  "level": {
+    "type": "minecraft:linear",
+    "base": 3,
+    "per_level_above_first": 2
+  }
 }

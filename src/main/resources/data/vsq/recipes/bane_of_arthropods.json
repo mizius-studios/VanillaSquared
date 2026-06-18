@@ -10,24 +10,44 @@
   },
   "material": {
     "item": "minecraft:lapis_lazuli",
-    "count": 3
+    "count": {
+      "type": "minecraft:linear",
+      "base": 2,
+      "per_level_above_first": 2
+    }
   },
   "ingredients": [
     {
       "item": "minecraft:spider_eye",
-      "count": 4
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
     },
     {
       "item": "minecraft:string",
-      "count": 4
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 2
+      }
     },
     {
       "item": "minecraft:fermented_spider_eye",
-      "count": 2
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 1
+      }
     },
     {
       "item": "minecraft:book",
-      "count": 2
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 2
+      }
     }
   ],
   "enchantment": "minecraft:bane_of_arthropods",
@@ -37,5 +57,9 @@
       "block": "#vsq:enchantment_blocks"
     }
   ],
-  "level_multiplier": 2
+  "level": {
+    "type": "minecraft:linear",
+    "base": 2,
+    "per_level_above_first": 1
+  }
 }

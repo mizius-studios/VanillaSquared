@@ -10,7 +10,11 @@
   },
   "material": {
     "item": "minecraft:lapis_lazuli",
-    "count": 6
+    "count": {
+      "type": "minecraft:linear",
+      "base": 3,
+      "per_level_above_first": 3
+    }
   },
   "ingredients": [
     {
@@ -23,7 +27,11 @@
     },
     {
       "item": "minecraft:grindstone",
-      "count": 2
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 1
+      }
     },
     {
       "count": 1,
@@ -33,9 +41,17 @@
   "enchantment": "minecraft:sharpness",
   "blocks": [
     {
-      "count": 16,
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      },
       "block": "#vsq:enchantment_blocks"
     }
   ],
-  "level_multiplier": 3
+  "level": {
+    "type": "minecraft:linear",
+    "base": 3,
+    "per_level_above_first": 3
+  }
 }

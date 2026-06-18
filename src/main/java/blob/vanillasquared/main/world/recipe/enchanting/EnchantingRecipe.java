@@ -22,6 +22,7 @@ import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public record EnchantingRecipe(
         EnchantingIngredient material,
         List<EnchantingIngredient> ingredients,
         List<EnchantingBlockRequirement> blocks,
-        int levelMultiplier,
+        LevelBasedValue level,
         EnchantingRecipeEnchantment enchantment
 ) implements Recipe<EnchantingRecipeInput> {
     private static final Codec<List<EnchantingIngredient>> INGREDIENTS_CODEC = ExtraCodecs.JSON.flatXmap(
@@ -57,7 +58,11 @@ public record EnchantingRecipe(
             EnchantingIngredient.CODEC.fieldOf("material").forGetter(EnchantingRecipe::material),
             INGREDIENTS_CODEC.fieldOf("ingredients").forGetter(EnchantingRecipe::ingredients),
             BLOCKS_CODEC.optionalFieldOf("blocks", List.of()).forGetter(EnchantingRecipe::blocks),
-            Codec.INT.optionalFieldOf("level_multiplier", 1).forGetter(EnchantingRecipe::levelMultiplier),
+            EnchantingRecipeValue.CODEC.fieldOf("level").forGetter(EnchantingRecipe::level),
+            Codec.INT.optionalFieldOf("level_multiplier").validate(value -> value.isPresent()
+                    ? DataResult.error(() -> "level_multiplier is no longer supported; use level")
+                    : DataResult.success(value)
+            ).forGetter(recipe -> Optional.empty()),
             EnchantingRecipeEnchantment.CODEC.fieldOf("enchantment").forGetter(EnchantingRecipe::enchantment)
     ).apply(instance, EnchantingRecipe::vsq$create));
 
@@ -72,7 +77,7 @@ public record EnchantingRecipe(
                     EnchantingIngredient.STREAM_CODEC.decode(buf),
                     EnchantingIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf),
                     EnchantingBlockRequirement.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf),
-                    ByteBufCodecs.VAR_INT.decode(buf),
+                    EnchantingRecipeValue.STREAM_CODEC.decode(buf),
                     EnchantingRecipeEnchantment.STREAM_CODEC.decode(buf)
             );
         }
@@ -86,7 +91,7 @@ public record EnchantingRecipe(
             EnchantingIngredient.STREAM_CODEC.encode(buf, value.material());
             EnchantingIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, value.ingredients());
             EnchantingBlockRequirement.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, value.blocks());
-            ByteBufCodecs.VAR_INT.encode(buf, value.levelMultiplier());
+            EnchantingRecipeValue.STREAM_CODEC.encode(buf, value.level());
             EnchantingRecipeEnchantment.STREAM_CODEC.encode(buf, value.enchantment());
         }
     };
@@ -97,7 +102,9 @@ public record EnchantingRecipe(
         blocks = List.copyOf(blocks);
         name = name.copy();
         description = description.copy();
-        levelMultiplier = Math.max(levelMultiplier, 1);
+        if (level == null) {
+            throw new IllegalArgumentException("Enchanting recipe level must be defined");
+        }
         if (ingredients.size() != 4) {
             throw new IllegalArgumentException("Enchanting recipes require exactly 4 cross ingredients");
         }
@@ -148,13 +155,14 @@ public record EnchantingRecipe(
     }
 
     public Optional<Match> findMatch(EnchantingRecipeInput input, HolderLookup.Provider registries) {
-        if (!this.inputIngredient(registries).test(input.input()) || !this.material.test(input.material())) {
+        int nextLevel = this.nextLevel(input, registries);
+        if (!this.inputIngredient(registries).test(input.input(), nextLevel) || !this.material.test(input.material(), nextLevel)) {
             return Optional.empty();
         }
-        return this.vsq$findCrossMatch(input);
+        return this.vsq$findCrossMatch(input, nextLevel);
     }
 
-    private Optional<Match> vsq$findCrossMatch(EnchantingRecipeInput input) {
+    private Optional<Match> vsq$findCrossMatch(EnchantingRecipeInput input, int nextLevel) {
         List<ItemStack> crossStacks = input.ingredients();
         boolean[] usedSlots = new boolean[crossStacks.size()];
         List<Integer> matchedCrossSlots = new ArrayList<>(this.ingredients.size());
@@ -169,7 +177,7 @@ public record EnchantingRecipe(
             boolean matched = false;
 
             for (int i = 0; i < crossStacks.size(); i++) {
-                if (usedSlots[i] || !ingredient.test(crossStacks.get(i))) {
+                if (usedSlots[i] || !ingredient.test(crossStacks.get(i), nextLevel)) {
                     continue;
                 }
 
@@ -204,7 +212,10 @@ public record EnchantingRecipe(
     }
 
     public int xpCost(EnchantingRecipeInput input, HolderLookup.Provider registries) {
-        return this.enchantment.xpCost(input.input(), registries) * this.levelMultiplier;
+        if (!this.enchantment.canApplyNextLevel(input.input(), registries)) {
+            return 0;
+        }
+        return EnchantingRecipeValue.requiredLevel(this.level, this.nextLevel(input, registries));
     }
 
     public Component displayName(EnchantingRecipeInput input, HolderLookup.Provider registries) {
@@ -215,29 +226,51 @@ public record EnchantingRecipe(
         return this.enchantment.displayName(ItemStack.EMPTY, registries);
     }
 
-    public boolean hasRequiredBlocks(Map<Identifier, Integer> countedBlocks) {
+    public boolean hasRequiredBlocks(EnchantingRecipeInput input, Map<Identifier, Integer> countedBlocks, HolderLookup.Provider registries) {
+        int nextLevel = this.nextLevel(input, registries);
         for (EnchantingBlockRequirement requirement : this.blocks) {
-            if (!requirement.matches(countedBlocks)) {
+            if (!requirement.matches(countedBlocks, nextLevel)) {
                 return false;
             }
         }
         return true;
     }
 
-    public List<BlockRequirementDisplay> blockRequirementDisplay(Map<Identifier, Integer> countedBlocks) {
+    public List<BlockRequirementDisplay> blockRequirementDisplay(EnchantingRecipeInput input, Map<Identifier, Integer> countedBlocks, HolderLookup.Provider registries) {
+        int nextLevel = this.nextLevel(input, registries);
         List<BlockRequirementDisplay> display = new ArrayList<>(this.blocks.size());
         for (EnchantingBlockRequirement requirement : this.blocks) {
-            display.add(new BlockRequirementDisplay(requirement.displayBlockId(), requirement.placedCount(countedBlocks), requirement.count()));
+            display.add(new BlockRequirementDisplay(requirement.displayBlockId(), requirement.placedCount(countedBlocks), requirement.count(nextLevel)));
         }
         return display;
     }
 
     public EnchantingIngredient inputIngredient(HolderLookup.Provider registries) {
-        return new EnchantingIngredient(this.enchantment.supportedItemsIngredient(registries), 1, null);
+        return new EnchantingIngredient(this.enchantment.supportedItemsIngredient(registries), EnchantingRecipeValue.constant(1), null);
     }
 
-    private static EnchantingRecipe vsq$create(EnchantingRecipeCategory category, String group, Component name, Component description, EnchantingIngredient material, List<EnchantingIngredient> ingredients, List<EnchantingBlockRequirement> blocks, int levelMultiplier, EnchantingRecipeEnchantment enchantment) {
-        return new EnchantingRecipe(category, group, name, description, material, ingredients, blocks, levelMultiplier, enchantment);
+    public int materialCount(EnchantingRecipeInput input, HolderLookup.Provider registries) {
+        return this.material.count(this.nextLevel(input, registries));
+    }
+
+    public int ingredientCount(EnchantingIngredient ingredient, EnchantingRecipeInput input, HolderLookup.Provider registries) {
+        return ingredient.count(this.nextLevel(input, registries));
+    }
+
+    public int blockRequirementCount(EnchantingBlockRequirement requirement, EnchantingRecipeInput input, HolderLookup.Provider registries) {
+        return requirement.count(this.nextLevel(input, registries));
+    }
+
+    public int nextLevel(EnchantingRecipeInput input, HolderLookup.Provider registries) {
+        return this.enchantment.nextLevel(input.input(), registries);
+    }
+
+    private static EnchantingRecipe vsq$create(EnchantingRecipeCategory category, String group, Component name, Component description, EnchantingIngredient material, List<EnchantingIngredient> ingredients, List<EnchantingBlockRequirement> blocks, LevelBasedValue level, Optional<Integer> ignoredLevelMultiplier, EnchantingRecipeEnchantment enchantment) {
+        return new EnchantingRecipe(category, group, name, description, material, ingredients, blocks, level, enchantment);
+    }
+
+    private static EnchantingRecipe vsq$create(EnchantingRecipeCategory category, String group, Component name, Component description, EnchantingIngredient material, List<EnchantingIngredient> ingredients, List<EnchantingBlockRequirement> blocks, LevelBasedValue level, EnchantingRecipeEnchantment enchantment) {
+        return new EnchantingRecipe(category, group, name, description, material, ingredients, blocks, level, enchantment);
     }
 
     private static DataResult<List<EnchantingIngredient>> vsq$decodeIngredients(JsonElement json) {

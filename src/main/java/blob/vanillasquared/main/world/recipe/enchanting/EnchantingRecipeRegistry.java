@@ -96,7 +96,7 @@ public final class EnchantingRecipeRegistry {
     private static boolean vsq$hasCraftableMatch(EnchantingRecipe recipe, EnchantingRecipeInput input, int playerLevel, Map<Identifier, Integer> countedBlocks, HolderLookup.Provider registries) {
         return vsq$hasStructuralMatch(recipe, input, registries)
                 && recipe.canPlayerCraft(input, playerLevel, registries)
-                && recipe.hasRequiredBlocks(countedBlocks);
+                && recipe.hasRequiredBlocks(input, countedBlocks, registries);
     }
 
     private static final class ReloadListener extends SimpleReloadListener<Map<ResourceKey<Recipe<?>>, RecipeHolder<EnchantingRecipe>>> {

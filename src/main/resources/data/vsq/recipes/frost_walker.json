@@ -10,32 +10,60 @@
   },
   "material": {
     "item": "minecraft:lapis_lazuli",
-    "count": 4
+    "count": {
+      "type": "minecraft:linear",
+      "base": 3,
+      "per_level_above_first": 5
+    }
   },
   "ingredients": [
     {
       "item": "minecraft:ice",
-      "count": 4
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 2
+      }
     },
     {
       "item": "minecraft:packed_ice",
-      "count": 2
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 2
+      }
     },
     {
       "item": "minecraft:blue_ice",
-      "count": 1
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 2
+      }
     },
     {
       "item": "minecraft:book",
-      "count": 3
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 4
+      }
     }
   ],
   "enchantment": "minecraft:frost_walker",
   "blocks": [
     {
-      "count": 3,
+      "count": {
+        "type": "minecraft:linear",
+        "base": 6,
+        "per_level_above_first": 6
+      },
       "block": "#vsq:enchantment_blocks"
     }
   ],
-  "level_multiplier": 2
+  "level": {
+    "type": "minecraft:linear",
+    "base": 6,
+    "per_level_above_first": 4
+  }
 }

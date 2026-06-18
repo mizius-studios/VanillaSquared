@@ -58,7 +58,7 @@ public record EnchantingRecipeBookSyncPayload(int containerId, boolean replace, 
                     recipe.category(),
                     group,
                     vsq$createDisplay(recipe, registries, view.previewInput()),
-                    view.craftable() ? vsq$createCraftingRequirements(recipe, registries) : Optional.empty()
+                    view.craftable() ? vsq$createCraftingRequirements(recipe, registries, view.previewInput()) : Optional.empty()
             ));
         }
         return new EnchantingRecipeBookSyncPayload(containerId, replace, entries);
@@ -96,10 +96,11 @@ public record EnchantingRecipeBookSyncPayload(int containerId, boolean replace, 
                 ingredients.add(vsq$stackDisplay(stack));
             }
         } else {
-            ingredients.add(recipe.enchantment().previewInputDisplay(registries, recipe.inputIngredient(registries).count()));
-            ingredients.add(recipe.material().display());
+            int nextLevel = previewInput.map(input -> recipe.nextLevel(input, registries)).orElse(1);
+            ingredients.add(recipe.enchantment().previewInputDisplay(registries, recipe.inputIngredient(registries).count(nextLevel)));
+            ingredients.add(recipe.material().display(recipe.material().count(nextLevel)));
             for (EnchantingIngredient ingredient : recipe.ingredients()) {
-                ingredients.add(ingredient.display());
+                ingredients.add(ingredient.display(ingredient.count(nextLevel)));
             }
         }
         return new ShapelessCraftingRecipeDisplay(
@@ -116,28 +117,29 @@ public record EnchantingRecipeBookSyncPayload(int containerId, boolean replace, 
         );
     }
 
-    private static Optional<List<Ingredient>> vsq$createCraftingRequirements(EnchantingRecipe recipe, HolderLookup.Provider registries) {
+    private static Optional<List<Ingredient>> vsq$createCraftingRequirements(EnchantingRecipe recipe, HolderLookup.Provider registries, Optional<EnchantingRecipeInput> previewInput) {
+        int nextLevel = previewInput.map(input -> recipe.nextLevel(input, registries)).orElse(1);
         List<Ingredient> craftingRequirements = new ArrayList<>();
-        if (!vsq$appendRequirements(craftingRequirements, recipe.inputIngredient(registries))) {
+        if (!vsq$appendRequirements(craftingRequirements, recipe.inputIngredient(registries), nextLevel)) {
             return Optional.empty();
         }
-        if (!vsq$appendRequirements(craftingRequirements, recipe.material())) {
+        if (!vsq$appendRequirements(craftingRequirements, recipe.material(), nextLevel)) {
             return Optional.empty();
         }
         for (EnchantingIngredient ingredient : recipe.ingredients()) {
-            if (!vsq$appendRequirements(craftingRequirements, ingredient)) {
+            if (!vsq$appendRequirements(craftingRequirements, ingredient, nextLevel)) {
                 return Optional.empty();
             }
         }
         return Optional.of(List.copyOf(craftingRequirements));
     }
 
-    private static boolean vsq$appendRequirements(List<Ingredient> craftingRequirements, EnchantingIngredient ingredient) {
+    private static boolean vsq$appendRequirements(List<Ingredient> craftingRequirements, EnchantingIngredient ingredient, int nextLevel) {
         Optional<Ingredient> safeIngredient = ingredient.safeIngredient();
         if (safeIngredient.isEmpty()) {
             return false;
         }
-        for (int index = 0; index < ingredient.count(); index++) {
+        for (int index = 0; index < ingredient.count(nextLevel); index++) {
             craftingRequirements.add(safeIngredient.get());
         }
         return true;

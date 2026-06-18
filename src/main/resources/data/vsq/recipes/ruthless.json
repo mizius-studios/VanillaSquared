@@ -10,16 +10,28 @@
   },
   "material": {
     "item": "minecraft:lapis_lazuli",
-    "count": 5
+    "count": {
+      "type": "minecraft:linear",
+      "base": 5,
+      "per_level_above_first": 3
+    }
   },
   "ingredients": [
     {
       "item": "minecraft:skeleton_skull",
-      "count": 1
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 1
+      }
     },
     {
       "item": "minecraft:wither_rose",
-      "count": 4
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
     },
     {
       "item": "#minecraft:swords",
@@ -33,9 +45,17 @@
   "enchantment": "vsq:ruthless",
   "blocks": [
     {
-      "count": 9,
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      },
       "block": "#vsq:enchantment_blocks"
     }
   ],
-  "level_multiplier": 8
+  "level": {
+    "type": "minecraft:linear",
+    "base": 6,
+    "per_level_above_first": 3
+  }
 }

@@ -10,16 +10,28 @@
   },
   "material": {
     "item": "minecraft:lapis_lazuli",
-    "count": 3
+    "count": {
+      "type": "minecraft:linear",
+      "base": 3,
+      "per_level_above_first": 3
+    }
   },
   "ingredients": [
     {
-      "count": 4,
+      "count": {
+        "type": "minecraft:linear",
+        "base": 5,
+        "per_level_above_first": 5
+      },
       "item": "#minecraft:fishes"
     },
     {
       "item": "minecraft:book",
-      "count": 3
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      }
     },
     {
       "count": 1,
@@ -33,9 +45,17 @@
   "enchantment": "minecraft:lure",
   "blocks": [
     {
-      "count": 3,
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      },
       "block": "#vsq:enchantment_blocks"
     }
   ],
-  "level_multiplier": 3
+  "level": {
+    "type": "minecraft:linear",
+    "base": 3,
+    "per_level_above_first": 3
+  }
 }

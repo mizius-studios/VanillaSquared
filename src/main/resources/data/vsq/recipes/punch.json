@@ -10,7 +10,11 @@
   },
   "material": {
     "item": "minecraft:lapis_lazuli",
-    "count": 5
+    "count": {
+      "type": "minecraft:linear",
+      "base": 4,
+      "per_level_above_first": 4
+    }
   },
   "ingredients": [
     {
@@ -23,19 +27,35 @@
     },
     {
       "item": "minecraft:slime_ball",
-      "count": 4
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 2
+      }
     },
     {
       "item": "minecraft:wind_charge",
-      "count": 4
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      }
     }
   ],
   "enchantment": "minecraft:punch",
   "blocks": [
     {
-      "count": 6,
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      },
       "block": "#vsq:enchantment_blocks"
     }
   ],
-  "level_multiplier": 3
+  "level": {
+    "type": "minecraft:linear",
+    "base": 6,
+    "per_level_above_first": 3
+  }
 }
