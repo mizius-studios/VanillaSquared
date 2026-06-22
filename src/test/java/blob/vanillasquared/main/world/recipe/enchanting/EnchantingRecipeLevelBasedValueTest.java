@@ -158,6 +158,7 @@ class EnchantingRecipeLevelBasedValueTest {
                 {
                   "type": "vsq:enchanting",
                   "category": "weapons",
+                  "description": "Sharpness recipe description",
                   "icon": {
                     "id": "minecraft:enchanted_book",
                     "components": {

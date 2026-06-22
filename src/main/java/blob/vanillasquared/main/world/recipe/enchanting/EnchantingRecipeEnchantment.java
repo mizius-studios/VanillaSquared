@@ -105,9 +105,15 @@ public record EnchantingRecipeEnchantment(Identifier enchantment) {
             return name;
         }
         int level = this.nextLevel(originalStack, registries);
-        return name
-                .append(Component.literal(" "))
-                .append(Component.translatable("enchantment.level." + level));
+        return Component.translatable("vsq.enchantment.recipe.name", name, Component.translatable("enchantment.level." + level));
+    }
+
+    public Component recipeBookDisplayName(HolderLookup.Provider registries) {
+        Enchantment enchantment = this.vsq$enchantmentHolder(registries).value();
+        Component name = enchantment.description().copy();
+        return enchantment.getMaxLevel() == 1
+                ? name
+                : Component.translatable("vsq.enchantment.recipe.name", name, Component.translatable("enchantment.level.1"));
     }
 
     public boolean isBelowMaximumLevel(ItemStack originalStack, HolderLookup.Provider registries) {

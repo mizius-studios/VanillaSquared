@@ -1,6 +1,9 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.impaling.description"
+  },
   "group": "trident",
   "icon": {
     "id": "minecraft:drowned_spawn_egg",

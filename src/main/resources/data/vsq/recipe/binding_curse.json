@@ -1,6 +1,9 @@
 {
   "type": "vsq:enchanting",
   "category": "util",
+  "description": {
+    "translate": "vsq.enchantment.binding_curse.description"
+  },
   "group": "curses",
   "icon": {
     "id": "minecraft:iron_chain",

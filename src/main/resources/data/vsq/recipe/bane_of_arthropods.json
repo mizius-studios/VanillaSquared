@@ -1,6 +1,9 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.bane_of_arthropods.description"
+  },
   "group": "damage",
   "icon": {
     "id": "minecraft:spider_eye",

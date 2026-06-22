@@ -6,6 +6,8 @@ import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipe;
 import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipeCategory;
 import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipeInput;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -81,7 +83,7 @@ public record EnchantingRecipeBookSyncPayload(int containerId, boolean replace, 
         }
         return new ShapelessCraftingRecipeDisplay(
                 ingredients,
-                recipe.icon().display(),
+                vsq$resultDisplay(recipe, registries),
                 new SlotDisplay.ItemSlotDisplay(Items.ENCHANTING_TABLE)
         );
     }
@@ -105,7 +107,7 @@ public record EnchantingRecipeBookSyncPayload(int containerId, boolean replace, 
         }
         return new ShapelessCraftingRecipeDisplay(
                 ingredients,
-                recipe.icon().display(),
+                vsq$resultDisplay(recipe, registries),
                 new SlotDisplay.ItemSlotDisplay(Items.ENCHANTING_TABLE)
         );
     }
@@ -140,6 +142,14 @@ public record EnchantingRecipeBookSyncPayload(int containerId, boolean replace, 
 
     private static SlotDisplay vsq$stackDisplay(ItemStack stack) {
         return stack.isEmpty() ? Empty.INSTANCE : new SlotDisplay.ItemStackSlotDisplay(ItemStackTemplate.fromNonEmptyStack(stack));
+    }
+
+    private static SlotDisplay vsq$resultDisplay(EnchantingRecipe recipe, HolderLookup.Provider registries) {
+        DataComponentPatch.SplitResult configured = recipe.icon().components().split();
+        DataComponentPatch.Builder components = DataComponentPatch.builder().set(configured.added());
+        configured.removed().forEach(components::remove);
+        components.set(DataComponents.ITEM_NAME, recipe.previewName(registries));
+        return new SlotDisplay.ItemStackSlotDisplay(new ItemStackTemplate(recipe.icon().id(), 1, components.build()));
     }
 
     private static SlotDisplay vsq$missingInputDisplay(EnchantingRecipe recipe, HolderLookup.Provider registries, ItemStack missingStack) {

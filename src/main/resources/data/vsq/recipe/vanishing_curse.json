@@ -1,6 +1,9 @@
 {
   "type": "vsq:enchanting",
   "category": "util",
+  "description": {
+    "translate": "vsq.enchantment.vanishing_curse.description"
+  },
   "group": "curses",
   "icon": {
     "id": "minecraft:white_stained_glass_pane",

@@ -1,13 +1,22 @@
 {
   "type": "vsq:enchanting",
   "category": "armor",
+  "description": {
+    "translate": "vsq.enchantment.swift_sneak.description"
+  },
   "icon": {
     "id": "minecraft:golden_leggings",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.swift_sneak"
       },
-      "minecraft:enchantment_glint_override": true
+      "minecraft:enchantment_glint_override": true,
+      "minecraft:tooltip_display": {
+        "hidden_components": [
+          "vsq:enchantment",
+          "minecraft:attribute_modifiers"
+        ]
+      }
     }
   },
   "material": {

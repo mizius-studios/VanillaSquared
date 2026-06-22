@@ -1,6 +1,9 @@
 {
   "type": "vsq:enchanting",
   "category": "armor",
+  "description": {
+    "translate": "vsq.enchantment.feather_falling.description"
+  },
   "group": "protection",
   "icon": {
     "id": "minecraft:feather",

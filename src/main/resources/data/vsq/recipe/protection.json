@@ -1,6 +1,9 @@
 {
   "type": "vsq:enchanting",
   "category": "armor",
+  "description": {
+    "translate": "vsq.enchantment.protection.description"
+  },
   "group": "protection",
   "icon": {
     "id": "minecraft:diamond_chestplate",
@@ -8,7 +11,13 @@
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.protection"
       },
-      "minecraft:enchantment_glint_override": true
+      "minecraft:enchantment_glint_override": true,
+      "minecraft:tooltip_display": {
+        "hidden_components": [
+          "vsq:enchantment",
+          "minecraft:attribute_modifiers"
+        ]
+      }
     }
   },
   "material": {

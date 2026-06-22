@@ -1,13 +1,22 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.dash.description"
+  },
   "icon": {
     "id": "minecraft:iron_sword",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.vsq.dash"
       },
-      "minecraft:enchantment_glint_override": true
+      "minecraft:enchantment_glint_override": true,
+      "minecraft:tooltip_display": {
+        "hidden_components": [
+          "vsq:enchantment",
+          "minecraft:attribute_modifiers"
+        ]
+      }
     }
   },
   "material": {

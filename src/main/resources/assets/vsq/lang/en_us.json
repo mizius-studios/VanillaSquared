@@ -2,6 +2,7 @@
   "vsq.gui.experiments.vsq": "VSQ Preview",
   "vsq.gui.experiments.vsq.description": "Test out experimental features.",
   "vsq.gui.container.enchantment_table.xp": "%s",
+  "vsq.enchantment.recipe.name": "%s %s",
   "vsq.gui.container.enchantment_table.blocks": "%s",
   "vsq.gui.container.enchantment_table.xp.tooltip": "%s/%s Levels",
   "vsq.gui.container.enchantment_table.blocks.tooltip.entry": "%s/%s %s",

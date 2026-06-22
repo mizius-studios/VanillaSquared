@@ -1,6 +1,9 @@
 {
   "type": "vsq:enchanting",
   "category": "util",
+  "description": {
+    "translate": "vsq.enchantment.mending.description"
+  },
   "group": "durability",
   "icon": {
     "id": "minecraft:experience_bottle",

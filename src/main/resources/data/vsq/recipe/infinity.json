@@ -1,13 +1,22 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.infinity.description"
+  },
   "icon": {
     "id": "minecraft:bow",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.infinity"
       },
-      "minecraft:enchantment_glint_override": true
+      "minecraft:enchantment_glint_override": true,
+      "minecraft:tooltip_display": {
+        "hidden_components": [
+          "vsq:enchantment",
+          "minecraft:attribute_modifiers"
+        ]
+      }
     }
   },
   "material": {

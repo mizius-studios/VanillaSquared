@@ -430,8 +430,8 @@ public class VSQEnchantmentMenu extends RecipeBookMenu implements VSQEnchantment
         this.levelRequirement = recipe.xpCost(input, player.registryAccess());
         this.blockRequirement = recipe.blocks().stream().mapToInt(requirement -> recipe.blockRequirementCount(requirement, input, player.registryAccess())).sum();
         this.nearbyBlockCount = this.blockRequirement == -1 ? -1 : blockDisplay.stream().mapToInt(EnchantingRecipe.BlockRequirementDisplay::placedCount).sum();
-        Component recipeName = recipe.iconName();
-        Component recipeDescription = recipe.iconDescription();
+        Component recipeName = recipe.displayName(input, player.registryAccess());
+        Component recipeDescription = recipe.description();
         this.vsq$sendDetectedBlockCounts(blockDisplay, this.levelRequirement, this.blockRequirement, player.experienceLevel, recipeName, recipeDescription, player, selectionWasCleared);
     }
 

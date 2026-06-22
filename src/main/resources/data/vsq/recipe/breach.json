@@ -1,6 +1,9 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.breach.description"
+  },
   "group": "mace",
   "icon": {
     "id": "minecraft:heavy_core",

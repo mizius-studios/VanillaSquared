@@ -1,6 +1,9 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.smite.description"
+  },
   "group": "damage",
   "icon": {
     "id": "minecraft:bone",

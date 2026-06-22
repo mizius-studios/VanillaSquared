@@ -1,6 +1,9 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.ruthless.description"
+  },
   "group": "damage",
   "icon": {
     "id": "minecraft:netherite_sword",
@@ -8,7 +11,13 @@
       "minecraft:item_name": {
         "translate": "enchantment.vsq.ruthless"
       },
-      "minecraft:enchantment_glint_override": true
+      "minecraft:enchantment_glint_override": true,
+      "minecraft:tooltip_display": {
+        "hidden_components": [
+          "vsq:enchantment",
+          "minecraft:attribute_modifiers"
+        ]
+      }
     }
   },
   "material": {

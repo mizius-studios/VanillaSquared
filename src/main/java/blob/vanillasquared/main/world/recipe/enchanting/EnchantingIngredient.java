@@ -97,14 +97,19 @@ public record EnchantingIngredient(Ingredient ingredient, LevelBasedValue count,
                 return builder.build(prefix);
             }
 
-            return Ingredient.CODEC.encodeStart(ops, input.ingredient).flatMap(encoded -> ops.getMap(encoded).flatMap(map -> {
+            return Ingredient.CODEC.encodeStart(ops, input.ingredient).flatMap(encoded -> {
                 var builder = ops.mapBuilder();
-                map.entries().forEach(entry -> builder.add(entry.getFirst(), entry.getSecond()));
+                var encodedMap = ops.getMap(encoded).result();
+                if (encodedMap.isPresent()) {
+                    encodedMap.get().entries().forEach(entry -> builder.add(entry.getFirst(), entry.getSecond()));
+                } else {
+                    builder.add("item", encoded);
+                }
                 if (!input.hasDefaultCount()) {
                     builder.add(ops.createString("count"), EnchantingRecipeValue.CODEC.encodeStart(ops, input.count).getOrThrow());
                 }
                 return builder.build(prefix);
-            }));
+            });
         }
     };
 

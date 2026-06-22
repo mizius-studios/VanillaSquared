@@ -1,6 +1,9 @@
 {
   "type": "vsq:enchanting",
   "category": "tools",
+  "description": {
+    "translate": "vsq.enchantment.silk_touch.description"
+  },
   "icon": {
     "id": "minecraft:grass_block",
     "components": {

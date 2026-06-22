@@ -1,6 +1,9 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.quick_charge.description"
+  },
   "group": "crossbow",
   "icon": {
     "id": "minecraft:crossbow",
@@ -8,7 +11,13 @@
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.quick_charge"
       },
-      "minecraft:enchantment_glint_override": true
+      "minecraft:enchantment_glint_override": true,
+      "minecraft:tooltip_display": {
+        "hidden_components": [
+          "vsq:enchantment",
+          "minecraft:attribute_modifiers"
+        ]
+      }
     }
   },
   "material": {

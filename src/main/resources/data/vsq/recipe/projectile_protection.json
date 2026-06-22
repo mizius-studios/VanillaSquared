@@ -1,6 +1,9 @@
 {
   "type": "vsq:enchanting",
   "category": "armor",
+  "description": {
+    "translate": "vsq.enchantment.projectile_protection.description"
+  },
   "group": "protection",
   "icon": {
     "id": "minecraft:tipped_arrow",
@@ -8,7 +11,12 @@
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.projectile_protection"
       },
-      "minecraft:enchantment_glint_override": true
+      "minecraft:enchantment_glint_override": true,
+      "minecraft:tooltip_display": {
+        "hidden_components": [
+          "minecraft:potion_contents"
+        ]
+      }
     }
   },
   "material": {
