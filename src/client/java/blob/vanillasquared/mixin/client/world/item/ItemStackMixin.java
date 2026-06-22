@@ -3,6 +3,7 @@ package blob.vanillasquared.mixin.client.world.item;
 import blob.vanillasquared.main.gui.enchantment.VSQEnchantmentTooltipState;
 import blob.vanillasquared.main.world.item.enchantment.VSQEnchantmentComponent;
 import blob.vanillasquared.util.api.enchantment.VSQEnchantments;
+import blob.vanillasquared.util.api.modules.components.VSQDataComponents;
 import blob.vanillasquared.util.api.modules.components.VSQItemComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -12,10 +13,11 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.resources.ResourceKey;
 import org.lwjgl.glfw.GLFW;
@@ -46,16 +48,16 @@ public abstract class ItemStackMixin {
     @Inject(method = "getTooltipLines", at = @At("RETURN"), cancellable = true)
     private void vsq$replaceVanillaEnchantTooltip(Item.TooltipContext context, Player player, TooltipFlag tooltipFlag, CallbackInfoReturnable<List<Component>> cir) {
         ItemStack stack = (ItemStack) (Object) this;
-        if (stack.is(Items.BOOK)) {
-            return;
-        }
-
         VSQEnchantmentComponent component = VSQItemComponents.getEnchantmentComponent(stack);
+        TooltipDisplay tooltipDisplay = stack.getOrDefault(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT);
+        if (!tooltipDisplay.shows(VSQDataComponents.ENCHANTMENT)) {
+            component = null;
+        }
+        VSQEnchantmentTooltipState.onTooltip(ItemStack.hashItemAndComponents(stack), component);
         if (component == null) {
             return;
         }
 
-        VSQEnchantmentTooltipState.onTooltip(stack);
         boolean leftAltHeld = Minecraft.getInstance().gui.screen() != null
                 && org.lwjgl.glfw.GLFW.glfwGetKey(Minecraft.getInstance().getWindow().handle(), GLFW.GLFW_KEY_LEFT_ALT) == GLFW.GLFW_PRESS;
 
@@ -65,7 +67,7 @@ public abstract class ItemStackMixin {
         }
 
         int insertionIndex = vsq$slotTooltipInsertionIndex(filtered);
-        filtered.addAll(insertionIndex, VSQEnchantments.buildTooltipLines(component, VSQEnchantmentTooltipState.selectedIndex(component), leftAltHeld));
+        filtered.addAll(insertionIndex, component.tooltipLines(VSQEnchantmentTooltipState.selectedIndex(component), leftAltHeld));
         cir.setReturnValue(List.copyOf(filtered));
     }
 
