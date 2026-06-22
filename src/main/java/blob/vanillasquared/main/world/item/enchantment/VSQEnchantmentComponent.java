@@ -6,6 +6,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.enchantment.Enchantment;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -94,6 +97,57 @@ public record VSQEnchantmentComponent(
             case UTIL -> new VSQEnchantmentComponent(this.special, this.damage, this.secondary, this.defense, entries, this.curse);
             case CURSE -> new VSQEnchantmentComponent(this.special, this.damage, this.secondary, this.defense, this.util, entries);
         };
+    }
+
+    /**
+     * Returns the slot groups represented by this component in tooltip order.
+     */
+    public List<VSQEnchantmentSlotType> definedSlotTypes() {
+        List<VSQEnchantmentSlotType> slotTypes = new ArrayList<>();
+        for (VSQEnchantmentSlotType slotType : VSQEnchantmentSlotType.values()) {
+            if (this.slots(slotType).isPresent()) {
+                slotTypes.add(slotType);
+            }
+        }
+        return List.copyOf(slotTypes);
+    }
+
+    /**
+     * Builds the complete enchantment-slot tooltip owned by this component.
+     */
+    public List<Component> tooltipLines(int selectedIndex, boolean expandSelected) {
+        List<VSQEnchantmentSlotType> slotTypes = this.definedSlotTypes();
+        if (slotTypes.isEmpty()) {
+            return List.of();
+        }
+
+        int normalizedSelection = Math.floorMod(selectedIndex, slotTypes.size());
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.empty());
+        lines.add(Component.translatable("vsq.tooltip.enchantment_slots.header").withStyle(ChatFormatting.GRAY));
+        for (int index = 0; index < slotTypes.size(); index++) {
+            VSQEnchantmentSlotType slotType = slotTypes.get(index);
+            List<VSQEnchantmentSlotEntry> entries = this.slots(slotType).orElse(List.of());
+            long filled = entries.stream().filter(entry -> !entry.isEmpty()).count();
+            boolean selected = index == normalizedSelection;
+            lines.add(Component.translatable(
+                    selected ? "vsq.tooltip.enchantment_slots.slot.selected" : "vsq.tooltip.enchantment_slots.slot",
+                    Component.translatable("vsq.enchantment_slot." + slotType.serializedName()),
+                    filled,
+                    entries.size()
+            ).withStyle(selected ? ChatFormatting.GOLD : ChatFormatting.DARK_AQUA));
+            if (selected && expandSelected) {
+                for (VSQEnchantmentSlotEntry entry : entries) {
+                    Component entryLine = entry.isEmpty()
+                            ? Component.translatable("vsq.tooltip.enchantment_slots.empty").withStyle(ChatFormatting.DARK_GRAY)
+                            : Enchantment.getFullname(entry.enchantment(), entry.level()).copy().withStyle(ChatFormatting.GRAY);
+                    lines.add(Component.literal("  ").append(entryLine));
+                }
+            }
+        }
+        lines.add(Component.empty());
+        lines.add(Component.translatable("vsq.tooltip.enchantment_slots.hint").withStyle(ChatFormatting.DARK_GRAY));
+        return List.copyOf(lines);
     }
 
     private static Optional<List<VSQEnchantmentSlotEntry>> immutableOptionalList(Optional<List<VSQEnchantmentSlotEntry>> entries) {

@@ -3,7 +3,6 @@ package blob.vanillasquared.main.world.item.enchantment;
 import blob.vanillasquared.util.api.modules.components.VSQDataComponents;
 import blob.vanillasquared.util.api.modules.components.VSQItemComponents;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.TypedDataComponent;
@@ -512,47 +511,11 @@ public final class VSQEnchantmentSlots {
     }
 
     public static List<VSQEnchantmentSlotType> definedSlotTypes(VSQEnchantmentComponent component) {
-        List<VSQEnchantmentSlotType> slotTypes = new ArrayList<>();
-        for (VSQEnchantmentSlotType slotType : VSQEnchantmentSlotType.values()) {
-            if (component.slots(slotType).isPresent()) {
-                slotTypes.add(slotType);
-            }
-        }
-        return List.copyOf(slotTypes);
+        return component.definedSlotTypes();
     }
 
     public static List<Component> buildTooltipLines(VSQEnchantmentComponent component, int selectedIndex, boolean expandSelected) {
-        List<VSQEnchantmentSlotType> slotTypes = definedSlotTypes(component);
-        if (slotTypes.isEmpty()) {
-            return List.of();
-        }
-
-        List<Component> lines = new ArrayList<>();
-        lines.add(Component.empty());
-        lines.add(Component.translatable("vsq.tooltip.enchantment_slots.header").withStyle(ChatFormatting.GRAY));
-        for (int index = 0; index < slotTypes.size(); index++) {
-            VSQEnchantmentSlotType slotType = slotTypes.get(index);
-            List<VSQEnchantmentSlotEntry> entries = component.slots(slotType).orElse(List.of());
-            long filled = entries.stream().filter(entry -> !entry.isEmpty()).count();
-            boolean selected = index == selectedIndex;
-            lines.add(Component.translatable(
-                    selected ? "vsq.tooltip.enchantment_slots.slot.selected" : "vsq.tooltip.enchantment_slots.slot",
-                    Component.translatable("vsq.enchantment_slot." + slotType.serializedName()),
-                    filled,
-                    entries.size()
-            ).withStyle(selected ? ChatFormatting.GOLD : ChatFormatting.DARK_AQUA));
-            if (selected && expandSelected) {
-                for (VSQEnchantmentSlotEntry entry : entries) {
-                    Component entryLine = entry.isEmpty()
-                            ? Component.translatable("vsq.tooltip.enchantment_slots.empty").withStyle(ChatFormatting.DARK_GRAY)
-                            : Enchantment.getFullname(entry.enchantment(), entry.level()).copy().withStyle(ChatFormatting.GRAY);
-                    lines.add(Component.literal("  ").append(entryLine));
-                }
-            }
-        }
-        lines.add(Component.empty());
-        lines.add(Component.translatable("vsq.tooltip.enchantment_slots.hint").withStyle(ChatFormatting.DARK_GRAY));
-        return List.copyOf(lines);
+        return component.tooltipLines(selectedIndex, expandSelected);
     }
 
     private static DataComponentType<ItemEnchantments> vanillaTargetComponent(ItemStack stack) {
