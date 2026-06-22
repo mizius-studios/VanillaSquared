@@ -64,7 +64,7 @@
         ]
       },
       "slots": [
-        "hand"
+        "mainhand"
       ],
       "max_cost": {
         "base": 35,

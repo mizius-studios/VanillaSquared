@@ -37,8 +37,7 @@
         ]
       },
       "slots": [
-        "mainhand",
-        "offhand"
+        "mainhand"
       ],
       "max_cost": {
         "base": 25,
