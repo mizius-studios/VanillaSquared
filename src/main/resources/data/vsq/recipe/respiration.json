@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
   "category": "armor",
-  "group": "respiration",
+  "group": "underwater",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:turtle_helmet",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.respiration"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.respiration.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

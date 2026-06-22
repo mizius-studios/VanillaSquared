@@ -1,18 +1,13 @@
 {
   "type": "vsq:enchanting",
   "category": "armor",
-  "group": "frost_walker",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:ice",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.frost_walker"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.frost_walker.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

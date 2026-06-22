@@ -1,18 +1,13 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
-  "group": "channeling",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:lightning_rod",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.channeling"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.channeling.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

@@ -1,18 +1,13 @@
 {
   "type": "vsq:enchanting",
   "category": "tools",
-  "group": "efficiency",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:diamond_pickaxe",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.efficiency"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.efficiency.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

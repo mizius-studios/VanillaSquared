@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
-  "group": "piercing",
+  "group": "crossbow",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:spectral_arrow",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.piercing"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.piercing.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

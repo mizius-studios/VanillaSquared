@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
   "category": "util",
-  "group": "unbreaking",
+  "group": "durability",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:netherite_block",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.unbreaking"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.unbreaking.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

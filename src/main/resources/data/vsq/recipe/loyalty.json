@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
-  "group": "loyalty",
+  "group": "trident",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:axolotl_bucket",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.loyalty"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.loyalty.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

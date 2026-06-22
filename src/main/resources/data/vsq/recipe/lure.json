@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
   "category": "tools",
-  "group": "lure",
+  "group": "fishing",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:salmon",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.lure"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.lure.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

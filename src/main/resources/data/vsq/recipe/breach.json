@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
-  "group": "breach",
+  "group": "mace",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:heavy_core",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.breach"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.breach.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

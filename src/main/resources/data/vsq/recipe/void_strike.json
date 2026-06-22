@@ -1,9 +1,8 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
-  "group": "void_strike",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:end_crystal",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.vsq.void_strike"

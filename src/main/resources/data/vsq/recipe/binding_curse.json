@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
   "category": "util",
-  "group": "binding_curse",
+  "group": "curses",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:iron_chain",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.binding_curse"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.binding_curse.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

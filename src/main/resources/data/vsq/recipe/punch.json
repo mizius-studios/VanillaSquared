@@ -1,18 +1,13 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
-  "group": "punch",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:stick",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.punch"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.punch.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

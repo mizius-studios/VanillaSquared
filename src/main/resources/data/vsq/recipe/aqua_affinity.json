@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
   "category": "armor",
-  "group": "aqua_affinity",
+  "group": "underwater",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:golden_pickaxe",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.aqua_affinity"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.aqua_affinity.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

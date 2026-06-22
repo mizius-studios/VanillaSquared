@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
-  "group": "smite",
+  "group": "damage",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:bone",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.smite"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.smite.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

@@ -3,16 +3,12 @@
   "category": "armor",
   "group": "protection",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:tipped_arrow",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.projectile_protection"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.projectile_protection.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

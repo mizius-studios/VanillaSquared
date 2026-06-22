@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
-  "group": "multishot",
+  "group": "crossbow",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:arrow",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.multishot"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.multishot.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

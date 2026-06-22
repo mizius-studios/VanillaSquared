@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
-  "group": "impaling",
+  "group": "trident",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:drowned_spawn_egg",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.impaling"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.impaling.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

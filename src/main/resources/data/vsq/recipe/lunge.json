@@ -3,16 +3,12 @@
   "category": "weapons",
   "group": "lunge",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:golden_spear",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.lunge"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.lunge.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

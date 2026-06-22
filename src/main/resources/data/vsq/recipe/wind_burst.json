@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
-  "group": "wind_burst",
+  "group": "mace",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:wind_charge",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.wind_burst"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.wind_burst.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

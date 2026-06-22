@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
   "category": "armor",
-  "group": "feather_falling",
+  "group": "protection",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:feather",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.feather_falling"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.feather_falling.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

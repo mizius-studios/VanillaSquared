@@ -1,18 +1,13 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
-  "group": "dash",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:iron_sword",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.vsq.dash"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.dash.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

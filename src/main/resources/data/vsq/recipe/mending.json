@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
   "category": "util",
-  "group": "mending",
+  "group": "durability",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:experience_bottle",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.mending"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.mending.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

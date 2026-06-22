@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
   "category": "armor",
-  "group": "depth_strider",
+  "group": "underwater",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:water_bucket",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.depth_strider"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.depth_strider.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

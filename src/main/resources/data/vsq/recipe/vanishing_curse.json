@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
   "category": "util",
-  "group": "vanishing_curse",
+  "group": "curses",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:white_stained_glass_pane",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.vanishing_curse"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.vanishing_curse.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

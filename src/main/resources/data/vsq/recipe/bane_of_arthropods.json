@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
   "category": "weapons",
-  "group": "bane_of_arthropods",
+  "group": "damage",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:spider_eye",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.bane_of_arthropods"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.bane_of_arthropods.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {

@@ -1,18 +1,14 @@
 {
   "type": "vsq:enchanting",
-  "category": "weapons",
+  "category": "tools",
   "group": "looting",
   "icon": {
-    "id": "minecraft:enchanted_book",
+    "id": "minecraft:chest",
     "components": {
       "minecraft:item_name": {
         "translate": "enchantment.minecraft.looting"
       },
-      "minecraft:lore": [
-        {
-          "translate": "vsq.enchantment.looting.description"
-        }
-      ]
+      "minecraft:enchantment_glint_override": true
     }
   },
   "material": {
