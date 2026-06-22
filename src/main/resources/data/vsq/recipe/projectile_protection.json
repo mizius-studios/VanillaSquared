@@ -1,7 +1,7 @@
 {
   "type": "vsq:enchanting",
   "category": "armor",
-  "group": "projectile_protection",
+  "group": "protection",
   "name": {
     "translate": "enchantment.minecraft.projectile_protection"
   },

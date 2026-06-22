@@ -1,7 +1,7 @@
 {
   "type": "vsq:enchanting",
   "category": "armor",
-  "group": "blast_protection",
+  "group": "protection",
   "name": {
     "translate": "enchantment.minecraft.blast_protection"
   },

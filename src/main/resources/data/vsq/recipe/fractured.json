@@ -3,7 +3,7 @@
   "category": "armor",
   "group": "fractured",
   "name": {
-    "translate": "enchantment.minecraft.fractured"
+    "translate": "enchantment.vsq.fractured"
   },
   "description": {
     "translate": "vsq.enchantment.fractured.description"
@@ -42,7 +42,7 @@
       }
     }
   ],
-  "enchantment": "minecraft:aqua_affinity",
+  "enchantment": "vsq:fractured",
   "blocks": [
     {
       "count": {
