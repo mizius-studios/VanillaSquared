@@ -1,28 +1,25 @@
 package blob.vanillasquared.main.gui.enchantment;
 
-import blob.vanillasquared.main.world.item.components.enchantment.VSQEnchantmentComponent;
-import blob.vanillasquared.main.world.item.components.enchantment.VSQEnchantmentSlots;
-import blob.vanillasquared.util.api.modules.components.DataComponents;
-import net.minecraft.world.item.ItemStack;
+import blob.vanillasquared.main.world.item.enchantment.VSQEnchantmentComponent;
 
-import java.util.List;
-
+/**
+ * Client-only transient selection state for component-backed enchantment tooltips.
+ */
 public final class VSQEnchantmentTooltipState {
     private static int hoveredHash;
     private static int selectedIndex;
     private static long lastTooltipMillis;
-    private static ItemStack hoveredStack = ItemStack.EMPTY;
+    private static VSQEnchantmentComponent hoveredComponent;
 
     private VSQEnchantmentTooltipState() {
     }
 
-    public static void onTooltip(ItemStack stack) {
-        int currentHash = ItemStack.hashItemAndComponents(stack);
+    public static void onTooltip(int currentHash, VSQEnchantmentComponent component) {
         if (currentHash != hoveredHash) {
             hoveredHash = currentHash;
             selectedIndex = 0;
         }
-        hoveredStack = stack.copy();
+        hoveredComponent = component;
         lastTooltipMillis = System.currentTimeMillis();
     }
 
@@ -30,44 +27,42 @@ public final class VSQEnchantmentTooltipState {
         return System.currentTimeMillis() - lastTooltipMillis < 250L;
     }
 
-    public static ItemStack hoveredStack() {
-        return isActive() ? hoveredStack : ItemStack.EMPTY;
-    }
-
     public static boolean cycleHovered(int delta) {
-        ItemStack stack = hoveredStack();
-        if (stack.isEmpty()) {
+        if (!isActive() || hoveredComponent == null) {
             return false;
         }
-
-        VSQEnchantmentComponent component = stack.get(DataComponents.VSQ_ENCHANTMENT);
-        if (component == null) {
-            return false;
-        }
-
-        return cycle(component, delta);
+        return cycle(hoveredComponent, delta);
     }
 
     public static int selectedIndex(VSQEnchantmentComponent component) {
-        List<?> slotTypes = VSQEnchantmentSlots.definedSlotTypes(component);
-        if (slotTypes.isEmpty()) {
+        if (component == null) {
             selectedIndex = 0;
             return 0;
         }
-        if (selectedIndex >= slotTypes.size()) {
+
+        int slotTypeCount = component.definedSlotTypes().size();
+        if (slotTypeCount == 0) {
+            selectedIndex = 0;
+            return 0;
+        }
+        if (selectedIndex >= slotTypeCount) {
             selectedIndex = 0;
         }
         return selectedIndex;
     }
 
     public static boolean cycle(VSQEnchantmentComponent component, int delta) {
-        List<?> slotTypes = VSQEnchantmentSlots.definedSlotTypes(component);
-        if (slotTypes.isEmpty()) {
+        if (component == null) {
             selectedIndex = 0;
             return false;
         }
 
-        int size = slotTypes.size();
+        int size = component.definedSlotTypes().size();
+        if (size == 0) {
+            selectedIndex = 0;
+            return false;
+        }
+
         selectedIndex = Math.floorMod(selectedIndex + delta, size);
         lastTooltipMillis = System.currentTimeMillis();
         return true;

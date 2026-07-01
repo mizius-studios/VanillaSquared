@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_sulfur_goo": {
+      "conditions": {
+        "items": [
+          {
+            "items": "vsq:sulfur_goo"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_sulfur_goo"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "vsq:gunpowder"
+    ]
+  }
+}

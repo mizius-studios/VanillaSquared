@@ -1,0 +1,59 @@
+{
+  "anvil_cost": 1,
+  "profiles": [
+    {
+      "requirement": {
+        "type": "item",
+        "item": "#minecraft:enchantable/weapon"
+      },
+      "enchantment_slot": "special",
+      "max_level": 1,
+      "effects": {
+        "minecraft:post_attack": [
+          {
+            "id": "predicate_equipment_component",
+            "affected": "attacker",
+            "enchanted": "attacker",
+            "effect": {
+              "type": "vsq:send_chat_msg",
+              "message": {
+                "translate": "enchantment.vsq.predicate_equipment_component_test.message"
+              }
+            },
+            "requirements": {
+              "condition": "minecraft:entity_properties",
+              "entity": "direct_attacker",
+              "predicate": {
+                "equipment": {
+                  "mainhand": {
+                    "items": "minecraft:diamond_sword",
+                    "components": {
+                      "minecraft:damage": 0
+                    }
+                  }
+                }
+              }
+            },
+            "effect_id": "predicate_equipment_component"
+          }
+        ]
+      },
+      "slots": [
+        "hand"
+      ],
+      "max_cost": {
+        "base": 5,
+        "per_level_above_first": 0
+      },
+      "min_cost": {
+        "base": 1,
+        "per_level_above_first": 0
+      }
+    }
+  ],
+  "description": {
+    "translate": "enchantment.vsq.predicate_equipment_component_test"
+  },
+  "supported_items": "#minecraft:enchantable/weapon",
+  "weight": 1
+}

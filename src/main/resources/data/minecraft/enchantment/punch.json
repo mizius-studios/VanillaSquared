@@ -3,8 +3,8 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
-        "item": "#vsq:enchanting/ranged_weapon"
+        "type": "item",
+        "item": "#vsq:enchantable/ranged_weapon"
       },
       "enchantment_slot": "secondary",
       "max_level": 2,
@@ -23,9 +23,11 @@
               "condition": "minecraft:entity_properties",
               "entity": "direct_attacker",
               "predicate": {
-                "type": "#minecraft:arrows"
+                "entity_type": "#minecraft:arrows"
               }
-            }
+            },
+            "id": "minecraft_knockback_0",
+            "effect_id": "minecraft_knockback_0"
           }
         ]
       },
@@ -43,8 +45,8 @@
     },
     {
       "requirement": {
-        "type": "ITEM",
-        "item": "#vsq:enchanting/weapon"
+        "type": "item",
+        "item": "#vsq:enchantable/weapon"
       },
       "enchantment_slot": "secondary",
       "max_level": 2,
@@ -58,7 +60,9 @@
                 "base": 1,
                 "per_level_above_first": 1
               }
-            }
+            },
+            "id": "minecraft_knockback_0",
+            "effect_id": "minecraft_knockback_0"
           }
         ]
       },
@@ -73,11 +77,47 @@
         "base": 5,
         "per_level_above_first": 20
       }
+    },
+    {
+      "requirement": {
+        "type": "projectile_takeover",
+        "item": "#vsq:enchantable/projectile_source"
+      },
+      "enchantment_slot": "secondary",
+      "max_level": 2,
+      "effects": {
+        "minecraft:knockback": [
+          {
+            "effect": {
+              "type": "minecraft:add",
+              "value": {
+                "type": "minecraft:linear",
+                "base": 1,
+                "per_level_above_first": 1
+              }
+            },
+            "id": "minecraft_knockback_takeover_0",
+            "effect_id": "minecraft_knockback_takeover_0"
+          }
+        ]
+      },
+      "slots": [
+        "mainhand",
+        "offhand"
+      ],
+      "max_cost": {
+        "base": 37,
+        "per_level_above_first": 20
+      },
+      "min_cost": {
+        "base": 12,
+        "per_level_above_first": 20
+      }
     }
   ],
   "description": {
     "translate": "enchantment.minecraft.punch"
   },
-  "supported_items": "#vsq:enchanting/all_weapons",
+  "supported_items": "#vsq:enchantable/all_weapons",
   "weight": 2
 }

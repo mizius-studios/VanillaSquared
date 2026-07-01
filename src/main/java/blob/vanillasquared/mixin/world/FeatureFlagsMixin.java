@@ -15,9 +15,12 @@ public abstract class FeatureFlagsMixin {
             method = "<clinit>",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/flag/FeatureFlagRegistry$Builder;build()Lnet/minecraft/world/flag/FeatureFlagRegistry;")
     )
-    private static FeatureFlagRegistry vsq$addPreviewFlagBeforeBuild(FeatureFlagRegistry.Builder builder) {
-        FeatureFlag previewFlag = builder.create(VSQExperiments.PREVIEW_FEATURE_ID);
-        VSQExperiments.vsq$setPreviewFlag(previewFlag);
+    private static FeatureFlagRegistry vsq$addExperimentFlagsBeforeBuild(FeatureFlagRegistry.Builder builder) {
+        for (var featureId : VSQExperiments.builtinFeatureIds()) {
+            FeatureFlag featureFlag = builder.create(featureId);
+            VSQExperiments.vsq$setFeatureFlag(featureId, featureFlag);
+        }
+
         return builder.build();
     }
 }

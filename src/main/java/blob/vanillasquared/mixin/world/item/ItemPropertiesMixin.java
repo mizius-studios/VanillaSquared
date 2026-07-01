@@ -13,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class ItemPropertiesMixin {
 
     @Inject(method = "humanoidArmor", at = @At("RETURN"))
-    private void vsq$replaceArmorDurability(ArmorMaterial armorMaterial, ArmorType armorType, CallbackInfoReturnable<Item.Properties> cir) {
+    private void vsq$replaceArmorDurability(ArmorMaterial material, ArmorType type, CallbackInfoReturnable<Item.Properties> cir) {
         Item.Properties properties = cir.getReturnValue();
-        ArmorDurability.findByMaterial(armorMaterial).ifPresent(durability -> properties.durability(durability.durability()));
+        ArmorDurability.findByMaterial(material).ifPresent(durability -> properties.durability(durability.durability()));
     }
 }

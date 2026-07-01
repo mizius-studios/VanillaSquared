@@ -1,13 +1,20 @@
 package blob.vanillasquared.main;
 
 import blob.vanillasquared.main.network.VSQNetworking;
+import blob.vanillasquared.main.sound.VSQSoundEvents;
+import blob.vanillasquared.main.world.effect.VSQMobEffects;
 import blob.vanillasquared.main.world.inventory.VSQMenuTypes;
-import blob.vanillasquared.main.world.item.Items.TestItem;
-import blob.vanillasquared.main.world.VSQExperiments;
+import blob.vanillasquared.main.world.loot.VSQLootFunctions;
+import blob.vanillasquared.main.world.particle.VSQParticleTypes;
+import blob.vanillasquared.main.world.item.VSQItems;
 import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipeRegistry;
-import blob.vanillasquared.main.world.recipe.enchanting.VSQRecipeTypes;
-import blob.vanillasquared.util.api.modules.attributes.RegisterAttributes;
-import blob.vanillasquared.util.api.modules.components.RegisterComponents;
+import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipeTags;
+import blob.vanillasquared.main.world.recipe.VSQRecipeTypes;
+import blob.vanillasquared.main.world.VSQExperiments;
+import blob.vanillasquared.main.world.VSQStats;
+import blob.vanillasquared.util.api.enchantment.VSQEnchantmentEffects;
+import blob.vanillasquared.util.api.modules.attributes.VSQAttributes;
+import blob.vanillasquared.util.api.modules.components.VSQDataComponents;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import org.slf4j.Logger;
@@ -19,14 +26,21 @@ public class VanillaSquared implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        TestItem.initialize();
         VSQMenuTypes.initialize();
+        VSQMobEffects.initialize();
+        VSQSoundEvents.initialize();
+        VSQItems.initialize();
         VSQRecipeTypes.initialize();
         VSQExperiments.initialize();
+        VSQStats.initialize();
         EnchantingRecipeRegistry.initialize();
-        RegisterComponents.initialize();
+        EnchantingRecipeTags.initialize();
+        VSQParticleTypes.initialize();
+        VSQDataComponents.initialize();
+        VSQEnchantmentEffects.initialize();
         VSQNetworking.initialize();
-        RegisterAttributes.initialize();
+        VSQAttributes.initialize();
+        VSQLootFunctions.initialize();
 
         LOGGER.info("Blob");
         LOGGER.info("Enchanting recipe serializer registered as {}", BuiltInRegistries.RECIPE_SERIALIZER.getKey(VSQRecipeTypes.ENCHANTING_SERIALIZER));

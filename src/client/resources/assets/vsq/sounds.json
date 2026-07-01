@@ -1,0 +1,82 @@
+{
+  "voided_passive": {
+    "subtitle": "subtitles.vsq.voided_passive",
+    "sounds": [
+      {
+        "name": "vsq:voided/voided_passive1",
+        "volume": 0.55
+      },
+      {
+        "name": "vsq:voided/voided_passive2",
+        "volume": 0.55
+      },
+      {
+        "name": "vsq:voided/voided_passive3",
+        "volume": 0.55
+      },
+      {
+        "name": "vsq:voided/voided_passive4",
+        "volume": 0.55
+      }
+    ]
+  },
+  "voided_multiplier_increase": {
+    "subtitle": "subtitles.vsq.voided_multiplier_increase",
+    "sounds": [
+      {
+        "name": "vsq:voided/voided_multiplier_increase1",
+        "volume": 0.75
+      },
+      {
+        "name": "vsq:voided/voided_multiplier_increase2",
+        "volume": 0.75
+      },
+      {
+        "name": "vsq:voided/voided_multiplier_increase3",
+        "volume": 0.75
+      },
+      {
+        "name": "vsq:voided/voided_multiplier_increase4",
+        "volume": 0.75
+      },
+      {
+        "name": "vsq:voided/voided_multiplier_increase5",
+        "volume": 0.75
+      }
+    ]
+  },
+  "voided_consume": {
+    "subtitle": "subtitles.vsq.voided_consume",
+    "sounds": [
+      {
+        "name": "vsq:voided/voided_enchantment1",
+        "volume": 0.85
+      },
+      {
+        "name": "vsq:voided/voided_enchantment2",
+        "volume": 0.85
+      },
+      {
+        "name": "vsq:voided/voided_enchantment3",
+        "volume": 0.85
+      },
+      {
+        "name": "vsq:voided/voided_enchantment4",
+        "volume": 0.85
+      }
+    ]
+  },
+  "dash": {
+    "subtitle": "subtitles.vsq.dash",
+    "sounds": [
+      {
+        "name": "vsq:dash/dash1",
+        "volume": 1.0
+      },
+      {
+        "name": "vsq:dash/dash2",
+        "volume": 1.0
+      }
+    ]
+  }
+}

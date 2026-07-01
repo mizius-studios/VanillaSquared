@@ -3,8 +3,8 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
-        "item": "#vsq:enchanting/weapon"
+        "type": "item",
+        "item": "#vsq:enchantable/weapon"
       },
       "enchantment_slot": "secondary",
       "max_level": 2,
@@ -26,7 +26,9 @@
               "predicate": {
                 "is_direct": true
               }
-            }
+            },
+            "id": "minecraft_post_attack_0",
+            "effect_id": "minecraft_post_attack_0"
           }
         ]
       },
@@ -44,18 +46,20 @@
     },
     {
       "requirement": {
-        "type": "ITEM",
-        "item": "#vsq:enchanting/ranged_weapon"
+        "type": "item",
+        "item": "#vsq:enchantable/ranged_weapon"
       },
       "enchantment_slot": "secondary",
-      "max_level": 1,
+      "max_level": 2,
       "effects": {
         "minecraft:projectile_spawned": [
           {
             "effect": {
               "type": "minecraft:ignite",
               "duration": 100
-            }
+            },
+            "id": "minecraft_projectile_spawned_0",
+            "effect_id": "minecraft_projectile_spawned_0"
           }
         ]
       },
@@ -70,12 +74,50 @@
         "base": 20,
         "per_level_above_first": 0
       }
+    },
+    {
+      "requirement": {
+        "type": "projectile_takeover",
+        "item": "#vsq:enchantable/projectile_source"
+      },
+      "enchantment_slot": "secondary",
+      "max_level": 2,
+      "effects": {
+        "minecraft:post_attack": [
+          {
+            "effect": {
+              "type": "minecraft:ignite",
+              "duration": {
+                "type": "minecraft:linear",
+                "base": 4,
+                "per_level_above_first": 4
+              }
+            },
+            "affected": "victim",
+            "enchanted": "attacker",
+            "id": "minecraft_post_attack_fishing_0",
+            "effect_id": "minecraft_post_attack_fishing_0"
+          }
+        ]
+      },
+      "slots": [
+        "mainhand",
+        "offhand"
+      ],
+      "max_cost": {
+        "base": 50,
+        "per_level_above_first": 0
+      },
+      "min_cost": {
+        "base": 20,
+        "per_level_above_first": 0
+      }
     }
   ],
   "description": {
     "translate": "enchantment.minecraft.fire_aspect"
   },
-  "primary_items": "#vsq:enchanting/all_weapons",
-  "supported_items": "#vsq:enchanting/all_weapons",
+  "primary_items": "#vsq:enchantable/all_weapons",
+  "supported_items": "#vsq:enchantable/all_weapons",
   "weight": 2
 }

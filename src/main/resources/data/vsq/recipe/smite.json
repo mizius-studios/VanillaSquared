@@ -1,0 +1,77 @@
+{
+  "type": "vsq:enchanting",
+  "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.smite.description"
+  },
+  "group": "damage",
+  "icon": {
+    "id": "minecraft:bone",
+    "components": {
+      "minecraft:custom_name": {
+        "translate": "enchantment.minecraft.smite",
+        "color": "white",
+        "italic": false
+      },
+      "minecraft:enchantment_glint_override": true
+    }
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": {
+      "type": "minecraft:linear",
+      "base": 3,
+      "per_level_above_first": 3
+    }
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:bone",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
+    },
+    {
+      "item": "minecraft:rotten_flesh",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 2
+      }
+    },
+    {
+      "item": "minecraft:soul_sand",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
+    },
+    {
+      "item": "minecraft:soul_soil",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
+    }
+  ],
+  "enchantment": "minecraft:smite",
+  "blocks": [
+    {
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      },
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level": {
+    "type": "minecraft:linear",
+    "base": 3,
+    "per_level_above_first": 3
+  }
+}

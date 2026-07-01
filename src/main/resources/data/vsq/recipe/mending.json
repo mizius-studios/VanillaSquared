@@ -1,0 +1,53 @@
+{
+  "type": "vsq:enchanting",
+  "category": "util",
+  "description": {
+    "translate": "vsq.enchantment.mending.description"
+  },
+  "group": "durability",
+  "icon": {
+    "id": "minecraft:experience_bottle",
+    "components": {
+      "minecraft:custom_name": {
+        "translate": "enchantment.minecraft.mending",
+        "color": "white",
+        "italic": false
+      },
+      "minecraft:enchantment_glint_override": true
+    }
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": 4
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:experience_bottle",
+      "count": 8
+    },
+    {
+      "item": "minecraft:sculk_catalyst",
+      "count": 4
+    },
+    {
+      "item": "minecraft:sculk",
+      "count": 4
+    },
+    {
+      "item": "minecraft:echo_shard",
+      "count": 4
+    }
+  ],
+  "enchantment": "minecraft:mending",
+  "blocks": [
+    {
+      "count": 16,
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level": {
+    "type": "minecraft:linear",
+    "base": 45,
+    "per_level_above_first": 45
+  }
+}

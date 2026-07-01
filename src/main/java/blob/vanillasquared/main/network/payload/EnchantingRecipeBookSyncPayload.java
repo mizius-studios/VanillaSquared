@@ -6,21 +6,25 @@ import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipe;
 import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipeCategory;
 import blob.vanillasquared.main.world.recipe.enchanting.EnchantingRecipeInput;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.item.crafting.display.RecipeDisplayId;
 import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
-import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.item.crafting.display.SlotDisplay.Empty;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
@@ -58,7 +62,7 @@ public record EnchantingRecipeBookSyncPayload(int containerId, boolean replace, 
                     recipe.category(),
                     group,
                     vsq$createDisplay(recipe, registries, view.previewInput()),
-                    view.craftable() ? vsq$createCraftingRequirements(recipe, registries) : Optional.empty()
+                    view.craftable() ? vsq$createCraftingRequirements(recipe, registries, view.previewInput()) : Optional.empty()
             ));
         }
         return new EnchantingRecipeBookSyncPayload(containerId, replace, entries);
@@ -74,70 +78,62 @@ public record EnchantingRecipeBookSyncPayload(int containerId, boolean replace, 
 
     public static RecipeDisplay createGhostDisplay(EnchantingRecipe recipe, HolderLookup.Provider registries, EnchantingRecipeInput missingInput) {
         List<SlotDisplay> ingredients = new ArrayList<>(6);
-        ingredients.add(vsq$missingDisplay(recipe.inputIngredient(registries), missingInput.input()));
+        ingredients.add(vsq$missingInputDisplay(recipe, registries, missingInput.input()));
         ingredients.add(vsq$missingDisplay(recipe.material(), missingInput.material()));
         for (int index = 0; index < recipe.ingredients().size(); index++) {
             ingredients.add(vsq$missingDisplay(recipe.ingredients().get(index), missingInput.ingredients().get(index)));
         }
         return new ShapelessCraftingRecipeDisplay(
                 ingredients,
-                vsq$resultDisplay(recipe, registries, Optional.empty()),
+                vsq$resultDisplay(recipe, registries),
                 new SlotDisplay.ItemSlotDisplay(Items.ENCHANTING_TABLE)
         );
     }
 
     private static RecipeDisplay vsq$createDisplay(EnchantingRecipe recipe, HolderLookup.Provider registries, Optional<EnchantingRecipeInput> previewInput) {
         List<SlotDisplay> ingredients = new ArrayList<>(6);
-        if (previewInput.isPresent()) {
-            EnchantingRecipeInput input = previewInput.get();
-            ingredients.add(vsq$stackDisplay(input.input()));
-            ingredients.add(vsq$stackDisplay(input.material()));
-            for (ItemStack stack : input.ingredients()) {
-                ingredients.add(vsq$stackDisplay(stack));
-            }
-        } else {
-            ingredients.add(recipe.inputIngredient(registries).display());
-            ingredients.add(recipe.material().display());
-            for (EnchantingIngredient ingredient : recipe.ingredients()) {
-                ingredients.add(ingredient.display());
-            }
+        int inputCount = previewInput.map(EnchantingRecipeInput::input).map(ItemStack::getCount).orElse(1);
+        ingredients.add(previewInput
+                .map(EnchantingRecipeInput::input)
+                .map(EnchantingRecipeBookSyncPayload::vsq$stackDisplay)
+                .orElseGet(() -> recipe.enchantment().previewInputDisplay(
+                        registries,
+                        recipe.inputIngredient(registries).count(Math.max(1, inputCount))
+                )));
+        ingredients.add(vsq$previewDisplay(recipe.material()));
+        for (EnchantingIngredient ingredient : recipe.ingredients()) {
+            ingredients.add(vsq$previewDisplay(ingredient));
         }
         return new ShapelessCraftingRecipeDisplay(
                 ingredients,
-                vsq$resultDisplay(recipe, registries, previewInput),
+                vsq$resultDisplay(recipe, registries),
                 new SlotDisplay.ItemSlotDisplay(Items.ENCHANTING_TABLE)
         );
     }
 
-    private static SlotDisplay vsq$resultDisplay(EnchantingRecipe recipe, HolderLookup.Provider registries, Optional<EnchantingRecipeInput> previewInput) {
-        return recipe.enchantment().iconDisplay(
-                previewInput.map(input -> recipe.displayName(input, registries)).orElseGet(recipe::name),
-                registries
-        );
-    }
-
-    private static Optional<List<Ingredient>> vsq$createCraftingRequirements(EnchantingRecipe recipe, HolderLookup.Provider registries) {
+    private static Optional<List<Ingredient>> vsq$createCraftingRequirements(EnchantingRecipe recipe, HolderLookup.Provider registries, Optional<EnchantingRecipeInput> previewInput) {
+        int nextLevel = previewInput.map(input -> recipe.nextLevel(input, registries)).orElse(1);
         List<Ingredient> craftingRequirements = new ArrayList<>();
-        if (!vsq$appendRequirements(craftingRequirements, recipe.inputIngredient(registries))) {
+        if (!vsq$appendRequirements(craftingRequirements, recipe.inputIngredient(registries), nextLevel)) {
             return Optional.empty();
         }
-        if (!vsq$appendRequirements(craftingRequirements, recipe.material())) {
+        if (!vsq$appendRequirements(craftingRequirements, recipe.material(), nextLevel)) {
             return Optional.empty();
         }
         for (EnchantingIngredient ingredient : recipe.ingredients()) {
-            if (!vsq$appendRequirements(craftingRequirements, ingredient)) {
+            if (!vsq$appendRequirements(craftingRequirements, ingredient, nextLevel)) {
                 return Optional.empty();
             }
         }
         return Optional.of(List.copyOf(craftingRequirements));
     }
 
-    private static boolean vsq$appendRequirements(List<Ingredient> craftingRequirements, EnchantingIngredient ingredient) {
+    private static boolean vsq$appendRequirements(List<Ingredient> craftingRequirements, EnchantingIngredient ingredient, int nextLevel) {
         Optional<Ingredient> safeIngredient = ingredient.safeIngredient();
         if (safeIngredient.isEmpty()) {
             return false;
         }
-        for (int index = 0; index < ingredient.count(); index++) {
+        for (int index = 0; index < ingredient.count(nextLevel); index++) {
             craftingRequirements.add(safeIngredient.get());
         }
         return true;
@@ -145,6 +141,28 @@ public record EnchantingRecipeBookSyncPayload(int containerId, boolean replace, 
 
     private static SlotDisplay vsq$stackDisplay(ItemStack stack) {
         return stack.isEmpty() ? Empty.INSTANCE : new SlotDisplay.ItemStackSlotDisplay(ItemStackTemplate.fromNonEmptyStack(stack));
+    }
+
+    private static SlotDisplay vsq$previewDisplay(EnchantingIngredient ingredient) {
+        if (ingredient.tagId() != null) {
+            return new SlotDisplay.TagSlotDisplay(TagKey.create(Registries.ITEM, ingredient.tagId()));
+        }
+        return ingredient.ingredient().display();
+    }
+
+    private static SlotDisplay vsq$resultDisplay(EnchantingRecipe recipe, HolderLookup.Provider registries) {
+        DataComponentPatch.SplitResult configured = recipe.icon().components().split();
+        DataComponentPatch.Builder components = DataComponentPatch.builder().set(configured.added());
+        configured.removed().forEach(components::remove);
+        components.set(DataComponents.ITEM_NAME, recipe.previewName(registries));
+        return new SlotDisplay.ItemStackSlotDisplay(new ItemStackTemplate(recipe.icon().id(), 1, components.build()));
+    }
+
+    private static SlotDisplay vsq$missingInputDisplay(EnchantingRecipe recipe, HolderLookup.Provider registries, ItemStack missingStack) {
+        if (missingStack.isEmpty()) {
+            return Empty.INSTANCE;
+        }
+        return recipe.enchantment().previewInputDisplay(registries, missingStack.getCount());
     }
 
     private static SlotDisplay vsq$missingDisplay(EnchantingIngredient ingredient, ItemStack missingStack) {

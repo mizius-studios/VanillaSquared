@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "#minecraft:coals",
+    "minecraft:bone_meal",
+    "vsq:sulfur_goo"
+  ],
+  "result": {
+    "id": "minecraft:gunpowder",
+    "count": 2
+  }
+}

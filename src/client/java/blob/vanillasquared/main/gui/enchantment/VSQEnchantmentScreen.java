@@ -23,9 +23,10 @@ import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -122,7 +123,7 @@ public class VSQEnchantmentScreen extends AbstractRecipeBookScreen<VSQEnchantmen
     }
 
     @Override
-    protected ScreenPosition getRecipeBookButtonPosition() {
+    protected @NonNull ScreenPosition getRecipeBookButtonPosition() {
         return new ScreenPosition(this.leftPos + RECIPE_BOOK_BUTTON_X, this.topPos + RECIPE_BOOK_BUTTON_Y);
     }
 
@@ -139,7 +140,7 @@ public class VSQEnchantmentScreen extends AbstractRecipeBookScreen<VSQEnchantmen
     }
 
     @Override
-    public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void extractBackground(@NonNull GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.extractBackground(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE, this.leftPos, this.topPos, 0.0F, 0.0F, this.imageWidth, this.imageHeight, TEX_W, TEX_H);
         this.renderBook(guiGraphics, this.leftPos, this.topPos);
@@ -176,7 +177,7 @@ public class VSQEnchantmentScreen extends AbstractRecipeBookScreen<VSQEnchantmen
     }
 
     @Override
-    public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void extractRenderState(@NonNull GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.vsq$syncFromMenu();
         super.extractRenderState(guiGraphics, mouseX, mouseY, partialTick);
 
@@ -219,9 +220,9 @@ public class VSQEnchantmentScreen extends AbstractRecipeBookScreen<VSQEnchantmen
     }
 
     @Override
-    protected void slotClicked(Slot slot, int slotId, int mouseButton, ContainerInput containerInput) {
+    protected void slotClicked(Slot slot, int slotId, int mouseButton, @NonNull ContainerInput containerInput) {
         super.slotClicked(slot, slotId, mouseButton, containerInput);
-        if (slot != null && this.menu.vsq$getEnchantingSlots().contains(slot)) {
+        if (this.menu.vsq$getEnchantingSlots().contains(slot)) {
             this.vsq$recipeBookComponent.vsq$clearSelection();
         }
     }
@@ -276,9 +277,11 @@ public class VSQEnchantmentScreen extends AbstractRecipeBookScreen<VSQEnchantmen
         ItemStack current = this.menu.getSlot(VSQEnchantmentMenu.INPUT_SLOT).getItem();
         if (!ItemStack.matches(current, this.last)) {
             this.last = current;
-            this.flipT += (float) (this.random.nextInt(4) - this.random.nextInt(4));
-            while (this.flip <= this.flipT + 1.0F && this.flip >= this.flipT - 1.0F) {
+            for (int retries = 0; retries < 10; retries++) {
                 this.flipT += (float) (this.random.nextInt(4) - this.random.nextInt(4));
+                if (this.flip < this.flipT - 1.0F || this.flip > this.flipT + 1.0F) {
+                    break;
+                }
             }
         }
 

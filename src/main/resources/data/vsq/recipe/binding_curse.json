@@ -1,0 +1,49 @@
+{
+  "type": "vsq:enchanting",
+  "category": "util",
+  "description": {
+    "translate": "vsq.enchantment.binding_curse.description"
+  },
+  "group": "curses",
+  "icon": {
+    "id": "minecraft:iron_chain",
+    "components": {
+      "minecraft:custom_name": {
+        "translate": "enchantment.minecraft.binding_curse",
+        "color": "red",
+        "italic": false
+      },
+      "minecraft:enchantment_glint_override": true
+    }
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": 5
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:iron_chain",
+      "count": 2
+    },
+    {
+      "item": "minecraft:copper_chain",
+      "count": 2
+    },
+    {
+      "item": "minecraft:book",
+      "count": 4
+    },
+    {
+      "item": "minecraft:lead",
+      "count": 4
+    }
+  ],
+  "enchantment": "minecraft:binding_curse",
+  "blocks": [
+    {
+      "count": 3,
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level": 4
+}

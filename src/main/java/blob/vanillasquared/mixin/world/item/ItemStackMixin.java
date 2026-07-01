@@ -1,8 +1,9 @@
 package blob.vanillasquared.mixin.world.item;
 
-import blob.vanillasquared.main.world.item.components.enchantment.VSQEnchantmentSlots;
+import blob.vanillasquared.util.api.enchantment.VSQEnchantments;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -18,18 +19,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class ItemStackMixin {
     @Inject(method = "<init>(Lnet/minecraft/core/Holder;ILnet/minecraft/core/component/PatchedDataComponentMap;)V", at = @At("TAIL"))
     private void vsq$seedSlotComponent(Holder<Item> item, int count, PatchedDataComponentMap components, CallbackInfo ci) {
-        VSQEnchantmentSlots.ensureSeeded((ItemStack) (Object) this);
-        VSQEnchantmentSlots.syncDerivedEnchantments((ItemStack) (Object) this);
+        VSQEnchantments.ensureSeeded((ItemStack) (Object) this);
+        VSQEnchantments.syncDerivedEnchantments((ItemStack) (Object) this);
     }
 
-    @Inject(method = "set", at = @At("TAIL"))
+    @Inject(method = "set*", at = @At("TAIL"))
     private <T> void vsq$mirrorVanillaEnchantments(DataComponentType<T> type, @Nullable T value, CallbackInfoReturnable<T> cir) {
-        if (VSQEnchantmentSlots.isDerivedSyncInProgress()) {
+        if (VSQEnchantments.isDerivedSyncInProgress()) {
             return;
         }
 
-        if (type == net.minecraft.core.component.DataComponents.ENCHANTMENTS || type == net.minecraft.core.component.DataComponents.STORED_ENCHANTMENTS) {
-            VSQEnchantmentSlots.onVanillaEnchantmentsChanged((ItemStack) (Object) this, (ItemEnchantments) value);
+        if (type == DataComponents.ENCHANTMENTS || type == DataComponents.STORED_ENCHANTMENTS) {
+            VSQEnchantments.onVanillaEnchantmentsChanged((ItemStack) (Object) this, (ItemEnchantments) value);
         }
     }
 }

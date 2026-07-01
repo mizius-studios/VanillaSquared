@@ -1,0 +1,53 @@
+{
+  "type": "vsq:enchanting",
+  "category": "util",
+  "description": {
+    "translate": "vsq.enchantment.vanishing_curse.description"
+  },
+  "group": "curses",
+  "icon": {
+    "id": "minecraft:white_stained_glass_pane",
+    "components": {
+      "minecraft:custom_name": {
+        "translate": "enchantment.minecraft.vanishing_curse",
+        "color": "red",
+        "italic": false
+      },
+      "minecraft:enchantment_glint_override": true
+    }
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": 4
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:recovery_compass",
+      "count": 4
+    },
+    {
+      "item": "minecraft:book",
+      "count": 4
+    },
+    {
+      "item": "minecraft:ender_eye",
+      "count": 2
+    },
+    {
+      "item": "minecraft:fermented_spider_eye",
+      "count": 4
+    }
+  ],
+  "enchantment": "minecraft:vanishing_curse",
+  "blocks": [
+    {
+      "count": 9,
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level": {
+    "type": "minecraft:linear",
+    "base": 18,
+    "per_level_above_first": 18
+  }
+}

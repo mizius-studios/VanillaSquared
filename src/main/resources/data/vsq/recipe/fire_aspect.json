@@ -1,0 +1,68 @@
+{
+  "type": "vsq:enchanting",
+  "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.fire_aspect.description"
+  },
+  "icon": {
+    "id": "minecraft:fire_charge",
+    "components": {
+      "minecraft:custom_name": {
+        "translate": "enchantment.minecraft.fire_aspect",
+        "color": "white",
+        "italic": false
+      },
+      "minecraft:enchantment_glint_override": true
+    }
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": {
+      "type": "minecraft:linear",
+      "base": 4,
+      "per_level_above_first": 4
+    }
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:flint_and_steel",
+      "count": 1
+    },
+    {
+      "item": "minecraft:fire_charge",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 3
+      }
+    },
+    {
+      "item": "minecraft:magma_block",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 2
+      }
+    },
+    {
+      "item": "minecraft:lava_bucket",
+      "count": 1
+    }
+  ],
+  "enchantment": "minecraft:fire_aspect",
+  "blocks": [
+    {
+      "count": {
+        "type": "minecraft:linear",
+        "base": 6,
+        "per_level_above_first": 3
+      },
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level": {
+    "type": "minecraft:linear",
+    "base": 3,
+    "per_level_above_first": 4
+  }
+}

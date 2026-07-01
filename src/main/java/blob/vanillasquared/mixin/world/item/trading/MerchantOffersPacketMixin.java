@@ -19,8 +19,8 @@ public abstract class MerchantOffersPacketMixin {
     @Mutable
     private MerchantOffers offers;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void vsq$filterBooksFromPacket(int containerId, MerchantOffers offers, int level, int xp, boolean showProgress, boolean canRestock, CallbackInfo ci) {
+    @Inject(method = "<init>*", at = @At("RETURN"))
+    private void vsq$filterBooksFromPacket(int containerId, MerchantOffers offers, int merchantLevel, int merchantXp, boolean showProgress, boolean canRestock, CallbackInfo ci) {
         if (this.offers != null) {
             MerchantOffers filtered = new MerchantOffers();
             for (var offer : this.offers) {

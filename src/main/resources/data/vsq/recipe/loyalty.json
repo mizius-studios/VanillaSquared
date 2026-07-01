@@ -1,0 +1,73 @@
+{
+  "type": "vsq:enchanting",
+  "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.loyalty.description"
+  },
+  "group": "trident",
+  "icon": {
+    "id": "minecraft:axolotl_bucket",
+    "components": {
+      "minecraft:custom_name": {
+        "translate": "enchantment.minecraft.loyalty",
+        "color": "white",
+        "italic": false
+      },
+      "minecraft:enchantment_glint_override": true
+    }
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": {
+      "type": "minecraft:linear",
+      "base": 3,
+      "per_level_above_first": 3
+    }
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:book",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 3
+      }
+    },
+    {
+      "item": "minecraft:prismarine_shard",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 2
+      }
+    },
+    {
+      "item": "minecraft:prismarine_crystals",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
+    },
+    {
+      "item": "minecraft:spyglass",
+      "count": 1
+    }
+  ],
+  "enchantment": "minecraft:loyalty",
+  "blocks": [
+    {
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      },
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level": {
+    "type": "minecraft:linear",
+    "base": 3,
+    "per_level_above_first": 3
+  }
+}

@@ -3,8 +3,52 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
-        "item": "#vsq:enchanting/all_weapons"
+        "type": "item",
+        "item": "#minecraft:enchantable/axes"
+      },
+      "enchantment_slot": "secondary",
+      "exclusive_set": "#minecraft:exclusive_set/mining",
+      "max_level": 3,
+      "effects": {
+        "minecraft:equipment_drops": [
+          {
+            "effect": {
+              "type": "minecraft:add",
+              "value": {
+                "type": "minecraft:linear",
+                "base": 0.01,
+                "per_level_above_first": 0.01
+              }
+            },
+            "enchanted": "attacker",
+            "requirements": {
+              "condition": "minecraft:entity_properties",
+              "entity": "attacker",
+              "predicate": {
+                "entity_type": "minecraft:player"
+              }
+            },
+            "id": "minecraft_equipment_drops_0",
+            "effect_id": "minecraft_equipment_drops_0"
+          }
+        ]
+      },
+      "slots": [
+        "mainhand"
+      ],
+      "max_cost": {
+        "base": 65,
+        "per_level_above_first": 9
+      },
+      "min_cost": {
+        "base": 15,
+        "per_level_above_first": 9
+      }
+    },
+    {
+      "requirement": {
+        "type": "item",
+        "item": "#vsq:enchantable/looting"
       },
       "enchantment_slot": "secondary",
       "max_level": 3,
@@ -24,9 +68,11 @@
               "condition": "minecraft:entity_properties",
               "entity": "attacker",
               "predicate": {
-                "type": "minecraft:player"
+                "entity_type": "minecraft:player"
               }
-            }
+            },
+            "id": "minecraft_equipment_drops_0",
+            "effect_id": "minecraft_equipment_drops_0"
           }
         ]
       },
@@ -44,7 +90,7 @@
     },
     {
       "requirement": {
-        "type": "ITEM",
+        "type": "item",
         "item": "#minecraft:enchantable/fishing"
       },
       "enchantment_slot": "secondary",
@@ -59,7 +105,9 @@
                 "base": 1,
                 "per_level_above_first": 1
               }
-            }
+            },
+            "id": "minecraft_fishing_luck_bonus_0",
+            "effect_id": "minecraft_fishing_luck_bonus_0"
           }
         ]
       },
@@ -77,8 +125,8 @@
     },
     {
       "requirement": {
-        "type": "ITEM",
-        "item": "#minecraft:enchantable/mining_loot"
+        "type": "item",
+        "item": "#minecraft:enchantable/mining"
       },
       "enchantment_slot": "secondary",
       "exclusive_set": "#minecraft:exclusive_set/mining",
@@ -94,11 +142,55 @@
         "base": 15,
         "per_level_above_first": 9
       }
+    },
+    {
+      "requirement": {
+        "type": "projectile_takeover",
+        "item": "#vsq:enchantable/projectile_source"
+      },
+      "enchantment_slot": "secondary",
+      "max_level": 3,
+      "effects": {
+        "minecraft:equipment_drops": [
+          {
+            "effect": {
+              "type": "minecraft:add",
+              "value": {
+                "type": "minecraft:linear",
+                "base": 0.01,
+                "per_level_above_first": 0.01
+              }
+            },
+            "enchanted": "attacker",
+            "requirements": {
+              "condition": "minecraft:entity_properties",
+              "entity": "attacker",
+              "predicate": {
+                "entity_type": "minecraft:player"
+              }
+            },
+            "id": "minecraft_equipment_drops_0",
+            "effect_id": "minecraft_equipment_drops_0"
+          }
+        ]
+      },
+      "slots": [
+        "mainhand",
+        "offhand"
+      ],
+      "max_cost": {
+        "base": 65,
+        "per_level_above_first": 9
+      },
+      "min_cost": {
+        "base": 15,
+        "per_level_above_first": 9
+      }
     }
   ],
   "description": {
     "translate": "enchantment.minecraft.looting"
   },
-  "supported_items": "#vsq:enchanting/looting",
+  "supported_items": "#vsq:enchantable/looting",
   "weight": 2
 }

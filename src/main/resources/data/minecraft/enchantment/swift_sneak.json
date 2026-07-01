@@ -3,7 +3,7 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
+        "type": "item",
         "item": "#minecraft:enchantable/leg_armor"
       },
       "enchantment_slot": "secondary",
@@ -18,7 +18,8 @@
             },
             "attribute": "minecraft:sneaking_speed",
             "id": "minecraft:enchantment.swift_sneak",
-            "operation": "add_value"
+            "operation": "add_value",
+            "effect_id": "minecraft:enchantment.swift_sneak"
           }
         ]
       },

@@ -1,0 +1,59 @@
+{
+  "type": "vsq:enchanting",
+  "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.multishot.description"
+  },
+  "group": "crossbow",
+  "icon": {
+    "id": "minecraft:arrow",
+    "components": {
+      "minecraft:custom_name": {
+        "translate": "enchantment.minecraft.multishot",
+        "color": "white",
+        "italic": false
+      },
+      "minecraft:enchantment_glint_override": true,
+      "minecraft:tooltip_display": {
+        "hidden_components": [
+          "vsq:enchantment",
+          "minecraft:attribute_modifiers"
+        ]
+      }
+    }
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": 4
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:crossbow",
+      "count": 1
+    },
+    {
+      "item": "minecraft:arrow",
+      "count": 3
+    },
+    {
+      "item": "minecraft:tipped_arrow",
+      "count": 3
+    },
+    {
+      "item": "minecraft:spectral_arrow",
+      "count": 3
+    }
+  ],
+  "enchantment": "minecraft:multishot",
+  "blocks": [
+    {
+      "count": 3,
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level": {
+    "type": "minecraft:linear",
+    "base": 9,
+    "per_level_above_first": 9
+  }
+}

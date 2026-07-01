@@ -11,27 +11,29 @@ import com.mojang.serialization.JsonOps;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.context.ContextMap;
+import net.minecraft.world.item.crafting.display.SlotDisplay.Empty;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.display.SlotDisplay;
-import net.minecraft.world.item.crafting.display.SlotDisplay.Empty;
+import net.minecraft.world.item.enchantment.LevelBasedValue;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public record EnchantingIngredient(Ingredient ingredient, int count, Identifier tagId) {
-    private static final Codec<Integer> COUNT_CODEC = Codec.intRange(1, Item.ABSOLUTE_MAX_STACK_SIZE);
+public record EnchantingIngredient(Ingredient ingredient, LevelBasedValue count, Identifier tagId) {
     private static final Map<Identifier, Optional<Ingredient>> TAG_INGREDIENT_CACHE = new ConcurrentHashMap<>();
     private static final Map<Identifier, List<ItemStack>> TAG_PREVIEW_CACHE = new ConcurrentHashMap<>();
 
@@ -45,15 +47,15 @@ public record EnchantingIngredient(Ingredient ingredient, int count, Identifier 
         public <T> DataResult<Pair<EnchantingIngredient, T>> decode(DynamicOps<T> ops, T input) {
             return ops.getMap(input).flatMap(mapLike -> {
                 T countValue = mapLike.get("count");
-                int count = 1;
+                LevelBasedValue count = EnchantingRecipeValue.constant(1);
                 if (countValue != null) {
-                    var parsedCount = COUNT_CODEC.parse(ops, countValue).result();
+                    var parsedCount = EnchantingRecipeValue.CODEC.parse(ops, countValue).result();
                     if (parsedCount.isEmpty()) {
-                        return DataResult.error(() -> "Ingredient count must be between 1 and " + Item.ABSOLUTE_MAX_STACK_SIZE);
+                        return DataResult.error(() -> "Invalid ingredient count");
                     }
                     count = parsedCount.get();
                 }
-                final int finalCount = count;
+                final LevelBasedValue finalCount = count;
 
                 T itemValue = mapLike.get("item");
                 if (itemValue != null) {
@@ -89,21 +91,24 @@ public record EnchantingIngredient(Ingredient ingredient, int count, Identifier 
             if (input.tagId != null) {
                 var builder = ops.mapBuilder();
                 builder.add("item", RegistryReference.CODEC.encodeStart(ops, RegistryReference.tag(input.tagId)).getOrThrow());
-                if (input.count != 1) {
-                    builder.add("count", ops.createInt(input.count));
+                if (!input.hasDefaultCount()) {
+                    builder.add("count", EnchantingRecipeValue.CODEC.encodeStart(ops, input.count).getOrThrow());
                 }
                 return builder.build(prefix);
             }
 
             return Ingredient.CODEC.encodeStart(ops, input.ingredient).flatMap(encoded -> {
-                return ops.getMap(encoded).flatMap(map -> {
-                    var builder = ops.mapBuilder();
-                    map.entries().forEach(entry -> builder.add(entry.getFirst(), entry.getSecond()));
-                    if (input.count != 1) {
-                        builder.add(ops.createString("count"), ops.createInt(input.count));
-                    }
-                    return builder.build(prefix);
-                });
+                var builder = ops.mapBuilder();
+                var encodedMap = ops.getMap(encoded).result();
+                if (encodedMap.isPresent()) {
+                    encodedMap.get().entries().forEach(entry -> builder.add(entry.getFirst(), entry.getSecond()));
+                } else {
+                    builder.add("item", encoded);
+                }
+                if (!input.hasDefaultCount()) {
+                    builder.add(ops.createString("count"), EnchantingRecipeValue.CODEC.encodeStart(ops, input.count).getOrThrow());
+                }
+                return builder.build(prefix);
             });
         }
     };
@@ -112,7 +117,7 @@ public record EnchantingIngredient(Ingredient ingredient, int count, Identifier 
         @Override
         public EnchantingIngredient decode(RegistryFriendlyByteBuf buf) {
             boolean hasTag = buf.readBoolean();
-            int count = ByteBufCodecs.VAR_INT.decode(buf);
+            LevelBasedValue count = EnchantingRecipeValue.STREAM_CODEC.decode(buf);
             if (hasTag) {
                 return new EnchantingIngredient(null, count, Identifier.STREAM_CODEC.decode(buf));
             }
@@ -122,7 +127,7 @@ public record EnchantingIngredient(Ingredient ingredient, int count, Identifier 
         @Override
         public void encode(RegistryFriendlyByteBuf buf, EnchantingIngredient value) {
             buf.writeBoolean(value.tagId != null);
-            ByteBufCodecs.VAR_INT.encode(buf, value.count);
+            EnchantingRecipeValue.STREAM_CODEC.encode(buf, value.count);
             if (value.tagId != null) {
                 Identifier.STREAM_CODEC.encode(buf, value.tagId);
                 return;
@@ -132,8 +137,8 @@ public record EnchantingIngredient(Ingredient ingredient, int count, Identifier 
     };
 
     public EnchantingIngredient {
-        if (count < 1 || count > Item.ABSOLUTE_MAX_STACK_SIZE) {
-            throw new IllegalArgumentException("Enchanting ingredient count must be between 1 and " + Item.ABSOLUTE_MAX_STACK_SIZE);
+        if (count == null) {
+            throw new IllegalArgumentException("Enchanting ingredient count must be defined");
         }
         if ((ingredient == null) == (tagId == null)) {
             throw new IllegalArgumentException("Enchanting ingredient must define exactly one of ingredient or tagId");
@@ -141,15 +146,27 @@ public record EnchantingIngredient(Ingredient ingredient, int count, Identifier 
     }
 
     public boolean test(ItemStack stack) {
-        if (stack.getCount() < this.count) {
+        return this.test(stack, 1);
+    }
+
+    public boolean test(ItemStack stack, int level) {
+        if (stack.getCount() < this.count(level)) {
             return false;
         }
         return this.matchesIgnoringCount(stack);
     }
 
+    public int count(int level) {
+        return EnchantingRecipeValue.itemCount(this.count, level);
+    }
+
+    public boolean hasDefaultCount() {
+        return this.count instanceof LevelBasedValue.Constant constant && constant.value() == 1.0F;
+    }
+
     public boolean matchesIgnoringCount(ItemStack stack) {
         if (this.tagId != null) {
-            return stack.is(TagKey.create(net.minecraft.core.registries.Registries.ITEM, this.tagId));
+            return stack.is(TagKey.create(Registries.ITEM, this.tagId));
         }
         return this.ingredient.test(stack);
     }
@@ -170,7 +187,7 @@ public record EnchantingIngredient(Ingredient ingredient, int count, Identifier 
     }
 
     private static Optional<Ingredient> resolveTagIngredient(Identifier tagId) {
-        TagKey<Item> tagKey = TagKey.create(net.minecraft.core.registries.Registries.ITEM, tagId);
+        TagKey<Item> tagKey = TagKey.create(Registries.ITEM, tagId);
         List<Holder<Item>> holders = StreamSupport.stream(BuiltInRegistries.ITEM.getTagOrEmpty(tagKey).spliterator(), false)
                 .toList();
         if (holders.isEmpty()) {
@@ -180,7 +197,7 @@ public record EnchantingIngredient(Ingredient ingredient, int count, Identifier 
     }
 
     public SlotDisplay display() {
-        return this.display(this.count);
+        return this.display(this.count(1));
     }
 
     public SlotDisplay display(int displayCount) {
@@ -198,7 +215,7 @@ public record EnchantingIngredient(Ingredient ingredient, int count, Identifier 
             return new SlotDisplay.Composite(displays);
         }
         if (this.tagId != null) {
-            return new SlotDisplay.TagSlotDisplay(TagKey.create(net.minecraft.core.registries.Registries.ITEM, this.tagId));
+            return new SlotDisplay.TagSlotDisplay(TagKey.create(Registries.ITEM, this.tagId));
         }
         return Empty.INSTANCE;
     }
@@ -209,16 +226,15 @@ public record EnchantingIngredient(Ingredient ingredient, int count, Identifier 
 
     private List<ItemStack> previewStacks() {
         if (this.ingredient != null) {
-            return this.ingredient.items()
-                    .map(holder -> new ItemStack(holder.value()))
-                    .toList();
+            return this.ingredient.display()
+                    .resolveForStacks(new ContextMap.Builder().create(SlotDisplayContext.CONTEXT));
         }
 
         return List.copyOf(TAG_PREVIEW_CACHE.computeIfAbsent(this.tagId, EnchantingIngredient::resolveTagPreview));
     }
 
     private static List<ItemStack> resolveTagPreview(Identifier tagId) {
-        TagKey<Item> tagKey = TagKey.create(net.minecraft.core.registries.Registries.ITEM, tagId);
+        TagKey<Item> tagKey = TagKey.create(Registries.ITEM, tagId);
         return StreamSupport.stream(BuiltInRegistries.ITEM.getTagOrEmpty(tagKey).spliterator(), false)
                 .map(holder -> new ItemStack(holder.value()))
                 .toList();

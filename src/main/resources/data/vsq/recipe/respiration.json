@@ -1,0 +1,79 @@
+{
+  "type": "vsq:enchanting",
+  "category": "armor",
+  "description": {
+    "translate": "vsq.enchantment.respiration.description"
+  },
+  "group": "underwater",
+  "icon": {
+    "id": "minecraft:turtle_helmet",
+    "components": {
+      "minecraft:custom_name": {
+        "translate": "enchantment.minecraft.respiration",
+        "color": "white",
+        "italic": false
+      },
+      "minecraft:enchantment_glint_override": true,
+      "minecraft:tooltip_display": {
+        "hidden_components": [
+          "vsq:enchantment",
+          "minecraft:attribute_modifiers"
+        ]
+      }
+    }
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": {
+      "type": "minecraft:linear",
+      "base": 3,
+      "per_level_above_first": 3
+    }
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:sponge",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
+    },
+    {
+      "item": "minecraft:water_bucket",
+      "count": 1
+    },
+    {
+      "item": "minecraft:prismarine_shard",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
+    },
+    {
+      "item": "minecraft:prismarine_crystals",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
+    }
+  ],
+  "enchantment": "minecraft:respiration",
+  "blocks": [
+    {
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      },
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level": {
+    "type": "minecraft:linear",
+    "base": 6,
+    "per_level_above_first": 2
+  }
+}

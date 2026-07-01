@@ -1,0 +1,11 @@
+{
+  "values": [
+    "vsq:sharpness",
+    "vsq:protection",
+    "vsq:efficiency",
+    "vsq:blast_protection",
+    "vsq:unbreaking",
+    "vsq:silk_touch",
+    "vsq:looting"
+  ]
+}

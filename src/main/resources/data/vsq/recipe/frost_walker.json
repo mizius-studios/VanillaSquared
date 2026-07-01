@@ -1,0 +1,76 @@
+{
+  "type": "vsq:enchanting",
+  "category": "armor",
+  "description": {
+    "translate": "vsq.enchantment.frost_walker.description"
+  },
+  "icon": {
+    "id": "minecraft:ice",
+    "components": {
+      "minecraft:custom_name": {
+        "translate": "enchantment.minecraft.frost_walker",
+        "color": "white",
+        "italic": false
+      },
+      "minecraft:enchantment_glint_override": true
+    }
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": {
+      "type": "minecraft:linear",
+      "base": 3,
+      "per_level_above_first": 5
+    }
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:ice",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 2
+      }
+    },
+    {
+      "item": "minecraft:packed_ice",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 2
+      }
+    },
+    {
+      "item": "minecraft:blue_ice",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 2
+      }
+    },
+    {
+      "item": "minecraft:book",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 4
+      }
+    }
+  ],
+  "enchantment": "minecraft:frost_walker",
+  "blocks": [
+    {
+      "count": {
+        "type": "minecraft:linear",
+        "base": 6,
+        "per_level_above_first": 6
+      },
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level": {
+    "type": "minecraft:linear",
+    "base": 6,
+    "per_level_above_first": 4
+  }
+}

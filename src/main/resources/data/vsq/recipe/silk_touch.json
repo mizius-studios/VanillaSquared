@@ -1,0 +1,52 @@
+{
+  "type": "vsq:enchanting",
+  "category": "tools",
+  "description": {
+    "translate": "vsq.enchantment.silk_touch.description"
+  },
+  "icon": {
+    "id": "minecraft:grass_block",
+    "components": {
+      "minecraft:custom_name": {
+        "translate": "enchantment.minecraft.silk_touch",
+        "color": "white",
+        "italic": false
+      },
+      "minecraft:enchantment_glint_override": true
+    }
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": 7
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:fern",
+      "count": 2
+    },
+    {
+      "item": "minecraft:large_fern",
+      "count": 1
+    },
+    {
+      "count": 4,
+      "item": "#minecraft:leaves"
+    },
+    {
+      "item": "minecraft:feather",
+      "count": 4
+    }
+  ],
+  "enchantment": "minecraft:silk_touch",
+  "blocks": [
+    {
+      "count": 16,
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level": {
+    "type": "minecraft:linear",
+    "base": 30,
+    "per_level_above_first": 30
+  }
+}

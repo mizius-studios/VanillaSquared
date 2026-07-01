@@ -9,12 +9,13 @@ import com.mojang.serialization.JsonOps;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
@@ -23,7 +24,7 @@ import java.util.Map;
 public record EnchantingBlockRequirement(
         Identifier blockId,
         Identifier tagId,
-        int count
+        LevelBasedValue count
 ) {
     public static final Codec<EnchantingBlockRequirement> CODEC = ExtraCodecs.JSON.flatXmap(
             EnchantingBlockRequirement::vsq$decode,
@@ -33,7 +34,7 @@ public record EnchantingBlockRequirement(
     public static final StreamCodec<RegistryFriendlyByteBuf, EnchantingBlockRequirement> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL, requirement -> requirement.tagId() != null,
             Identifier.STREAM_CODEC, requirement -> requirement.tagId() != null ? requirement.tagId() : requirement.blockId(),
-            ByteBufCodecs.VAR_INT, EnchantingBlockRequirement::count,
+            EnchantingRecipeValue.STREAM_CODEC, EnchantingBlockRequirement::count,
             EnchantingBlockRequirement::vsq$decodeStream
     );
 
@@ -41,16 +42,24 @@ public record EnchantingBlockRequirement(
         if ((blockId == null) == (tagId == null)) {
             throw new IllegalArgumentException("Enchanting block requirements must define exactly one block reference");
         }
-        if (count <= 0) {
-            throw new IllegalArgumentException("Enchanting block requirement count must be positive");
+        if (count == null) {
+            throw new IllegalArgumentException("Enchanting block requirement count must be defined");
         }
     }
 
     public static EnchantingBlockRequirement forBlock(Identifier blockId, int count) {
+        return forBlock(blockId, EnchantingRecipeValue.constant(count));
+    }
+
+    public static EnchantingBlockRequirement forBlock(Identifier blockId, LevelBasedValue count) {
         return new EnchantingBlockRequirement(blockId, null, count);
     }
 
     public static EnchantingBlockRequirement forTag(Identifier tagId, int count) {
+        return forTag(tagId, EnchantingRecipeValue.constant(count));
+    }
+
+    public static EnchantingBlockRequirement forTag(Identifier tagId, LevelBasedValue count) {
         return new EnchantingBlockRequirement(null, tagId, count);
     }
 
@@ -70,8 +79,12 @@ public record EnchantingBlockRequirement(
         return total;
     }
 
-    public boolean matches(Map<Identifier, Integer> countedBlocks) {
-        return this.placedCount(countedBlocks) >= this.count;
+    public boolean matches(Map<Identifier, Integer> countedBlocks, int level) {
+        return this.placedCount(countedBlocks) >= this.count(level);
+    }
+
+    public int count(int level) {
+        return EnchantingRecipeValue.blockCount(this.count, level);
     }
 
     public Identifier displayBlockId() {
@@ -86,7 +99,7 @@ public record EnchantingBlockRequirement(
         return BuiltInRegistries.BLOCK.getKey(Blocks.BARRIER);
     }
 
-    private static EnchantingBlockRequirement vsq$decodeStream(boolean isTag, Identifier id, int count) {
+    private static EnchantingBlockRequirement vsq$decodeStream(boolean isTag, Identifier id, LevelBasedValue count) {
         return isTag ? forTag(id, count) : forBlock(id, count);
     }
 
@@ -101,7 +114,14 @@ public record EnchantingBlockRequirement(
             return DataResult.error(() -> "Enchanting block requirements must define a block reference");
         }
 
-        int count = object.has("count") ? object.get("count").getAsInt() : 1;
+        LevelBasedValue count = EnchantingRecipeValue.constant(1);
+        if (object.has("count")) {
+            var countResult = EnchantingRecipeValue.CODEC.parse(JsonOps.INSTANCE, object.get("count")).result();
+            if (countResult.isEmpty()) {
+                return DataResult.error(() -> "Invalid enchanting block requirement count");
+            }
+            count = countResult.get();
+        }
 
         try {
             var blockReferenceResult = RegistryReference.CODEC.parse(JsonOps.INSTANCE, object.get("block")).result();
@@ -126,7 +146,7 @@ public record EnchantingBlockRequirement(
         } else {
             object.addProperty("block", RegistryReference.tag(requirement.tagId()).asString());
         }
-        object.addProperty("count", requirement.count());
+        object.add("count", EnchantingRecipeValue.CODEC.encodeStart(JsonOps.INSTANCE, requirement.count()).getOrThrow());
         return DataResult.success(object);
     }
 }

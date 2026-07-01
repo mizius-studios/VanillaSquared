@@ -1,0 +1,611 @@
+package blob.vanillasquared.main.world.item.enchantment;
+
+import blob.vanillasquared.util.api.enchantment.VSQEnchantments;
+
+import blob.vanillasquared.main.VanillaSquared;
+import blob.vanillasquared.main.network.payload.SpecialEnchantmentCooldownPayload;
+import blob.vanillasquared.main.world.VSQStats;
+import blob.vanillasquared.main.world.item.enchantment.effects.VSQBeginSwirlingEffect;
+import blob.vanillasquared.util.api.enchantment.VSQEnchantmentEffects;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.animal.equine.AbstractHorse;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantedItemInUse;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
+import net.minecraft.world.item.enchantment.EnchantmentTarget;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.world.item.enchantment.TargetedConditionalEffect;
+import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
+import org.jspecify.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+public final class SpecialEnchantmentCooldowns {
+    private static final long HIT_BLOCK_REUSE_DELAY_TICKS = 5L;
+    private static final Map<UUID, Map<ActivationKey, ActivationState>> STATES = new HashMap<>();
+
+    private SpecialEnchantmentCooldowns() {
+    }
+
+    public static Optional<SpecialEnchantmentUse> selectUsable(ServerPlayer player) {
+        logInvalidSlots(player);
+
+        Optional<SpecialEnchantmentUse> mainhand = findSpecial(player.getMainHandItem(), EquipmentSlot.MAINHAND);
+        if (mainhand.isPresent()) {
+            return mainhand;
+        }
+        return findSpecial(player.getOffhandItem(), EquipmentSlot.OFFHAND);
+    }
+
+    public static void processHotkey(ServerPlayer player, SpecialEnchantmentUse use) {
+        ActivationKey key = key(use);
+        ActivationState state = state(player, key).orElseGet(() -> {
+            ActivationState created = createState(use);
+            putState(player, key, created);
+            return created;
+        });
+
+        state.activated = true;
+        player.awardStat(VSQStats.SPECIAL_ENCHANTMENTS_USED);
+        startCooldownIfEligible(player.level().getGameTime(), use, state);
+        runSwirlingEffects(player, use);
+
+        if (shouldClearState(use.profile(), state)) {
+            removeState(player, key(use));
+        }
+        sync(player, use);
+    }
+
+    private static void runSwirlingEffects(ServerPlayer player, SpecialEnchantmentUse use) {
+        if (!(player.level() instanceof ServerLevel level)) {
+            return;
+        }
+
+        List<TargetedConditionalEffect<EnchantmentEntityEffect>> effects =
+                VSQEnchantments.profileEffects(use.stack(), use.enchantment(), VSQEnchantmentEffects.SWIRLING);
+        if (effects.isEmpty()) {
+            return;
+        }
+
+        EnchantedItemInUse itemInUse = new EnchantedItemInUse(use.stack(), use.slot(), player, ignored -> {});
+        var damageSource = player.damageSources().playerAttack(player);
+        var context = Enchantment.damageContext(level, use.level(), player, damageSource);
+        for (int index = 0; index < effects.size(); index++) {
+            TargetedConditionalEffect<EnchantmentEntityEffect> effect = effects.get(index);
+            Entity affected = resolveSpecialAffectedEntity(effect, player);
+            if (!isSpecialEnchantedEntity(effect.enchanted())
+                    || affected == null
+                    || !effect.matches(context)
+                    || !shouldRunSpecialEffect(level, use.stack(), use.enchantment().value(), VSQEnchantmentEffects.SWIRLING, index, player)) {
+                continue;
+            }
+            VSQBeginSwirlingEffect.runWithActiveEnchantment(use.enchantment(), () ->
+                    effect.effect().apply(level, use.level(), itemInUse, affected, affected.position()));
+        }
+    }
+
+    private static boolean isSpecialEnchantedEntity(EnchantmentTarget target) {
+        return switch (target) {
+            case ATTACKER, DAMAGING_ENTITY -> true;
+            case VICTIM -> false;
+        };
+    }
+
+    @Nullable
+    private static Entity resolveSpecialAffectedEntity(TargetedConditionalEffect<EnchantmentEntityEffect> effect, ServerPlayer player) {
+        return switch (effect.affected()) {
+            case ATTACKER, DAMAGING_ENTITY -> player;
+            case VICTIM -> null;
+        };
+    }
+
+    public static void tickPlayer(ServerPlayer player) {
+        Map<ActivationKey, ActivationState> playerStates = STATES.get(player.getUUID());
+        if (playerStates == null || playerStates.isEmpty()) {
+            return;
+        }
+
+        Set<ActivationKey> activationKeys = Set.copyOf(playerStates.keySet());
+        for (ActivationKey activationKey : activationKeys) {
+            ActivationState state = playerStates.get(activationKey);
+            if (state == null) {
+                continue;
+            }
+
+            if (isFinished(player, state)) {
+                playerStates.remove(activationKey);
+            }
+        }
+
+        if (playerStates.isEmpty()) {
+            STATES.remove(player.getUUID());
+            return;
+        }
+
+        List<SpecialEnchantmentUse> heldUses = heldUses(player);
+        Set<Identifier> heldEnchantmentIds = new HashSet<>();
+        Set<Identifier> syncedEnchantmentIds = new HashSet<>();
+
+        for (SpecialEnchantmentUse use : heldUses) {
+            heldEnchantmentIds.add(use.enchantmentId());
+            ActivationState state = state(player, key(use)).orElse(null);
+            if (state != null) {
+                state.displayedNone = false;
+                sync(player, use);
+            } else if (syncedEnchantmentIds.add(use.enchantmentId())) {
+                ServerPlayNetworking.send(
+                        player,
+                        new SpecialEnchantmentCooldownPayload(
+                                use.enchantmentId(),
+                                0L,
+                                0L,
+                                0,
+                                SpecialEnchantmentCooldownPayload.DISPLAY_NONE,
+                                false,
+                                false
+                        )
+                );
+            }
+        }
+
+        Set<Identifier> clearedEnchantmentIds = new HashSet<>();
+        for (Map.Entry<ActivationKey, ActivationState> entry : playerStates.entrySet()) {
+            ActivationKey activationKey = entry.getKey();
+            ActivationState state = entry.getValue();
+            if (heldEnchantmentIds.contains(activationKey.enchantmentId())) {
+                continue;
+            }
+            if (!state.displayedNone && clearedEnchantmentIds.add(activationKey.enchantmentId())) {
+                ServerPlayNetworking.send(
+                        player,
+                        new SpecialEnchantmentCooldownPayload(
+                                activationKey.enchantmentId(),
+                                0L,
+                                0L,
+                                0,
+                                SpecialEnchantmentCooldownPayload.DISPLAY_NONE,
+                                false,
+                                false
+                        )
+                );
+            }
+            state.displayedNone = true;
+        }
+    }
+
+    public static void clear(ServerPlayer player) {
+        STATES.remove(player.getUUID());
+    }
+
+    public static boolean shouldRunSpecialEffect(
+            ServerLevel level,
+            ItemStack stack,
+            Enchantment enchantment,
+            DataComponentType<?> componentType,
+            int effectIndex,
+            @Nullable Entity contextEntity
+    ) {
+        Optional<ServerPlayer> maybePlayer = findPlayerContext(contextEntity);
+        if (maybePlayer.isEmpty()) {
+            return true;
+        }
+        ServerPlayer player = maybePlayer.get();
+
+        Optional<VSQEnchantmentProfile> profile = VSQEnchantments.selectedProfile(stack, enchantment);
+        if (profile.isEmpty() || profile.get().special().isEmpty()) {
+            return true;
+        }
+
+        String componentKey = componentKey(componentType);
+        Optional<SpecialEffectMetadata> metadata = profile.get().specialEffectIndex().metadata(componentKey, effectIndex);
+        var enchantmentRegistry = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        Identifier enchantmentId = enchantmentRegistry
+                .getResourceKey(enchantment)
+                .map(ResourceKey::identifier)
+                .orElse(null);
+        if (enchantmentId == null) {
+            return true;
+        }
+        Holder<Enchantment> enchantmentHolder = enchantmentRegistry.getOrThrow(ResourceKey.create(Registries.ENCHANTMENT, enchantmentId));
+        int enchantmentLevel = VSQEnchantments.aggregate(stack).getLevel(enchantmentHolder);
+        ActivationState state = state(player, key(enchantmentId, enchantmentLevel)).orElse(null);
+        if (state == null || !isActivationWindowOpen(state, profile.get())) {
+            return false;
+        }
+        EquipmentSlot slot = resolveHeldSlot(player, stack);
+        SpecialEnchantmentUse use = new SpecialEnchantmentUse(
+                enchantmentId,
+                enchantmentHolder,
+                enchantmentLevel,
+                stack,
+                slot,
+                profile.get(),
+                profile.get().special().orElseThrow()
+        );
+
+        SpecialEffectMetadata resolvedMetadata = metadata.orElse(null);
+        if (isHitBlockReuseDelayBlocked(level, componentType, state, resolvedMetadata)) {
+            return false;
+        }
+
+        boolean allowed = consumeLimitIfNeeded(use, state, resolvedMetadata);
+        if (allowed) {
+            markHitBlockReuseDelay(level, componentType, state, resolvedMetadata);
+        }
+        startCooldownIfEligible(level.getGameTime(), use, state);
+        if (shouldClearState(profile.get(), state)) {
+            removeState(player, key(use));
+        }
+        sync(player, use);
+        return allowed;
+    }
+
+    private static boolean consumeLimitIfNeeded(
+            SpecialEnchantmentUse use,
+            ActivationState state,
+            @Nullable SpecialEffectMetadata metadata
+    ) {
+        if (metadata == null || metadata.special().isEmpty()) {
+            return true;
+        }
+
+        String id = metadata.effectId();
+        SpecialEffectSettings settings = metadata.special().orElseThrow();
+
+        int limit = resolvedLimit(use, settings);
+        if (limit == 0) {
+            return false;
+        }
+        if (limit < 0) {
+            return true;
+        }
+
+        int remaining = state.remainingLimits.getOrDefault(id, limit);
+        if (remaining <= 0) {
+            return false;
+        }
+
+        remaining--;
+        state.remainingLimits.put(id, remaining);
+        return true;
+    }
+
+    private static int resolvedLimit(SpecialEnchantmentUse use, SpecialEffectSettings settings) {
+        return Mth.floor(settings.limit().calculate(use.level()));
+    }
+
+    private static boolean isHitBlockReuseDelayBlocked(
+            ServerLevel level,
+            DataComponentType<?> componentType,
+            ActivationState state,
+            @Nullable SpecialEffectMetadata metadata
+    ) {
+        if (metadata == null || componentType != EnchantmentEffectComponents.HIT_BLOCK) {
+            return false;
+        }
+        long nextAllowedTick = state.nextAllowedActivationTicks.getOrDefault(metadata.effectId(), 0L);
+        return level.getGameTime() < nextAllowedTick;
+    }
+
+    private static void markHitBlockReuseDelay(
+            ServerLevel level,
+            DataComponentType<?> componentType,
+            ActivationState state,
+            @Nullable SpecialEffectMetadata metadata
+    ) {
+        if (metadata == null || componentType != EnchantmentEffectComponents.HIT_BLOCK) {
+            return;
+        }
+        state.nextAllowedActivationTicks.put(metadata.effectId(), level.getGameTime() + HIT_BLOCK_REUSE_DELAY_TICKS);
+    }
+
+    private static Optional<ServerPlayer> findPlayerContext(@Nullable Entity entity) {
+        if (entity == null) {
+            return Optional.empty();
+        }
+        if (entity instanceof ServerPlayer player) {
+            return Optional.of(player);
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<ActivationState> state(ServerPlayer player, ActivationKey activationKey) {
+        Map<ActivationKey, ActivationState> playerStates = STATES.get(player.getUUID());
+        if (playerStates == null) {
+            return Optional.empty();
+        }
+        ActivationState state = playerStates.get(activationKey);
+        if (state == null) {
+            return Optional.empty();
+        }
+        return Optional.of(state);
+    }
+
+    private static void putState(ServerPlayer player, ActivationKey activationKey, ActivationState state) {
+        STATES.computeIfAbsent(player.getUUID(), uuid -> new HashMap<>()).put(activationKey, state);
+    }
+
+    private static void removeState(ServerPlayer player, ActivationKey activationKey) {
+        Map<ActivationKey, ActivationState> playerStates = STATES.get(player.getUUID());
+        if (playerStates == null) {
+            return;
+        }
+        playerStates.remove(activationKey);
+        if (playerStates.isEmpty()) {
+            STATES.remove(player.getUUID());
+        }
+    }
+
+    private static ActivationState createState(SpecialEnchantmentUse use) {
+        ActivationState state = new ActivationState(use.special().cooldownTicks(use.level()));
+        for (SpecialEffectMetadata metadata : use.profile().specialEffectIndex().all()) {
+            metadata.special().ifPresent(settings -> {
+                int limit = resolvedLimit(use, settings);
+                if (limit > 0) {
+                    state.remainingLimits.put(metadata.effectId(), limit);
+                    state.totalLimits.put(metadata.effectId(), limit);
+                }
+            });
+        }
+        return state;
+    }
+
+    private static void startCooldownIfEligible(long gameTime, SpecialEnchantmentUse use, ActivationState state) {
+        if (state.cooldownStarted || isPreCooldownPhaseActive(use.profile(), state)) {
+            return;
+        }
+        SpecialEnchantmentProfileConfig special = use.profile().special().orElse(null);
+        if (special == null) {
+            return;
+        }
+        long totalTicks = special.cooldownTicks(use.level());
+        if (totalTicks <= 0L) {
+            state.cooldownStarted = true;
+            state.cooldownEndTick = gameTime;
+            return;
+        }
+        state.cooldownStarted = true;
+        state.cooldownEndTick = gameTime + totalTicks;
+    }
+
+    private static boolean isActivationWindowOpen(ActivationState state, VSQEnchantmentProfile profile) {
+        if (!state.activated) {
+            return false;
+        }
+        return state.cooldownStarted || isPreCooldownPhaseActive(profile, state);
+    }
+
+    private static boolean isPreCooldownPhaseActive(VSQEnchantmentProfile profile, ActivationState state) {
+        if (state.cooldownStarted) {
+            return false;
+        }
+        SpecialEnchantmentProfileConfig config = profile.special().orElse(null);
+        if (config == null) {
+            return false;
+        }
+        return isCooldownAfterLimitBlocked(config, state);
+    }
+
+    private static boolean isCooldownAfterLimitBlocked(SpecialEnchantmentProfileConfig config, ActivationState state) {
+        return config.cooldownAfterLimit()
+                .map(id -> state.remainingLimits.getOrDefault(id, 0) > 0)
+                .orElse(false);
+    }
+
+    private static boolean shouldClearState(VSQEnchantmentProfile profile, ActivationState state) {
+        return !state.cooldownStarted && !isPreCooldownPhaseActive(profile, state);
+    }
+
+    private static boolean isFinished(ServerPlayer player, ActivationState state) {
+        if (!state.cooldownStarted) {
+            return false;
+        }
+        return state.cooldownEndTick - player.level().getGameTime() <= 0L;
+    }
+
+    private static void sync(ServerPlayer player, SpecialEnchantmentUse use) {
+        ActivationState state = state(player, key(use)).orElse(null);
+        if (state == null) {
+            ServerPlayNetworking.send(player, new SpecialEnchantmentCooldownPayload(use.enchantmentId(), 0L, 0L, 0, SpecialEnchantmentCooldownPayload.DISPLAY_NONE, false, false));
+            return;
+        }
+        ServerPlayNetworking.send(player, snapshot(player, use, state));
+    }
+
+    private static SpecialEnchantmentCooldownPayload snapshot(ServerPlayer player, SpecialEnchantmentUse use, ActivationState state) {
+        SpecialEnchantmentProfileConfig config = use.special();
+        boolean blockedByLimit = isCooldownAfterLimitBlocked(config, state);
+        Optional<String> displayRef = config.displayLimit().filter(id -> state.totalLimits.getOrDefault(id, 0) > 0);
+        int displayRemaining = displayRef.map(id -> state.remainingLimits.getOrDefault(id, 0)).orElse(0);
+        int displayTotal = displayRef.map(id -> state.totalLimits.getOrDefault(id, 0)).orElse(0);
+
+        if (state.cooldownStarted) {
+            long remaining = Math.max(0L, state.cooldownEndTick - player.level().getGameTime());
+            if (remaining <= 0L) {
+                return new SpecialEnchantmentCooldownPayload(use.enchantmentId(), 0L, 0L, 0, SpecialEnchantmentCooldownPayload.DISPLAY_NONE, false, false);
+            }
+            if (displayRemaining > 0) {
+                return new SpecialEnchantmentCooldownPayload(use.enchantmentId(), remaining, state.cooldownTotalTicks, displayRemaining, SpecialEnchantmentCooldownPayload.DISPLAY_LIMIT, false, true);
+            }
+            return new SpecialEnchantmentCooldownPayload(use.enchantmentId(), remaining, state.cooldownTotalTicks, ticksToSeconds(remaining), SpecialEnchantmentCooldownPayload.DISPLAY_COOLDOWN, false, true);
+        }
+
+        if (blockedByLimit && displayRemaining > 0 && config.cooldownAfterLimit().equals(displayRef)) {
+            return new SpecialEnchantmentCooldownPayload(use.enchantmentId(), displayRemaining, Math.max(1, displayTotal), displayRemaining, SpecialEnchantmentCooldownPayload.DISPLAY_LIMIT, false, false);
+        }
+        if (blockedByLimit && displayRemaining > 0) {
+            return new SpecialEnchantmentCooldownPayload(use.enchantmentId(), 1L, 1L, displayRemaining, SpecialEnchantmentCooldownPayload.DISPLAY_LIMIT, true, false);
+        }
+        if (blockedByLimit) {
+            return new SpecialEnchantmentCooldownPayload(use.enchantmentId(), 1L, 1L, ticksToSeconds(state.cooldownTotalTicks), SpecialEnchantmentCooldownPayload.DISPLAY_COOLDOWN, true, false);
+        }
+        return new SpecialEnchantmentCooldownPayload(use.enchantmentId(), 0L, 0L, 0, SpecialEnchantmentCooldownPayload.DISPLAY_NONE, false, false);
+    }
+
+    private static int ticksToSeconds(long ticks) {
+        return (int) Math.max(1L, (ticks + 19L) / 20L);
+    }
+
+    private static Optional<SpecialEnchantmentUse> findSpecial(ItemStack stack, EquipmentSlot slot) {
+        if (stack.isEmpty()) {
+            return Optional.empty();
+        }
+
+        ItemEnchantments enchantments = VSQEnchantments.aggregate(stack);
+        for (Holder<Enchantment> enchantment : enchantments.keySet()) {
+            Optional<VSQEnchantmentProfile> profile = VSQEnchantments.selectedProfile(stack, enchantment);
+            if (profile.isEmpty() || profile.get().special().isEmpty() || !matchesSlot(stack, enchantment, slot)) {
+                continue;
+            }
+
+            Optional<ResourceKey<Enchantment>> key = enchantment.unwrapKey();
+            if (key.isPresent()) {
+                return Optional.of(new SpecialEnchantmentUse(
+                        key.get().identifier(),
+                        enchantment,
+                        enchantments.getLevel(enchantment),
+                        stack,
+                        slot,
+                        profile.get(),
+                        profile.get().special().orElseThrow()
+                ));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static List<SpecialEnchantmentUse> heldUses(ServerPlayer player) {
+        Optional<SpecialEnchantmentUse> mainhand = findSpecial(player.getMainHandItem(), EquipmentSlot.MAINHAND);
+        Optional<SpecialEnchantmentUse> offhand = findSpecial(player.getOffhandItem(), EquipmentSlot.OFFHAND);
+        if (mainhand.isPresent() && offhand.isPresent()) {
+            return List.of(mainhand.get(), offhand.get());
+        }
+        if (mainhand.isPresent()) {
+            return List.of(mainhand.get());
+        }
+        return offhand.<List<SpecialEnchantmentUse>>map(List::of).orElseGet(List::of);
+    }
+
+    private static ActivationKey key(SpecialEnchantmentUse use) {
+        return key(use.enchantmentId(), use.level());
+    }
+
+    private static EquipmentSlot resolveHeldSlot(ServerPlayer player, ItemStack stack) {
+        if (player.getOffhandItem() == stack || ItemStack.isSameItemSameComponents(player.getOffhandItem(), stack)) {
+            return EquipmentSlot.OFFHAND;
+        }
+        return EquipmentSlot.MAINHAND;
+    }
+
+    private static ActivationKey key(Identifier enchantmentId, int level) {
+        return new ActivationKey(enchantmentId, level);
+    }
+
+    private static String componentKey(DataComponentType<?> componentType) {
+        Identifier id = BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE.getKey(componentType);
+        return id == null ? "" : id.toString();
+    }
+
+    private static void logInvalidSlots(ServerPlayer player) {
+        for (EquipmentSlot slot : EquipmentSlot.VALUES) {
+            if (slot == EquipmentSlot.MAINHAND || slot == EquipmentSlot.OFFHAND) {
+                continue;
+            }
+            logInvalidSlot(player, player.getItemBySlot(slot), slot.getName());
+        }
+
+        if (player.getVehicle() instanceof AbstractHorse horse) {
+            logInvalidSlot(player, horse.getItemBySlot(EquipmentSlot.BODY), "mount body");
+            logInvalidSlot(player, horse.getItemBySlot(EquipmentSlot.SADDLE), "mount saddle");
+        }
+    }
+
+    private static void logInvalidSlot(ServerPlayer player, ItemStack stack, String slotName) {
+        findSpecialIgnoringSlot(stack).ifPresent(use -> VanillaSquared.LOGGER.error(
+                "Player {} has special enchantment effect {} in {}; special enchantment effects only work in mainhand/offhand",
+                player.getName().getString(),
+                use.enchantmentId(),
+                slotName
+        ));
+    }
+
+    private static Optional<SpecialEnchantmentUse> findSpecialIgnoringSlot(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return Optional.empty();
+        }
+
+        ItemEnchantments enchantments = VSQEnchantments.aggregate(stack);
+        for (Holder<Enchantment> enchantment : enchantments.keySet()) {
+            Optional<VSQEnchantmentProfile> profile = VSQEnchantments.selectedProfile(stack, enchantment);
+            if (profile.isEmpty() || profile.get().special().isEmpty()) {
+                continue;
+            }
+            Optional<ResourceKey<Enchantment>> key = enchantment.unwrapKey();
+            if (key.isPresent()) {
+                return Optional.of(new SpecialEnchantmentUse(
+                        key.get().identifier(),
+                        enchantment,
+                        enchantments.getLevel(enchantment),
+                        stack,
+                        EquipmentSlot.MAINHAND,
+                        profile.get(),
+                        profile.get().special().orElseThrow()
+                ));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static boolean matchesSlot(ItemStack stack, Holder<Enchantment> enchantment, EquipmentSlot slot) {
+        return VSQEnchantments.selectedProfile(stack, enchantment)
+                .map(profile -> profile.slots().stream().anyMatch(group -> group.test(slot)))
+                .orElseGet(() -> enchantment.value().matchingSlot(slot));
+    }
+
+    private static final class ActivationState {
+        private final long cooldownTotalTicks;
+        private final Map<String, Integer> remainingLimits = new HashMap<>();
+        private final Map<String, Integer> totalLimits = new HashMap<>();
+        private final Map<String, Long> nextAllowedActivationTicks = new HashMap<>();
+        private boolean activated;
+        private boolean cooldownStarted;
+        private boolean displayedNone;
+        private long cooldownEndTick;
+
+        private ActivationState(long cooldownTotalTicks) {
+            this.cooldownTotalTicks = cooldownTotalTicks;
+        }
+    }
+
+    private record ActivationKey(Identifier enchantmentId, int level) {
+    }
+
+    public record SpecialEnchantmentUse(
+            Identifier enchantmentId,
+            Holder<Enchantment> enchantment,
+            int level,
+            ItemStack stack,
+            EquipmentSlot slot,
+            VSQEnchantmentProfile profile,
+            SpecialEnchantmentProfileConfig special
+    ) {
+    }
+}

@@ -1,0 +1,58 @@
+{
+  "type": "vsq:enchanting",
+  "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.swirling.description"
+  },
+  "icon": {
+    "id": "minecraft:mace",
+    "components": {
+      "minecraft:custom_name": {
+        "translate": "enchantment.vsq.swirling",
+        "color": "gold",
+        "italic": false
+      },
+      "minecraft:enchantment_glint_override": true,
+      "minecraft:tooltip_display": {
+        "hidden_components": [
+          "vsq:enchantment",
+          "minecraft:attribute_modifiers"
+        ]
+      }
+    }
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": 3
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:book",
+      "count": 2
+    },
+    {
+      "item": "minecraft:breeze_rod",
+      "count": 2
+    },
+    {
+      "item": "minecraft:wind_charge",
+      "count": 4
+    },
+    {
+      "item": "minecraft:feather",
+      "count": 2
+    }
+  ],
+  "enchantment": "vsq:swirling",
+  "blocks": [
+    {
+      "count": 12,
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level": {
+    "type": "minecraft:linear",
+    "base": 6,
+    "per_level_above_first": 6
+  }
+}

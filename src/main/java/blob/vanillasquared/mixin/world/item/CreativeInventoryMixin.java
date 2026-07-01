@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class CreativeInventoryMixin {
 
     @Inject(method = "accept(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/CreativeModeTab$TabVisibility;)V", at = @At("HEAD"), cancellable = true)
-    private void vsq$filterEnchantedBooks(ItemStack stack, CreativeModeTab.TabVisibility visibility, CallbackInfo ci) {
+    private void vsq$filterEnchantedBooks(ItemStack stack, CreativeModeTab.TabVisibility tabVisibility, CallbackInfo ci) {
         if (stack.is(Items.ENCHANTED_BOOK)) {
             ci.cancel();
         }

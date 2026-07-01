@@ -1,26 +1,28 @@
 package blob.vanillasquared.main.world.recipe.enchanting;
 
-import blob.vanillasquared.main.world.item.components.enchantment.VSQEnchantmentSlots;
+import blob.vanillasquared.util.api.enchantment.VSQEnchantments;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay.Empty;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.display.SlotDisplay;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Iterator;
 
 public record EnchantingRecipeEnchantment(Identifier enchantment) {
     public static final Codec<EnchantingRecipeEnchantment> CODEC = Identifier.CODEC.xmap(
@@ -43,10 +45,10 @@ public record EnchantingRecipeEnchantment(Identifier enchantment) {
     public ItemStack apply(ItemStack originalStack, HolderLookup.Provider registries) {
         Holder.Reference<Enchantment> enchantment = this.vsq$enchantmentHolder(registries);
         int nextLevel = this.nextLevel(originalStack, registries);
-        if (!this.canApplyNextLevel(originalStack, registries) || !VSQEnchantmentSlots.canApplyInSlots(originalStack, enchantment, nextLevel)) {
+        if (!this.canApplyNextLevel(originalStack, registries) || !VSQEnchantments.canApply(originalStack, enchantment, nextLevel)) {
             return originalStack.copy();
         }
-        return VSQEnchantmentSlots.applyEnchant(originalStack, enchantment, nextLevel);
+        return VSQEnchantments.apply(originalStack, enchantment, nextLevel);
     }
 
     public Ingredient supportedItemsIngredient(HolderLookup.Provider registries) {
@@ -54,26 +56,20 @@ public record EnchantingRecipeEnchantment(Identifier enchantment) {
     }
 
     public ItemStack previewInputStack(HolderLookup.Provider registries) {
-        return this.vsq$enchantmentHolder(registries).value().definition().supportedItems().stream()
-                .findFirst()
-                .map(holder -> new ItemStack(holder.value()))
-                .orElse(ItemStack.EMPTY);
+        Iterator<Holder<Item>> iterator = this.vsq$previewItems(registries).iterator();
+        return iterator.hasNext() ? new ItemStack(iterator.next().value()) : ItemStack.EMPTY;
     }
 
-    public SlotDisplay iconDisplay(Component name, HolderLookup.Provider registries) {
+    public SlotDisplay previewInputDisplay(HolderLookup.Provider registries, int displayCount) {
         List<SlotDisplay> displays = new ArrayList<>();
-        for (Holder<Item> holder : this.vsq$enchantmentHolder(registries).value().definition().supportedItems()) {
+        for (Holder<Item> holder : this.vsq$previewItems(registries)) {
             ItemStack stack = new ItemStack(holder.value());
-            stack.set(DataComponents.ITEM_NAME, name.copy());
-            stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
+            stack.setCount(displayCount);
             displays.add(new SlotDisplay.ItemStackSlotDisplay(ItemStackTemplate.fromNonEmptyStack(stack)));
         }
 
         if (displays.isEmpty()) {
-            ItemStack fallback = new ItemStack(Items.ENCHANTED_BOOK);
-            fallback.set(DataComponents.ITEM_NAME, name.copy());
-            fallback.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
-            return new SlotDisplay.ItemStackSlotDisplay(ItemStackTemplate.fromNonEmptyStack(fallback));
+            return Empty.INSTANCE;
         }
         if (displays.size() == 1) {
             return displays.getFirst();
@@ -87,7 +83,7 @@ public record EnchantingRecipeEnchantment(Identifier enchantment) {
 
     public int currentLevel(ItemStack originalStack, HolderLookup.Provider registries) {
         Holder.Reference<Enchantment> enchantment = this.vsq$enchantmentHolder(registries);
-        return Math.max(VSQEnchantmentSlots.currentLevel(originalStack, enchantment), 0);
+        return Math.max(VSQEnchantments.currentLevel(originalStack, enchantment), 0);
     }
 
     public int nextLevel(ItemStack originalStack, HolderLookup.Provider registries) {
@@ -100,21 +96,24 @@ public record EnchantingRecipeEnchantment(Identifier enchantment) {
     }
 
     public int maxLevel(ItemStack originalStack, HolderLookup.Provider registries) {
-        return Math.max(VSQEnchantmentSlots.maxLevel(originalStack, this.vsq$enchantmentHolder(registries)), 1);
-    }
-
-    public int xpCost(ItemStack originalStack, HolderLookup.Provider registries) {
-        if (!this.canApplyNextLevel(originalStack, registries)) {
-            return 0;
-        }
-        return this.nextLevel(originalStack, registries) * 3;
+        return Math.max(VSQEnchantments.maxLevel(originalStack, this.vsq$enchantmentHolder(registries)), 1);
     }
 
     public Component displayName(ItemStack originalStack, HolderLookup.Provider registries) {
+        MutableComponent name = this.vsq$enchantmentHolder(registries).value().description().copy();
+        if (this.maxLevel(originalStack, registries) == 1) {
+            return name;
+        }
         int level = this.nextLevel(originalStack, registries);
-        return this.vsq$enchantmentHolder(registries).value().description().copy()
-                .append(Component.literal(" "))
-                .append(Component.translatable("enchantment.level." + level));
+        return Component.translatable("vsq.enchantment.recipe.name", name, Component.translatable("enchantment.level." + level));
+    }
+
+    public Component recipeBookDisplayName(HolderLookup.Provider registries) {
+        Enchantment enchantment = this.vsq$enchantmentHolder(registries).value();
+        Component name = enchantment.description().copy();
+        return enchantment.getMaxLevel() == 1
+                ? name
+                : Component.translatable("vsq.enchantment.recipe.name", name, Component.translatable("enchantment.level.1"));
     }
 
     public boolean isBelowMaximumLevel(ItemStack originalStack, HolderLookup.Provider registries) {
@@ -126,12 +125,12 @@ public record EnchantingRecipeEnchantment(Identifier enchantment) {
     }
 
     public boolean respectsVanillaEnchantmentIncompatibilities(ItemStack originalStack, HolderLookup.Provider registries) {
-        var entries = VSQEnchantmentSlots.aggregate(this.apply(originalStack, registries)).entrySet().stream().toList();
+        var entries = VSQEnchantments.aggregate(this.apply(originalStack, registries)).entrySet().stream().toList();
         for (int leftIndex = 0; leftIndex < entries.size(); leftIndex++) {
             var left = entries.get(leftIndex).getKey();
             for (int rightIndex = leftIndex + 1; rightIndex < entries.size(); rightIndex++) {
                 var right = entries.get(rightIndex).getKey();
-                if (!VSQEnchantmentSlots.areCompatible(originalStack, left, right)) {
+                if (!VSQEnchantments.areCompatible(originalStack, left, right)) {
                     return false;
                 }
             }
@@ -142,6 +141,17 @@ public record EnchantingRecipeEnchantment(Identifier enchantment) {
     private Holder.Reference<Enchantment> vsq$enchantmentHolder(HolderLookup.Provider registries) {
         return registries.lookupOrThrow(Registries.ENCHANTMENT)
                 .getOrThrow(ResourceKey.create(Registries.ENCHANTMENT, this.enchantment));
+    }
+
+    private Iterable<Holder<Item>> vsq$previewItems(HolderLookup.Provider registries) {
+        Enchantment.EnchantmentDefinition definition = this.vsq$enchantmentHolder(registries).value().definition();
+        if (definition.primaryItems().isPresent()) {
+            HolderSet<Item> primaryItems = definition.primaryItems().get();
+            if (primaryItems.iterator().hasNext()) {
+                return primaryItems;
+            }
+        }
+        return definition.supportedItems();
     }
 
 }

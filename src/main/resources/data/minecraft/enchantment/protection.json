@@ -3,11 +3,10 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
+        "type": "item",
         "item": "#minecraft:enchantable/armor"
       },
       "enchantment_slot": "defense",
-      "exclusive_set": "#minecraft:exclusive_set/armor",
       "max_level": 4,
       "effects": {
         "minecraft:damage_protection": [
@@ -30,7 +29,9 @@
                   }
                 ]
               }
-            }
+            },
+            "id": "minecraft_damage_protection_0",
+            "effect_id": "minecraft_damage_protection_0"
           }
         ]
       },

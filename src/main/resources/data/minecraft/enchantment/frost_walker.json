@@ -3,7 +3,7 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
+        "type": "item",
         "item": "#minecraft:enchantable/foot_armor"
       },
       "enchantment_slot": "secondary",
@@ -27,7 +27,9 @@
                   }
                 ]
               }
-            }
+            },
+            "id": "minecraft_damage_immunity_0",
+            "effect_id": "minecraft_damage_immunity_0"
           }
         ],
         "minecraft:location_changed": [
@@ -50,29 +52,29 @@
                 0
               ],
               "predicate": {
-                "type": "minecraft:all_of",
                 "predicates": [
                   {
-                    "type": "minecraft:matching_block_tag",
                     "offset": [
                       0,
                       1,
                       0
                     ],
-                    "tag": "minecraft:air"
+                    "tag": "minecraft:air",
+                    "type": "minecraft:matching_block_tag"
                   },
                   {
-                    "type": "minecraft:matching_blocks",
-                    "blocks": "minecraft:water"
+                    "blocks": "minecraft:water",
+                    "type": "minecraft:matching_blocks"
                   },
                   {
-                    "type": "minecraft:matching_fluids",
-                    "fluids": "minecraft:water"
+                    "fluids": "minecraft:water",
+                    "type": "minecraft:matching_fluids"
                   },
                   {
                     "type": "minecraft:unobstructed"
                   }
-                ]
+                ],
+                "type": "minecraft:all_of"
               },
               "radius": {
                 "type": "minecraft:clamped",
@@ -109,7 +111,9 @@
                   }
                 }
               ]
-            }
+            },
+            "id": "minecraft_location_changed_0",
+            "effect_id": "minecraft_location_changed_0"
           }
         ]
       },

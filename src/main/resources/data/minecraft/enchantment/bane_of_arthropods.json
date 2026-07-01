@@ -3,7 +3,7 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
+        "type": "item",
         "item": "#minecraft:enchantable/mace"
       },
       "enchantment_slot": "damage",
@@ -15,17 +15,19 @@
               "type": "minecraft:add",
               "value": {
                 "type": "minecraft:linear",
-                "base": 0.5,
-                "per_level_above_first": 0.5
+                "base": 0.05,
+                "per_level_above_first": 0.05
               }
             },
             "requirements": {
               "condition": "minecraft:entity_properties",
               "entity": "this",
               "predicate": {
-                "type": "#minecraft:sensitive_to_bane_of_arthropods"
+                "entity_type": "#minecraft:sensitive_to_bane_of_arthropods"
               }
-            }
+            },
+            "id": "minecraft_smash_damage_per_fallen_block_0",
+            "effect_id": "minecraft_smash_damage_per_fallen_block_0"
           }
         ],
         "minecraft:post_attack": [
@@ -51,7 +53,7 @@
                   "condition": "minecraft:entity_properties",
                   "entity": "this",
                   "predicate": {
-                    "type": "#minecraft:sensitive_to_bane_of_arthropods"
+                    "entity_type": "#minecraft:sensitive_to_bane_of_arthropods"
                   }
                 },
                 {
@@ -61,7 +63,9 @@
                   }
                 }
               ]
-            }
+            },
+            "id": "minecraft_post_attack_0",
+            "effect_id": "minecraft_post_attack_0"
           }
         ]
       },
@@ -79,11 +83,10 @@
     },
     {
       "requirement": {
-        "type": "ITEM",
-        "item": "#vsq:enchanting/melee_weapon"
+        "type": "item",
+        "item": "#vsq:enchantable/melee_weapon"
       },
       "enchantment_slot": "damage",
-      "exclusive_set": "#minecraft:exclusive_set/damage",
       "max_level": 5,
       "effects": {
         "minecraft:damage": [
@@ -100,9 +103,11 @@
               "condition": "minecraft:entity_properties",
               "entity": "this",
               "predicate": {
-                "type": "#minecraft:sensitive_to_bane_of_arthropods"
+                "entity_type": "#minecraft:sensitive_to_bane_of_arthropods"
               }
-            }
+            },
+            "id": "minecraft_damage_0",
+            "effect_id": "minecraft_damage_0"
           }
         ],
         "minecraft:post_attack": [
@@ -128,7 +133,7 @@
                   "condition": "minecraft:entity_properties",
                   "entity": "this",
                   "predicate": {
-                    "type": "#minecraft:sensitive_to_bane_of_arthropods"
+                    "entity_type": "#minecraft:sensitive_to_bane_of_arthropods"
                   }
                 },
                 {
@@ -138,7 +143,9 @@
                   }
                 }
               ]
-            }
+            },
+            "id": "minecraft_post_attack_0",
+            "effect_id": "minecraft_post_attack_0"
           }
         ]
       },
@@ -156,11 +163,10 @@
     },
     {
       "requirement": {
-        "type": "ITEM",
-        "item": "#vsq:enchanting/ranged_weapon"
+        "type": "item",
+        "item": "#vsq:enchantable/ranged_weapon"
       },
       "enchantment_slot": "damage",
-      "exclusive_set": "#minecraft:exclusive_set/damage",
       "max_level": 5,
       "effects": {
         "minecraft:damage": [
@@ -180,18 +186,20 @@
                   "condition": "minecraft:entity_properties",
                   "entity": "this",
                   "predicate": {
-                    "type": "#minecraft:sensitive_to_bane_of_arthropods"
+                    "entity_type": "#minecraft:sensitive_to_bane_of_arthropods"
                   }
                 },
                 {
                   "condition": "minecraft:entity_properties",
                   "entity": "direct_attacker",
                   "predicate": {
-                    "type": "#minecraft:arrows"
+                    "entity_type": "#minecraft:arrows"
                   }
                 }
               ]
-            }
+            },
+            "id": "minecraft_damage_0",
+            "effect_id": "minecraft_damage_0"
           }
         ],
         "minecraft:post_attack": [
@@ -217,23 +225,95 @@
                   "condition": "minecraft:entity_properties",
                   "entity": "this",
                   "predicate": {
-                    "type": "#minecraft:sensitive_to_bane_of_arthropods"
+                    "entity_type": "#minecraft:sensitive_to_bane_of_arthropods"
                   }
                 },
                 {
                   "condition": "minecraft:entity_properties",
                   "entity": "direct_attacker",
                   "predicate": {
-                    "type": "#minecraft:arrows"
+                    "entity_type": "#minecraft:arrows"
                   }
                 }
               ]
-            }
+            },
+            "id": "minecraft_post_attack_0",
+            "effect_id": "minecraft_post_attack_0"
           }
         ]
       },
       "slots": [
         "mainhand"
+      ],
+      "max_cost": {
+        "base": 25,
+        "per_level_above_first": 8
+      },
+      "min_cost": {
+        "base": 5,
+        "per_level_above_first": 8
+      }
+    },
+    {
+      "requirement": {
+        "type": "projectile_takeover",
+        "item": "#vsq:enchantable/projectile_source"
+      },
+      "enchantment_slot": "damage",
+      "max_level": 5,
+      "effects": {
+        "minecraft:damage": [
+          {
+            "effect": {
+              "type": "minecraft:add",
+              "value": {
+                "type": "minecraft:linear",
+                "base": 2.5,
+                "per_level_above_first": 2.5
+              }
+            },
+            "requirements": {
+              "condition": "minecraft:entity_properties",
+              "entity": "this",
+              "predicate": {
+                "entity_type": "#minecraft:sensitive_to_bane_of_arthropods"
+              }
+            },
+            "id": "minecraft_damage_fishing_0",
+            "effect_id": "minecraft_damage_fishing_0"
+          }
+        ],
+        "minecraft:post_attack": [
+          {
+            "affected": "victim",
+            "effect": {
+              "type": "minecraft:apply_mob_effect",
+              "max_amplifier": 3,
+              "max_duration": {
+                "type": "minecraft:linear",
+                "base": 1.5,
+                "per_level_above_first": 0.5
+              },
+              "min_amplifier": 3,
+              "min_duration": 1.5,
+              "to_apply": "minecraft:slowness"
+            },
+            "enchanted": "attacker",
+            "requirements": {
+              "condition": "minecraft:entity_properties",
+              "entity": "this",
+              "predicate": {
+                "entity_type": "#minecraft:sensitive_to_bane_of_arthropods"
+              }
+            },
+            "id": "minecraft_post_attack_fishing_0",
+            "effect_id": "minecraft_post_attack_fishing_0"
+          }
+        ]
+      },
+      "slots": [
+        "mainhand",
+        "offhand"
       ],
       "max_cost": {
         "base": 25,
@@ -248,7 +328,7 @@
   "description": {
     "translate": "enchantment.minecraft.bane_of_arthropods"
   },
-  "primary_items": "#vsq:enchanting/all_weapons",
-  "supported_items": "#vsq:enchanting/all_weapons",
+  "primary_items": "#vsq:enchantable/all_weapons",
+  "supported_items": "#vsq:enchantable/all_weapons",
   "weight": 5
 }

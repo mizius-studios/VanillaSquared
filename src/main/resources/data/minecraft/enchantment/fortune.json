@@ -2,7 +2,7 @@
   "description": {
     "translate": "enchantment.minecraft.fortune"
   },
-  "supported_items": "#vsq:enchanting/removed",
+  "supported_items": "#vsq:enchantable/removed",
   "weight": 1,
   "anvil_cost": 1,
   "max_level": 1,

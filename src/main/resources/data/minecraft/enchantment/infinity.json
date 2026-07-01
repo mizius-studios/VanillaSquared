@@ -3,8 +3,8 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
-        "item": "#vsq:enchanting/ranged_weapon"
+        "type": "item",
+        "item": "#vsq:enchantable/ranged_weapon"
       },
       "enchantment_slot": "secondary",
       "max_level": 1,
@@ -20,7 +20,9 @@
               "predicate": {
                 "items": "minecraft:arrow"
               }
-            }
+            },
+            "id": "minecraft_ammo_use_0",
+            "effect_id": "minecraft_ammo_use_0"
           }
         ]
       },
@@ -40,6 +42,6 @@
   "description": {
     "translate": "enchantment.minecraft.infinity"
   },
-  "supported_items": "#minecraft:enchantable/bow",
+  "supported_items": "#vsq:enchantable/ranged_weapon",
   "weight": 1
 }

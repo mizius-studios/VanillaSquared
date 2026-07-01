@@ -1,14 +1,15 @@
 package blob.vanillasquared.mixin.client.gui;
 
 import blob.vanillasquared.main.gui.enchantment.VSQEnchantmentTooltipState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
-import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(Screen.class)
 public abstract class ScreenMixin {
@@ -25,8 +26,9 @@ public abstract class ScreenMixin {
         }
     }
 
+    @Unique
     private static boolean vsq$isLeftAltHeld() {
-        return Minecraft.getInstance().screen != null
+        return Minecraft.getInstance().gui.screen() != null
                 && GLFW.glfwGetKey(Minecraft.getInstance().getWindow().handle(), GLFW.GLFW_KEY_LEFT_ALT) == GLFW.GLFW_PRESS;
     }
 }

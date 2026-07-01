@@ -3,7 +3,7 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
+        "type": "item",
         "item": "#minecraft:enchantable/mining_loot"
       },
       "enchantment_slot": "secondary",
@@ -15,7 +15,9 @@
             "effect": {
               "type": "minecraft:set",
               "value": 0
-            }
+            },
+            "id": "minecraft_block_experience_0",
+            "effect_id": "minecraft_block_experience_0"
           }
         ]
       },

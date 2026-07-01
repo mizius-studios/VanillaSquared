@@ -1,0 +1,48 @@
+{
+  "type": "vsq:enchanting",
+  "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.channeling.description"
+  },
+  "icon": {
+    "id": "minecraft:lightning_rod",
+    "components": {
+      "minecraft:custom_name": {
+        "translate": "enchantment.minecraft.channeling",
+        "color": "white",
+        "italic": false
+      },
+      "minecraft:enchantment_glint_override": true
+    }
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": 4
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:book",
+      "count": 4
+    },
+    {
+      "item": "minecraft:gold_ingot",
+      "count": 4
+    },
+    {
+      "item": "minecraft:gold_nugget",
+      "count": 6
+    },
+    {
+      "item": "minecraft:golden_apple",
+      "count": 3
+    }
+  ],
+  "enchantment": "minecraft:channeling",
+  "blocks": [
+    {
+      "count": 9,
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level": 12
+}

@@ -1,7 +1,7 @@
 package blob.vanillasquared.util.api.builder.durability;
 
-import blob.vanillasquared.util.api.references.armor.ArmorKeys;
 import blob.vanillasquared.util.api.references.armor.Armor;
+import blob.vanillasquared.util.api.references.armor.ArmorKeys;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 

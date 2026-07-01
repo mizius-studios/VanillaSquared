@@ -3,7 +3,7 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
+        "type": "item",
         "item": "#minecraft:enchantable/trident"
       },
       "enchantment_slot": "secondary",
@@ -21,7 +21,9 @@
             "type": "minecraft:linear",
             "base": 1.5,
             "per_level_above_first": 0.75
-          }
+          },
+          "id": "minecraft_trident_spin_attack_strength_0",
+          "effect_id": "minecraft_trident_spin_attack_strength_0"
         }
       },
       "slots": [

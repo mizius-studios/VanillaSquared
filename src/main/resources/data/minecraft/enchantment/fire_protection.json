@@ -3,11 +3,10 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
+        "type": "item",
         "item": "#minecraft:enchantable/armor"
       },
       "enchantment_slot": "defense",
-      "exclusive_set": "#minecraft:exclusive_set/armor",
       "max_level": 4,
       "effects": {
         "minecraft:attributes": [
@@ -19,7 +18,8 @@
             },
             "attribute": "minecraft:burning_time",
             "id": "minecraft:enchantment.fire_protection",
-            "operation": "add_multiplied_base"
+            "operation": "add_multiplied_base",
+            "effect_id": "minecraft:enchantment.fire_protection"
           }
         ],
         "minecraft:damage_protection": [
@@ -51,7 +51,9 @@
                   }
                 }
               ]
-            }
+            },
+            "id": "minecraft_damage_protection_0",
+            "effect_id": "minecraft_damage_protection_0"
           }
         ]
       },

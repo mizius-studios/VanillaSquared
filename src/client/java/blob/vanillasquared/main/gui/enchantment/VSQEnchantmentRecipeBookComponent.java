@@ -1,26 +1,26 @@
 package blob.vanillasquared.main.gui.enchantment;
 
-import blob.vanillasquared.main.VanillaSquaredClient;
-import blob.vanillasquared.mixin.client.gui.GhostSlotsAccessor;
 import blob.vanillasquared.main.network.handlers.EnchantingRecipeBookSyncPayloadHandler;
 import blob.vanillasquared.main.network.payload.EnchantingRecipeSelectionPayload;
+import blob.vanillasquared.main.VanillaSquaredClient;
 import blob.vanillasquared.main.world.inventory.VSQEnchantmentMenu;
 import blob.vanillasquared.main.world.recipe.enchanting.VSQEnchantmentRecipeBookCategories;
+import blob.vanillasquared.mixin.client.gui.GhostSlotsAccessor;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.gui.screens.recipebook.SearchRecipeBookCategory;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.recipebook.GhostSlots;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.player.StackedItemContents;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.item.crafting.display.RecipeDisplayId;
 import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +35,7 @@ public class VSQEnchantmentRecipeBookComponent extends RecipeBookComponent<VSQEn
     );
 
     private static final List<TabInfo> TABS = List.of(
-            new TabInfo(vsq$enchanted(Items.COMPASS), Optional.empty(), SearchRecipeBookCategory.CRAFTING),
+            new TabInfo(vsq$enchanted(Items.COMPASS), Optional.empty(), VSQEnchantmentRecipeBookCategories.ALL),
             new TabInfo(vsq$enchanted(Items.IRON_SWORD), Optional.empty(), VSQEnchantmentRecipeBookCategories.WEAPONS),
             new TabInfo(vsq$enchanted(Items.IRON_PICKAXE), Optional.empty(), VSQEnchantmentRecipeBookCategories.TOOLS),
             new TabInfo(vsq$enchanted(Items.IRON_CHESTPLATE), Optional.empty(), VSQEnchantmentRecipeBookCategories.ARMOR),
@@ -47,27 +47,27 @@ public class VSQEnchantmentRecipeBookComponent extends RecipeBookComponent<VSQEn
     }
 
     @Override
-    protected WidgetSprites getFilterButtonTextures() {
+    protected @NonNull WidgetSprites getFilterButtonTextures() {
         return FILTER_BUTTON_SPRITES;
     }
 
     @Override
-    protected boolean isCraftingSlot(net.minecraft.world.inventory.Slot slot) {
+    protected boolean isCraftingSlot(net.minecraft.world.inventory.@NonNull Slot slot) {
         return this.menu.vsq$getEnchantingSlots().contains(slot);
     }
 
     @Override
-    protected void selectMatchingRecipes(RecipeCollection recipeCollection, StackedItemContents stackedItemContents) {
+    protected void selectMatchingRecipes(RecipeCollection recipeCollection, @NonNull StackedItemContents stackedItemContents) {
         recipeCollection.selectRecipes(stackedItemContents, display -> display instanceof ShapelessCraftingRecipeDisplay shapeless && shapeless.ingredients().size() == VSQEnchantmentMenu.TABLE_SLOT_COUNT);
     }
 
     @Override
-    protected Component getRecipeFilterName() {
+    protected @NonNull Component getRecipeFilterName() {
         return Component.translatable("gui.recipebook.toggleRecipes.craftable");
     }
 
     @Override
-    protected void fillGhostRecipe(GhostSlots ghostSlots, RecipeDisplay recipeDisplay, ContextMap contextMap) {
+    protected void fillGhostRecipe(GhostSlots ghostSlots, @NonNull RecipeDisplay recipeDisplay, @NonNull ContextMap contextMap) {
         ghostSlots.clear();
         if (!(recipeDisplay instanceof ShapelessCraftingRecipeDisplay shapeless)) {
             return;
@@ -87,7 +87,7 @@ public class VSQEnchantmentRecipeBookComponent extends RecipeBookComponent<VSQEn
     }
 
     @Override
-    public void recipeShown(RecipeDisplayId recipeDisplayId) {
+    public void recipeShown(@NonNull RecipeDisplayId recipeDisplayId) {
         super.recipeShown(recipeDisplayId);
         ClientPlayNetworking.send(new EnchantingRecipeSelectionPayload(this.menu.containerId, recipeDisplayId.index()));
     }

@@ -12,9 +12,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class PackFeatureSourceMixin {
 
     @Inject(method = "getPackSource", at = @At("RETURN"), cancellable = true)
-    private void vsq$markPreviewPackAsExperiment(CallbackInfoReturnable<PackSource> cir) {
+    private void vsq$markBuiltinExperimentPacks(CallbackInfoReturnable<PackSource> cir) {
         Pack self = (Pack) (Object) this;
-        if (VSQExperiments.BUILTIN_PACK_ID.toString().equals(self.getId())) {
+        if (VSQExperiments.isBuiltinPackId(self.getId())) {
             cir.setReturnValue(PackSource.FEATURE);
         }
     }

@@ -3,7 +3,7 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
+        "type": "item",
         "item": "#minecraft:enchantable/foot_armor"
       },
       "enchantment_slot": "secondary",
@@ -33,7 +33,9 @@
                   }
                 ]
               }
-            }
+            },
+            "id": "minecraft_damage_protection_0",
+            "effect_id": "minecraft_damage_protection_0"
           }
         ]
       },

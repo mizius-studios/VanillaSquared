@@ -3,7 +3,7 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
+        "type": "item",
         "item": "#minecraft:enchantable/fishing"
       },
       "enchantment_slot": "secondary",
@@ -18,7 +18,9 @@
                 "base": 5,
                 "per_level_above_first": 5
               }
-            }
+            },
+            "id": "minecraft_fishing_time_reduction_0",
+            "effect_id": "minecraft_fishing_time_reduction_0"
           }
         ]
       },

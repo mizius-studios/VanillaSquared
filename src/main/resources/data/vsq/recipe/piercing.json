@@ -1,0 +1,69 @@
+{
+  "type": "vsq:enchanting",
+  "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.piercing.description"
+  },
+  "group": "crossbow",
+  "icon": {
+    "id": "minecraft:spectral_arrow",
+    "components": {
+      "minecraft:custom_name": {
+        "translate": "enchantment.minecraft.piercing",
+        "color": "white",
+        "italic": false
+      },
+      "minecraft:enchantment_glint_override": true
+    }
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": {
+      "type": "minecraft:linear",
+      "base": 3,
+      "per_level_above_first": 3
+    }
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:crossbow",
+      "count": 1
+    },
+    {
+      "item": "minecraft:arrow",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 5,
+        "per_level_above_first": 5
+      }
+    },
+    {
+      "item": "minecraft:pointed_dripstone",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 2
+      }
+    },
+    {
+      "item": "minecraft:shield",
+      "count": 1
+    }
+  ],
+  "enchantment": "minecraft:piercing",
+  "blocks": [
+    {
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      },
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level": {
+    "type": "minecraft:linear",
+    "base": 3,
+    "per_level_above_first": 3
+  }
+}

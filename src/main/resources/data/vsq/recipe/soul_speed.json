@@ -1,0 +1,76 @@
+{
+  "type": "vsq:enchanting",
+  "category": "armor",
+  "description": {
+    "translate": "vsq.enchantment.soul_speed.description"
+  },
+  "icon": {
+    "id": "minecraft:soul_sand",
+    "components": {
+      "minecraft:custom_name": {
+        "translate": "enchantment.minecraft.soul_speed",
+        "color": "white",
+        "italic": false
+      },
+      "minecraft:enchantment_glint_override": true
+    }
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": {
+      "type": "minecraft:linear",
+      "base": 3,
+      "per_level_above_first": 3
+    }
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:soul_sand",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
+    },
+    {
+      "item": "minecraft:soul_soil",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
+    },
+    {
+      "item": "minecraft:ghast_tear",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 1
+      }
+    },
+    {
+      "item": "minecraft:dried_ghast",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 1
+      }
+    }
+  ],
+  "enchantment": "minecraft:soul_speed",
+  "blocks": [
+    {
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      },
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level": {
+    "type": "minecraft:linear",
+    "base": 3,
+    "per_level_above_first": 3
+  }
+}

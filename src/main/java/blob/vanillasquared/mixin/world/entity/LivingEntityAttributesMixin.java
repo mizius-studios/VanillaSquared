@@ -1,6 +1,6 @@
 package blob.vanillasquared.mixin.world.entity;
 
-import blob.vanillasquared.util.api.modules.attributes.RegisterAttributes;
+import blob.vanillasquared.util.api.modules.attributes.VSQAttributes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,9 +13,9 @@ public abstract class LivingEntityAttributesMixin {
 
     @Inject(method = "createLivingAttributes", at = @At("RETURN"))
     private static void vsq$addCustomAttributes(CallbackInfoReturnable<AttributeSupplier.Builder> cir) {
-        cir.getReturnValue().add(RegisterAttributes.maceProtectionAttribute);
-        cir.getReturnValue().add(RegisterAttributes.magicProtectionAttribute);
-        cir.getReturnValue().add(RegisterAttributes.dripstoneProtectionAttribute);
-        cir.getReturnValue().add(RegisterAttributes.spearProtectionAttribute);
+        cir.getReturnValue().add(VSQAttributes.MACE_PROTECTION);
+        cir.getReturnValue().add(VSQAttributes.MAGIC_PROTECTION);
+        cir.getReturnValue().add(VSQAttributes.DRIPSTONE_PROTECTION);
+        cir.getReturnValue().add(VSQAttributes.SPEAR_PROTECTION);
     }
 }

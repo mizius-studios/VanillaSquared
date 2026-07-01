@@ -3,7 +3,7 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
+        "type": "item",
         "item": "#minecraft:enchantable/mace"
       },
       "enchantment_slot": "damage",
@@ -15,10 +15,12 @@
               "type": "minecraft:add",
               "value": {
                 "type": "minecraft:linear",
-                "base": 0.5,
-                "per_level_above_first": 0.5
+                "base": 0.15,
+                "per_level_above_first": 0.25
               }
-            }
+            },
+            "id": "minecraft_smash_damage_per_fallen_block_0",
+            "effect_id": "minecraft_smash_damage_per_fallen_block_0"
           }
         ]
       },
@@ -36,11 +38,10 @@
     },
     {
       "requirement": {
-        "type": "ITEM",
-        "item": "#vsq:enchanting/melee_weapon"
+        "type": "item",
+        "item": "#vsq:enchantable/melee_weapon"
       },
       "enchantment_slot": "damage",
-      "exclusive_set": "#minecraft:exclusive_set/damage",
       "max_level": 5,
       "effects": {
         "minecraft:damage": [
@@ -52,7 +53,9 @@
                 "base": 1,
                 "per_level_above_first": 0.5
               }
-            }
+            },
+            "id": "minecraft_damage_0",
+            "effect_id": "minecraft_damage_0"
           }
         ]
       },
@@ -70,7 +73,7 @@
     },
     {
       "requirement": {
-        "type": "ITEM",
+        "type": "item",
         "item": "#minecraft:enchantable/bow"
       },
       "enchantment_slot": "damage",
@@ -90,9 +93,11 @@
               "condition": "minecraft:entity_properties",
               "entity": "direct_attacker",
               "predicate": {
-                "type": "#minecraft:arrows"
+                "entity_type": "#minecraft:arrows"
               }
-            }
+            },
+            "id": "minecraft_damage_0",
+            "effect_id": "minecraft_damage_0"
           }
         ]
       },
@@ -112,7 +117,7 @@
   "description": {
     "translate": "enchantment.minecraft.sharpness"
   },
-  "primary_items": "#vsq:enchanting/sharpness",
-  "supported_items": "#vsq:enchanting/sharpness",
+  "primary_items": "#vsq:enchantable/sharpness",
+  "supported_items": "#vsq:enchantable/sharpness",
   "weight": 10
 }

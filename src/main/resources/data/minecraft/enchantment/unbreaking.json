@@ -3,7 +3,7 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
+        "type": "item",
         "item": "#minecraft:enchantable/durability"
       },
       "enchantment_slot": "util",
@@ -32,7 +32,9 @@
               "predicate": {
                 "items": "#minecraft:enchantable/armor"
               }
-            }
+            },
+            "id": "minecraft_item_damage_0",
+            "effect_id": "minecraft_item_damage_0"
           },
           {
             "effect": {
@@ -59,7 +61,9 @@
                   "items": "#minecraft:enchantable/armor"
                 }
               }
-            }
+            },
+            "id": "minecraft_item_damage_1",
+            "effect_id": "minecraft_item_damage_1"
           }
         ]
       },

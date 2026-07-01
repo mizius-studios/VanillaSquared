@@ -1,0 +1,79 @@
+{
+  "type": "vsq:enchanting",
+  "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.lunge.description"
+  },
+  "group": "lunge",
+  "icon": {
+    "id": "minecraft:golden_spear",
+    "components": {
+      "minecraft:custom_name": {
+        "translate": "enchantment.minecraft.lunge",
+        "color": "white",
+        "italic": false
+      },
+      "minecraft:enchantment_glint_override": true,
+      "minecraft:tooltip_display": {
+        "hidden_components": [
+          "vsq:enchantment",
+          "minecraft:attribute_modifiers"
+        ]
+      }
+    }
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": {
+      "type": "minecraft:linear",
+      "base": 3,
+      "per_level_above_first": 3
+    }
+  },
+  "ingredients": [
+    {
+      "item": "#minecraft:spears",
+      "count": 1
+    },
+    {
+      "item": "minecraft:wind_charge",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 5,
+        "per_level_above_first": 5
+      }
+    },
+    {
+      "item": "minecraft:slime_ball",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 2
+      }
+    },
+    {
+      "item": "minecraft:firework_rocket",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 2
+      }
+    }
+  ],
+  "enchantment": "minecraft:lunge",
+  "blocks": [
+    {
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      },
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level": {
+    "type": "minecraft:linear",
+    "base": 3,
+    "per_level_above_first": 3
+  }
+}

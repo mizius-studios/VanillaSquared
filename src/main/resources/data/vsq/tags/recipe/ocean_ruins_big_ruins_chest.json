@@ -1,0 +1,25 @@
+{
+  "values": [
+    "vsq:unbreaking",
+    "vsq:sharpness",
+    "vsq:lure",
+    "vsq:looting",
+    "vsq:respiration",
+    "vsq:impaling",
+    "vsq:riptide",
+    "vsq:loyalty",
+    "vsq:channeling",
+    "vsq:thorns",
+    "vsq:depth_strider",
+    "vsq:aqua_affinity",
+    "vsq:efficiency",
+    "vsq:silk_touch",
+    "vsq:protection",
+    "vsq:piercing",
+    "vsq:multishot",
+    "vsq:quick_charge",
+    "vsq:lunge",
+    "vsq:projectile_protection",
+    "vsq:frost_walker"
+  ]
+}

@@ -3,7 +3,7 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
+        "type": "item",
         "item": "#minecraft:enchantable/head_armor"
       },
       "enchantment_slot": "secondary",
@@ -18,7 +18,8 @@
             },
             "attribute": "minecraft:submerged_mining_speed",
             "id": "minecraft:enchantment.aqua_affinity",
-            "operation": "add_multiplied_total"
+            "operation": "add_multiplied_total",
+            "effect_id": "minecraft:enchantment.aqua_affinity"
           }
         ]
       },

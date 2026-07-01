@@ -53,7 +53,7 @@ public record RegistryReference(Identifier id, boolean tag) {
                     }
                     return DataResult.success(reference.id());
                 },
-                identifier -> RegistryReference.tag(identifier)
+                RegistryReference::tag
         );
     }
 

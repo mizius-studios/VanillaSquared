@@ -1,0 +1,73 @@
+{
+  "type": "vsq:enchanting",
+  "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.bane_of_arthropods.description"
+  },
+  "group": "damage",
+  "icon": {
+    "id": "minecraft:spider_eye",
+    "components": {
+      "minecraft:custom_name": {
+        "translate": "enchantment.minecraft.bane_of_arthropods",
+        "color": "white",
+        "italic": false
+      },
+      "minecraft:enchantment_glint_override": true
+    }
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": {
+      "type": "minecraft:linear",
+      "base": 2,
+      "per_level_above_first": 2
+    }
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:spider_eye",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
+    },
+    {
+      "item": "minecraft:string",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 2
+      }
+    },
+    {
+      "item": "minecraft:fermented_spider_eye",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 1
+      }
+    },
+    {
+      "item": "minecraft:book",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 1,
+        "per_level_above_first": 2
+      }
+    }
+  ],
+  "enchantment": "minecraft:bane_of_arthropods",
+  "blocks": [
+    {
+      "count": 3,
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level": {
+    "type": "minecraft:linear",
+    "base": 2,
+    "per_level_above_first": 1
+  }
+}

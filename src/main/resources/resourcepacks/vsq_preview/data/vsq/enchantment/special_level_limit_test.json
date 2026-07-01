@@ -1,0 +1,57 @@
+{
+  "anvil_cost": 2,
+  "profiles": [
+    {
+      "requirement": {
+        "type": "item",
+        "item": "#minecraft:enchantable/weapon"
+      },
+      "enchantment_slot": "special",
+      "max_level": 3,
+      "effects": {
+        "minecraft:post_attack": [
+          {
+            "id": "level_limit",
+            "effect": {
+              "type": "vsq:send_chat_msg",
+              "message": {
+                "text": "Level limit test $i"
+              }
+            },
+            "special": {
+              "limit": {
+                "type": "minecraft:linear",
+                "base": 1,
+                "per_level_above_first": 1
+              }
+            },
+            "affected": "attacker",
+            "enchanted": "attacker",
+            "effect_id": "level_limit"
+          }
+        ]
+      },
+      "slots": [
+        "hand"
+      ],
+      "max_cost": {
+        "base": 20,
+        "per_level_above_first": 0
+      },
+      "min_cost": {
+        "base": 5,
+        "per_level_above_first": 0
+      },
+      "special": {
+        "cooldown": 6,
+        "display_limit": "level_limit",
+        "cooldown_after_limit": "level_limit"
+      }
+    }
+  ],
+  "description": {
+    "text": "Special Level Limit Test"
+  },
+  "supported_items": "#minecraft:enchantable/weapon",
+  "weight": 2
+}

@@ -1,0 +1,79 @@
+{
+  "type": "vsq:enchanting",
+  "category": "weapons",
+  "description": {
+    "translate": "vsq.enchantment.riptide.description"
+  },
+  "group": "trident",
+  "icon": {
+    "id": "minecraft:trident",
+    "components": {
+      "minecraft:custom_name": {
+        "translate": "enchantment.minecraft.riptide",
+        "color": "white",
+        "italic": false
+      },
+      "minecraft:enchantment_glint_override": true,
+      "minecraft:tooltip_display": {
+        "hidden_components": [
+          "vsq:enchantment",
+          "minecraft:attribute_modifiers"
+        ]
+      }
+    }
+  },
+  "material": {
+    "item": "minecraft:lapis_lazuli",
+    "count": {
+      "type": "minecraft:linear",
+      "base": 3,
+      "per_level_above_first": 3
+    }
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:water_bucket",
+      "count": 1
+    },
+    {
+      "item": "minecraft:prismarine_crystals",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
+    },
+    {
+      "item": "minecraft:prismarine_shard",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 1
+      }
+    },
+    {
+      "item": "minecraft:firework_rocket",
+      "count": {
+        "type": "minecraft:linear",
+        "base": 2,
+        "per_level_above_first": 2
+      }
+    }
+  ],
+  "enchantment": "minecraft:riptide",
+  "blocks": [
+    {
+      "count": {
+        "type": "minecraft:linear",
+        "base": 3,
+        "per_level_above_first": 3
+      },
+      "block": "#vsq:enchantment_blocks"
+    }
+  ],
+  "level": {
+    "type": "minecraft:linear",
+    "base": 6,
+    "per_level_above_first": 3
+  }
+}

@@ -4,7 +4,7 @@
     "#minecraft:axes",
     "#minecraft:enchantable/trident",
     "#minecraft:enchantable/mace",
-    "#vsq:enchanting/ranged_weapon",
+    "#vsq:enchantable/ranged_weapon",
     "#minecraft:enchantable/crossbow"
   ]
 }

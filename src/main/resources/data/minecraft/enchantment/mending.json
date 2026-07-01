@@ -3,7 +3,7 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
+        "type": "item",
         "item": "#minecraft:enchantable/durability"
       },
       "enchantment_slot": "util",
@@ -14,7 +14,9 @@
             "effect": {
               "type": "minecraft:multiply",
               "factor": 2
-            }
+            },
+            "id": "minecraft_repair_with_xp_0",
+            "effect_id": "minecraft_repair_with_xp_0"
           }
         ]
       },

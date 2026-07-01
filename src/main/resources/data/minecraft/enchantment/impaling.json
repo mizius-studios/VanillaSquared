@@ -3,8 +3,8 @@
   "profiles": [
     {
       "requirement": {
-        "type": "ITEM",
-        "item": "#vsq:enchanting/weapon"
+        "type": "item",
+        "item": "#vsq:enchantable/weapon"
       },
       "enchantment_slot": "damage",
       "exclusive_set": "#minecraft:exclusive_set/damage",
@@ -24,9 +24,11 @@
               "condition": "minecraft:entity_properties",
               "entity": "this",
               "predicate": {
-                "type": "#minecraft:sensitive_to_impaling"
+                "entity_type": "#minecraft:sensitive_to_impaling"
               }
-            }
+            },
+            "id": "minecraft_damage_0",
+            "effect_id": "minecraft_damage_0"
           }
         ]
       },

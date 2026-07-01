@@ -1,8 +1,0 @@
-{
-  "replace": false,
-  "values": [
-    "#vsq:enchanting/melee_weapon",
-    "#vsq:enchanting/ranged_weapon",
-    "#minecraft:enchantable/mace"
-  ]
-}

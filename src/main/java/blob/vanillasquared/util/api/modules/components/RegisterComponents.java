@@ -1,32 +1,31 @@
 package blob.vanillasquared.util.api.modules.components;
 
 import blob.vanillasquared.main.VanillaSquared;
-import blob.vanillasquared.main.world.item.components.enchantment.VSQEnchantmentComponent;
+import blob.vanillasquared.main.world.item.enchantment.VSQEnchantmentComponent;
 import blob.vanillasquared.main.world.item.components.hitthrough.HitThroughComponent;
-import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.crafting.Recipe;
 
 public final class RegisterComponents {
-    public static final DataComponentType<VSQEnchantmentComponent> enchantmentComponent = Registry.register(
-            BuiltInRegistries.DATA_COMPONENT_TYPE,
+    public static final DataComponentType<VSQEnchantmentComponent> enchantmentComponent = ComponentRegistry.registerSynchronizedCached(
             Identifier.fromNamespaceAndPath(VanillaSquared.MOD_ID, "enchantment"),
-            DataComponentType.<VSQEnchantmentComponent>builder()
-                    .persistent(VSQEnchantmentComponent.CODEC.codec())
-                    .networkSynchronized(VSQEnchantmentComponent.STREAM_CODEC)
-                    .cacheEncoding()
-                    .build()
+            VSQEnchantmentComponent.CODEC.codec(),
+            VSQEnchantmentComponent.STREAM_CODEC
     );
 
-    public static final DataComponentType<HitThroughComponent> hitThroughComponent = Registry.register(
-            BuiltInRegistries.DATA_COMPONENT_TYPE,
+    public static final DataComponentType<HitThroughComponent> hitThroughComponent = ComponentRegistry.registerSynchronizedCached(
             Identifier.fromNamespaceAndPath(VanillaSquared.MOD_ID, "hit_through"),
-            DataComponentType.<HitThroughComponent>builder()
-                    .persistent(HitThroughComponent.CODEC)
-                    .networkSynchronized(HitThroughComponent.STREAM_CODEC)
-                    .cacheEncoding()
-                    .build()
+            HitThroughComponent.CODEC,
+            HitThroughComponent.STREAM_CODEC
+    );
+
+    public static final DataComponentType<ResourceKey<Recipe<?>>> enchantRecipeComponent = ComponentRegistry.registerSynchronizedCached(
+            Identifier.fromNamespaceAndPath(VanillaSquared.MOD_ID, "enchant_recipe"),
+            ResourceKey.codec(Registries.RECIPE),
+            ResourceKey.streamCodec(Registries.RECIPE)
     );
 
     private RegisterComponents() {

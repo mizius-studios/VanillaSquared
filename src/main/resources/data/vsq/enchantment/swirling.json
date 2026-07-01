@@ -1,0 +1,89 @@
+{
+  "anvil_cost": 4,
+  "profiles": [
+    {
+      "requirement": {
+        "type": "item",
+        "item": "#vsq:enchantable/swirling"
+      },
+      "enchantment_slot": "special",
+      "max_level": 1,
+      "effects": {
+        "vsq:swirling": [
+          {
+            "affected": "attacker",
+            "enchanted": "attacker",
+            "effect": {
+              "type": "vsq:begin_swirling",
+              "duration": 4,
+              "warmup_duration": 0.4,
+              "radius": 3.5,
+              "hit_interval": 4,
+              "damage": {
+                "damage_type": "vsq:swirled",
+                "amount": 6.5
+              }
+            },
+            "effect_id": "vsq_swirling_use",
+            "special": {
+              "limit": 1
+            }
+          },
+          {
+            "effect": {
+              "type": "minecraft:apply_mob_effect",
+              "max_amplifier": 3,
+              "max_duration": 10,
+              "min_amplifier": 3,
+              "min_duration": 10,
+              "to_apply": "minecraft:slowness"
+            },
+            "affected": "attacker",
+            "enchanted": "attacker",
+            "effect_id": "vsq_swirling_slowness",
+            "special": {
+              "limit": 1
+            }
+          },
+          {
+            "effect": {
+              "type": "minecraft:apply_mob_effect",
+              "max_amplifier": 1,
+              "max_duration": 6,
+              "min_amplifier": 1,
+              "min_duration": 6,
+              "to_apply": "minecraft:weakness"
+            },
+            "affected": "attacker",
+            "enchanted": "attacker",
+            "effect_id": "vsq_swirling_weakness",
+            "special": {
+              "limit": 1
+            }
+          }
+        ]
+      },
+      "slots": [
+        "mainhand"
+      ],
+      "max_cost": {
+        "base": 35,
+        "per_level_above_first": 0
+      },
+      "min_cost": {
+        "base": 15,
+        "per_level_above_first": 0
+      },
+      "special": {
+        "cooldown": 8,
+        "display_limit": "vsq_swirling_use"
+      }
+    }
+  ],
+  "description": {
+    "translate": "enchantment.vsq.swirling"
+  },
+  "primary_items": "#vsq:enchantable/swirling",
+  "supported_items": "#vsq:enchantable/swirling",
+  "weight": 2
+}

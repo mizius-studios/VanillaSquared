@@ -1,7 +1,7 @@
 package blob.vanillasquared.main.world.recipe.enchanting;
 
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
