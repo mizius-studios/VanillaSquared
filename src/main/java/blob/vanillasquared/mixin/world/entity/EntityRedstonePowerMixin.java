@@ -49,6 +49,11 @@ public abstract class EntityRedstonePowerMixin implements VSQEntityRedstonePower
         return this.vsq$redstonePower;
     }
 
+    @Override
+    public void vsq$setRedstonePower(int power) {
+        this.vsq$redstonePower = Mth.clamp(power, 0, 15);
+    }
+
     @Inject(method = "tick", at = @At("TAIL"))
     private void vsq$tickEntityRedstonePower(CallbackInfo ci) {
         Entity entity = (Entity) (Object) this;

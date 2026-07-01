@@ -2,6 +2,7 @@ package blob.vanillasquared.mixin.world.entity.entities;
 
 import blob.vanillasquared.main.world.entity.SulfurCubeBreedingState;
 import blob.vanillasquared.main.world.item.VSQItems;
+import blob.vanillasquared.main.world.redstone.VSQEntityRedstonePowerAccess;
 import blob.vanillasquared.mixin.world.entity.CubeMobMoveControlAccessor;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -11,12 +12,14 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.TemptGoal;
 import net.minecraft.world.entity.monster.cubemob.SulfurCube;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gamerules.GameRules;
@@ -90,6 +93,11 @@ public abstract class SulfurCubeMixin extends AgeableMob implements SulfurCubeBr
     }
 
     @Inject(method = "customServerAiStep", at = @At("TAIL"))
+    private void vsq$updateRedstonePower(ServerLevel level, CallbackInfo ci) {
+        this.vsq$setRedstonePowerForContent();
+    }
+
+    @Inject(method = "customServerAiStep", at = @At("TAIL"))
     private void vsq$tickBreeding(ServerLevel level, CallbackInfo ci) {
         if (this.getAge() != 0) {
             this.vsq$resetLove();
@@ -127,6 +135,13 @@ public abstract class SulfurCubeMixin extends AgeableMob implements SulfurCubeBr
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
     private void vsq$loadBreedingState(ValueInput input, CallbackInfo ci) {
         this.vsq$inLove = input.getIntOr("VSQInLove", 0);
+        this.vsq$setRedstonePowerForContent();
+    }
+
+    @Unique
+    private void vsq$setRedstonePowerForContent() {
+        ItemStack bodyItem = this.getItemBySlot(EquipmentSlot.BODY);
+        ((VSQEntityRedstonePowerAccess) this).vsq$setRedstonePower(bodyItem.is(Items.REDSTONE_BLOCK) ? 15 : 0);
     }
 
     @Override
