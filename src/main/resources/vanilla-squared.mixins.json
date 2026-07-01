@@ -17,6 +17,7 @@
     "world.block.SulfurSpikeBlockMixin",
     "world.dmgsources.CombatRulesMixin",
     "world.entity.EntityFlagsPredicateMixin",
+    "world.entity.EntityRedstonePowerMixin",
     "world.entity.CubeMobMoveControlAccessor",
     "world.entity.LivingEntityAccessor",
     "world.entity.LivingEntityAttributesMixin",
@@ -55,7 +56,8 @@
     "world.loot.LootItemEntityPropertyConditionMixin",
     "world.entity.entities.FishingRodHookMixin",
     "world.entity.entities.PlayerMixin",
-    "world.entity.entities.SulfurCubeMixin"
+    "world.entity.entities.SulfurCubeMixin",
+    "world.redstone.SignalGetterMixin"
   ],
   "injectors": {
     "defaultRequire": 1
